@@ -112,7 +112,7 @@ export function MapSection() {
         <div className="relative z-10 flex flex-col items-center">
           <div className="relative flex items-center justify-center">
             <span className="absolute w-12 h-12 rounded-full bg-secondary/30 animate-ping" />
-            <div className="w-10 h-10 rounded-2xl bg-secondary text-white shadow-2xl flex items-center justify-center font-bold relative z-10">
+            <div className="w-10 h-10 rounded-2xl bg-secondary text-secondary-foreground shadow-2xl flex items-center justify-center font-bold relative z-10">
               <MapPin className="w-5 h-5 fill-current" />
             </div>
           </div>

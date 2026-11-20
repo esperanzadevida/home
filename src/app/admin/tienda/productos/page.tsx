@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Edit3, Trash2, AlertTriangle, CheckCircle, Package } from "lucide-react";
+import Image from "next/image";
+import { Plus, Search, Edit3, Trash2, AlertTriangle, CheckCircle } from "lucide-react";
 import { MOCK_PRODUCTS } from "@/constants/data";
 import { Button } from "@/components/ui/button";
 
 export default function AdminProductosPage() {
-  const [products, setProducts] = useState(MOCK_PRODUCTS);
+  const [products] = useState(MOCK_PRODUCTS);
   const [searchTerm, setSearchTerm] = useState("");
 
   const filtered = products.filter(
@@ -68,9 +69,11 @@ export default function AdminProductosPage() {
                 <tr key={prod.id} className="hover:bg-muted/30 transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <img
+                      <Image
                         src={prod.coverImage}
                         alt={prod.name}
+                        width={40}
+                        height={40}
                         className="w-10 h-10 rounded-lg object-cover border border-border"
                       />
                       <div>

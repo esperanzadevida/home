@@ -1,6 +1,6 @@
 # Estructura prevista de Home y video — Doménica
 
-**Estado:** arquitectura editorial para una fase posterior. La portada existente no se ha cambiado y el video aún no se ha producido.
+**Estado al 2026-11-19:** Home rediseñada con imagen estática local y datos editoriales centrales. El video de fondo, su storyboard y el asset final siguen aplazados.
 
 ## Propósito de la portada
 
@@ -8,15 +8,13 @@ Ayudar a alguien que todavía no conoce la iglesia a entender rápidamente quié
 
 ## Recorrido propuesto
 
-1. **Hero de bienvenida.** Video ambiental a pantalla completa con poster, nombre y lema. CTA principal a `/servicios`; CTA secundario a `/nosotros`. La copia se mantiene en HTML, separada del archivo de video.
-2. **Próximo encuentro.** Horarios semanales tomados de `churchProfile`, con enlace directo a ubicación y primera visita.
-3. **Una comunidad para cada generación.** Introducción breve a la historia, misión y vida comunitaria; enlace a `/nosotros`.
-4. **Mensajes para la semana.** Hasta tres sermones del contenido editorial; enlace a `/sermones`.
-5. **Agenda próxima.** Hasta tres encuentros ordenados por fecha; enlace a `/eventos`.
-6. **Encuentra tu espacio.** Una selección de ministerios y edades; enlace a `/ministerios`.
-7. **Fe que se convierte en cuidado.** Una invitación breve a conocer la oración, el servicio y la generosidad, sin introducir pagos, peticiones o formularios que todavía no tengan operación conectada.
-8. **Ven a conocernos.** Dirección y vías de contacto de `churchProfile`; enlace a `/contacto` y `/servicios`. El mapa se añade cuando exista una ubicación comprobada.
-9. **Footer compartido.** Se conserva el footer del layout público, con horarios, contacto, rutas y redes de la misma fuente central.
+1. **Hero de bienvenida.** Imagen estática local, titular en HTML, lema, CTA a `/servicios` y `/nosotros`, y horarios de `churchProfile`.
+2. **Una comunidad para caminar juntos.** Tres ideas editoriales de comunidad, fe cotidiana y servicio.
+3. **Mensaje reciente.** Primer mensaje de `sermonDetails`, enlazado a su ficha y al índice `/sermones`.
+4. **Próximos encuentros.** Hasta tres eventos de `eventDetails`, con fecha, resumen y enlace a `/eventos`.
+5. **Vida en comunidad.** Tres ministerios de `publicPageBlueprints`, enlazados a `/ministerios`.
+6. **Ven a conocernos.** Ciudad, dirección y horario dominical de `churchProfile`, con CTA a `/servicios`.
+7. **Footer compartido.** Se conserva el footer del layout público, con horarios, contacto, rutas y redes de la misma fuente central.
 
 No se necesita publicar en Home cifras, testimonios, mapas, cuentas bancarias ni transiciones de servicio que no estén respaldados por contenido o integraciones funcionales. Cada bloque debe reutilizar las rutas y datos centrales, sin otra copia independiente de horarios, eventos o perfiles.
 
@@ -39,14 +37,21 @@ Idea de trabajo: **llegar, encontrar un lugar, compartir y servir**. La secuenci
 - Probar teclado, contraste de la copia sobre el peor fotograma, controles de movimiento reducido, carga con el video ausente y tamaños de teléfono/escritorio.
 - No pedir créditos ni enviar material a un generador hasta elegir herramienta, comprobar costo y revisar el storyboard.
 
-## Criterios para abrir esta fase
+## Estado de implementación local
 
-1. Cerrar primero el contenido interior y mantener un perfil editorial canónico.
-2. Confirmar la ruta principal y el texto final de Home con Nicola.
-3. Preparar el storyboard y el paquete de diseño antes de producir imágenes/video.
-4. Revisar el poster y cada segmento antes de incorporarlo.
-5. Integrar la Home, hacer el recorrido de calidad local y solicitar revisión visual antes de publicación.
+- La Home dejó de usar `CHURCH_INFO`, tarjetas de datos de muestra, mapa simulado, contadores y publicaciones personales de oración. Ahora comparte perfil, eventos, sermones y ministerios con las páginas interiores.
+- La portada usa `next/image` con carga prioritaria y un diseño que funciona sin video. El archivo de imagen existente es conceptual; su procedencia y permiso siguen sin comprobarse.
+- Los metadatos públicos de `/` usan `createPageMetadata`; la ruta se añade al sitemap de producción y local/preview continúa sin indexación según la configuración existente.
+- La revisión visual se hizo a 390 px y 412 px en móvil y 1440 px en escritorio; no se observó desbordamiento horizontal. Se comprobó la lectura en modo claro y oscuro. El recorrido amplio de teclado/lector y la aprobación del origen de la imagen siguen pendientes.
+
+## Siguiente fase de video
+
+1. Cerrar y revisar storyboard antes de producir imágenes o video.
+2. Seleccionar herramientas y assets, confirmando costos y permisos.
+3. Preparar un poster legible que pueda usarse como portada estática.
+4. Integrar el video solo si mejora el relato y conserva una alternativa accesible sin movimiento.
+5. Revisar teclado, contraste, movimiento reducido, carga sin video y tamaños móvil/escritorio.
 
 ## Datos de código que habrá que reconciliar
 
-La Home actual consume `CHURCH_INFO` y datos de muestra en `src/constants/data.ts`, que no coinciden con el perfil editorial central ni con las rutas interiores. Cuando Nicola autorice abrir esta fase, migrar esos módulos de manera dirigida a `src/config/church-profile.ts` y las colecciones editoriales reutilizables. La nota y el plan de discrepancias ya están en `docs/PLAN-MAESTRO.md`. No editar la Home durante el cierre actual de páginas interiores.
+`src/constants/data.ts` conserva datos de muestra usados en prototipos administrativos, pero la Home ya no los consume. No retirar esas constantes sin revisar las demás rutas que puedan depender de ellas.

@@ -63,7 +63,7 @@ blog_posts
 ├── excerpt (text, nullable)
 ├── cover_image (text, nullable)
 ├── author_id (uuid, FK → profiles.id)
-├── category_id (uuid, FK → blog_categories.id)
+├── category_id (uuid, nullable, FK → blog_categories.id, ON DELETE SET NULL)
 ├── tags (text[])
 ├── status (enum: draft, published, archived)
 ├── published_at (timestamptz, nullable)
@@ -88,7 +88,7 @@ sermons
 ├── slug (text, unique)
 ├── description (text, nullable)
 ├── content (jsonb, nullable)  -- notas del sermón
-├── pastor_id (uuid, FK → profiles.id)
+├── pastor_id (uuid, nullable, FK → profiles.id, ON DELETE SET NULL)
 ├── series_id (uuid, FK → sermon_series.id, nullable)
 ├── audio_url (text, nullable)
 ├── video_url (text, nullable)
@@ -110,7 +110,7 @@ sermon_series
 ├── cover_image (text, nullable)
 ├── start_date (date)
 ├── end_date (date, nullable)
-├── status (enum: active, completed)
+├── status (text, default 'active'; no enum/check constraint in the migration)
 └── created_at (timestamptz)
 ```
 
@@ -124,7 +124,8 @@ events
 ├── content (jsonb, nullable)
 ├── cover_image (text, nullable)
 ├── location (text, nullable)
-├── location_coordinates (point, nullable)  -- para MapLibre
+├── latitude (double precision, nullable)  -- coordenadas para MapLibre
+├── longitude (double precision, nullable)
 ├── start_date (timestamptz)
 ├── end_date (timestamptz, nullable)
 ├── recurrence (jsonb, nullable)  -- reglas de recurrencia
@@ -132,7 +133,7 @@ events
 ├── max_attendees (integer, nullable)
 ├── registration_required (boolean, default false)
 ├── status (enum: draft, published, cancelled, completed)
-├── created_by (uuid, FK → profiles.id)
+├── created_by (uuid, nullable, FK → profiles.id, ON DELETE SET NULL)
 ├── created_at (timestamptz)
 └── updated_at (timestamptz)
 
@@ -189,7 +190,7 @@ products
 ├── cost_price (decimal(10,2), nullable)
 ├── sku (text, nullable)
 ├── barcode (text, nullable)
-├── category_id (uuid, FK → product_categories.id)
+├── category_id (uuid, nullable, FK → product_categories.id, ON DELETE SET NULL)
 ├── images (text[])
 ├── stock_quantity (integer, default 0)
 ├── track_inventory (boolean, default true)
@@ -246,7 +247,7 @@ donations
 ├── type (enum: tithe, offering, special, missions, building)
 ├── payment_method (text)
 ├── payment_reference (text, nullable)
-├── status (enum: pending, completed, failed, refunded)
+├── status (payment_status_enum: pending, paid, failed, refunded)
 ├── is_anonymous (boolean, default false)
 ├── notes (text, nullable)
 ├── created_at (timestamptz)
@@ -263,6 +264,7 @@ prayer_requests
 ├── is_public (boolean, default false)
 ├── is_answered (boolean, default false)
 ├── status (enum: pending, praying, answered)
+├── prayers_count (integer, NOT NULL, default 0)
 ├── created_at (timestamptz)
 └── updated_at (timestamptz)
 ```
@@ -288,11 +290,12 @@ site_settings
 ├── id (uuid, PK)
 ├── key (text, unique)
 ├── value (jsonb)
-├── updated_by (uuid, FK → profiles.id)
+├── updated_by (uuid, nullable, FK → profiles.id, ON DELETE SET NULL)
 └── updated_at (timestamptz)
 
--- Keys: church_name, church_address, church_phone, church_email,
---        service_times, social_links, hero_content, about_content, etc.
+-- RLS permite lectura pública únicamente de las claves:
+-- church_profile, service_times, social_links.
+-- Esta allowlist limita la lectura pública, no los valores almacenables.
 ```
 
 ### Media / Archivos
@@ -306,8 +309,16 @@ media
 ├── url (text)
 ├── storage_path (text)
 ├── alt_text (text, nullable)
-├── uploaded_by (uuid, FK → profiles.id)
+├── uploaded_by (uuid, nullable, FK → profiles.id, ON DELETE SET NULL)
 ├── folder (text, nullable)
 ├── created_at (timestamptz)
 └── updated_at (timestamptz)
 ```
+
+## Límites de acceso definidos por RLS
+
+- `site_settings`: la lectura pública está limitada a `church_profile`, `service_times` y `social_links`; administradores o editores autorizados pueden leer y gestionar toda la tabla.
+- `prayer_requests`: `is_public = true` no hace que una petición sea públicamente legible. La migración solo permite SELECT y UPDATE a administradores o editores autorizados; no define una política de INSERT para visitantes o usuarios autenticados.
+- `event_registrations`: solo permite SELECT a administradores o editores autorizados; no define una política de INSERT para registrar asistentes.
+
+Los envíos de peticiones de oración e inscripciones requieren un flujo de servidor revisado antes de habilitarse. Las columnas `is_public` y `registration_required` no conceden acceso por sí solas.

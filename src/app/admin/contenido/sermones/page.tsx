@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Video, Edit3, Trash2, Eye } from "lucide-react";
+import Image from "next/image";
+import { Plus, Search, Edit3, Trash2, Eye } from "lucide-react";
 import { MOCK_SERMONS } from "@/constants/data";
 import { Button } from "@/components/ui/button";
 
@@ -29,6 +30,26 @@ export default function AdminSermonesPage() {
         </Button>
       </div>
 
+      <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4">
+        <div className="relative w-full sm:w-80">
+          <Search aria-hidden="true" className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <label htmlFor="admin-sermon-search" className="sr-only">
+            Buscar sermones por título
+          </label>
+          <input
+            id="admin-sermon-search"
+            type="search"
+            placeholder="Buscar por título..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="h-10 w-full rounded-xl border border-input bg-background pl-9 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary sm:text-sm"
+          />
+        </div>
+        <span className="shrink-0 text-xs font-semibold text-muted-foreground">
+          {filtered.length} de {sermons.length} sermones
+        </span>
+      </div>
+
       <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
         <table className="w-full text-left text-xs">
           <thead className="bg-muted/50 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider">
@@ -46,9 +67,11 @@ export default function AdminSermonesPage() {
               <tr key={s.id} className="hover:bg-muted/30 transition-colors">
                 <td className="p-4">
                   <div className="flex items-center gap-3">
-                    <img
+                    <Image
                       src={s.coverImage}
                       alt={s.title}
+                      width={48}
+                      height={32}
                       className="w-12 h-8 rounded-lg object-cover border border-border"
                     />
                     <div>

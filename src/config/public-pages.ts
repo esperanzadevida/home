@@ -25,12 +25,16 @@ export type PublicPageCard = {
   description: string;
   meta?: string;
   href?: string;
+  actionLabel?: string;
+  icon?: "location" | "phone" | "email" | "instagram" | "facebook" | "youtube";
   visual?: "gathering" | "generations" | "service";
   filterValues?: Record<string, string>;
   sortDate?: string;
   sortPrice?: number;
   sortWeight?: number;
   featured?: boolean;
+  imageSrc?: string;
+  imageAlt?: string;
   calendarDate?: string;
   calendarCategory?: string;
   meeting?: string;
@@ -42,6 +46,7 @@ export type PublicPageSection = {
   title: string;
   intro?: string;
   explorer?: "sermons" | "events" | "blog" | "shop" | "ministries";
+  presentation?: "numbered-list" | "contact-methods" | "social-profiles" | "callout";
   source?: { label: string; href: string; note?: string };
   cards: PublicPageCard[];
 };
@@ -51,6 +56,10 @@ export type PublicPageBlueprint = {
   eyebrow: string;
   intro: string;
   action?: { label: string; href: string };
+  closingCta?: boolean;
+  compactHero?: boolean;
+  compactSections?: boolean;
+  heroNote?: { eyebrow: string; title: string; description: string };
   faq?: { question: string; answer: string }[];
   sections: PublicPageSection[];
 };
@@ -180,6 +189,7 @@ export const publicPageBlueprints = {
       {
         eyebrow: "Declaración de fe",
         title: "Dieciséis verdades fundamentales",
+        presentation: "numbered-list",
         intro:
           "Estos resúmenes presentan convicciones centrales de la tradición pentecostal de las Asambleas de Dios y sus referencias bíblicas.",
         source: {
@@ -197,6 +207,12 @@ export const publicPageBlueprints = {
     eyebrow: "Planifica tu visita",
     intro:
       "Nos reunimos durante la semana para celebrar, aprender y acompañarnos. Elige el encuentro que mejor se adapte a tu ritmo.",
+    heroNote: {
+      eyebrow: "Tu primera visita",
+      title: "Ven con calma",
+      description:
+        "No necesitas inscribirte; el equipo de bienvenida puede orientarte al llegar.",
+    },
     faq: [
       {
         question: "¿Qué ocurre en una primera visita?",
@@ -652,6 +668,7 @@ export const publicPageBlueprints = {
     ],
   },
   galeria: {
+    compactHero: true,
     title: "Momentos que compartimos",
     eyebrow: "Galería · Vida en comunidad",
     intro:
@@ -660,16 +677,18 @@ export const publicPageBlueprints = {
     sections: [
       {
         eyebrow: "Álbumes",
-        title: "Nuestra vida en imágenes",
+        title: "Imágenes de nuestra comunidad",
         intro:
-          "Cada álbum reúne una parte de la vida de la iglesia: la música, las conversaciones y el servicio en comunidad.",
+          "La música, las conversaciones y el servicio aparecen en momentos cotidianos que compartimos como comunidad.",
         cards: [
           {
             eyebrow: "Encuentros",
             title: "Domingos para compartir",
             description:
               "Celebraciones y conversaciones alrededor de la fe, la música y la bienvenida.",
-            meta: "Comunidad · 2026",
+            meta: "Encuentros dominicales · 2026",
+            imageSrc: "/images/gallery/domingos-para-compartir.png",
+            imageAlt: "Personas se saludan durante un encuentro dominical de la Iglesia Doménica.",
             visual: "gathering",
           },
           {
@@ -678,6 +697,8 @@ export const publicPageBlueprints = {
             description:
               "Actividades de Exploradores y Embajadores que invitan a aprender, crear y compartir.",
             meta: "Generaciones · 2026",
+            imageSrc: "/images/gallery/aprender-en-cada-etapa.png",
+            imageAlt: "Niñas, jóvenes y adultos comparten una actividad creativa alrededor de una mesa.",
             visual: "generations",
           },
           {
@@ -686,6 +707,8 @@ export const publicPageBlueprints = {
             description:
               "Jornadas de servicio y pequeños gestos que conectan a la comunidad con su entorno.",
             meta: "Servicio · 2026",
+            imageSrc: "/images/gallery/servir-en-comunidad.png",
+            imageAlt: "Personas colaboran en una jornada de ayuda comunitaria en Ambato.",
             visual: "service",
           },
         ],
@@ -697,6 +720,14 @@ export const publicPageBlueprints = {
     eyebrow: "Contacto · Ambato",
     intro:
       "Si quieres visitarnos, conversar con el equipo o saber qué encuentro puede servirte, aquí tienes la información para acercarte.",
+    closingCta: false,
+    compactSections: true,
+    heroNote: {
+      eyebrow: "Contacto y visitas",
+      title: "Te recibimos en Ficoa",
+      description:
+        "Llámanos o escríbenos antes de venir. Con gusto te orientamos sobre el mejor encuentro para ti.",
+    },
     faq: [
       {
         question: "¿En qué sector está la iglesia?",
@@ -721,8 +752,10 @@ export const publicPageBlueprints = {
         title: "Iglesia Doménica en Ambato",
         intro:
           "Estamos en el sector Ficoa. Puedes llegar a cualquiera de nuestros encuentros semanales; el equipo de bienvenida estará en la entrada.",
+        presentation: "contact-methods",
         cards: [
           {
+            icon: "location",
             eyebrow: "Dirección",
             title: "Sector Ficoa",
             description:
@@ -730,18 +763,24 @@ export const publicPageBlueprints = {
             meta: "Ecuador",
           },
           {
-            eyebrow: "Teléfono y WhatsApp",
+            icon: "phone",
+            eyebrow: "Teléfono",
             title: churchProfile.phone,
             description:
               "Atención de lunes a viernes, de 09:00 a 17:00.",
             meta: "Equipo de bienvenida",
+            href: "tel:+593992463817",
+            actionLabel: "Llamar ahora",
           },
           {
+            icon: "email",
             eyebrow: "Correo",
             title: churchProfile.email,
             description:
               "Para consultas generales, ministerios y visitas de grupo.",
             meta: "Respondemos durante la semana",
+            href: `mailto:${churchProfile.email}`,
+            actionLabel: "Escribir correo",
           },
         ],
       },
@@ -750,18 +789,22 @@ export const publicPageBlueprints = {
         title: "Sigamos en contacto",
         intro:
           "Compartimos novedades, reflexiones y momentos de la comunidad durante la semana.",
+        presentation: "social-profiles",
         cards: [
           {
+            icon: "instagram",
             title: "Instagram",
             description: churchProfile.socialHandles[0].handle,
             meta: "Reflexiones y comunidad",
           },
           {
+            icon: "facebook",
             title: "Facebook",
             description: churchProfile.socialHandles[1].handle,
             meta: "Agenda y novedades",
           },
           {
+            icon: "youtube",
             title: "YouTube",
             description: churchProfile.socialHandles[2].handle,
             meta: "Mensajes y encuentros",
@@ -807,12 +850,15 @@ export const publicPageBlueprints = {
         title: "Conversa con el equipo durante un encuentro",
         intro:
           "Por ahora, la información y recepción de aportes se realizan en persona. No compartimos datos bancarios ni procesamos pagos desde esta página.",
+        presentation: "callout",
         cards: [
           {
             title: "¿Tienes preguntas?",
             description:
               "El equipo pastoral puede explicarte los propósitos comunitarios y responder tus consultas con claridad.",
             meta: "Domingos · 09:00 y 11:30",
+            href: "/contacto",
+            actionLabel: "Contactar al equipo",
           },
         ],
       },

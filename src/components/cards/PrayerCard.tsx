@@ -41,7 +41,7 @@ export function PrayerCard({ prayer }: PrayerCardProps) {
         </div>
 
         <p className="text-sm text-foreground/90 italic leading-relaxed">
-          "{prayer.request}"
+          “{prayer.request}”
         </p>
       </div>
 

@@ -25,14 +25,14 @@ export function MoreNavigation() {
       </summary>
       <nav
         aria-label="Más secciones"
-        className="absolute right-0 top-[calc(100%+0.6rem)] z-50 w-56 rounded-2xl border border-border bg-background p-2 shadow-xl"
+        className="absolute right-0 top-[calc(100%+0.6rem)] z-50 w-56 rounded-none border border-border bg-background p-2"
       >
         <ul className="grid gap-1">
           {moreNavigation.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="flex min-h-10 items-center rounded-xl px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex min-h-10 items-center rounded-none px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {item.label}
               </Link>

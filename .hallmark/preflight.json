@@ -1,0 +1,22 @@
+{
+  "scanned": "2026-11-19",
+  "findings": {
+    "fonts": "System UI stack in src/styles/globals.css:115-120; no local font files; Next.js next/font available.",
+    "palette": "Semantic light and dark CSS variables in src/styles/globals.css:31-112; institutional blue and gold.",
+    "motion": "Framer Motion 11 in package.json; global prefers-reduced-motion handling in src/styles/globals.css:122-131.",
+    "spacing": "Tailwind CSS 4 utilities; no project-specific spacing scale found.",
+    "framework": "Next.js 15 App Router and React 19 in package.json."
+  },
+  "preserve": [
+    "Existing public routes, links, and content data sources.",
+    "Public navigation and theme toggle.",
+    "Institutional blue and gold, with light and dark theme support.",
+    "Existing local work outside the Home and public shell."
+  ],
+  "introduce": [
+    "Hallmark Editorial typography, paper and rule tokens adapted to the existing blue and gold palette.",
+    "Photographic poster hero, ministry rail, editorial rows, dated agenda, credited lead photograph, and visit close.",
+    "Visible prototype disclosure for unverified public details and images.",
+    "No scroll reveal or decorative motion."
+  ]
+}

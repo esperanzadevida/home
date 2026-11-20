@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Heart, TrendingUp, DollarSign, Download, Filter, Search, User } from "lucide-react";
+import { Heart, TrendingUp, DollarSign, Download, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DonationRecord {

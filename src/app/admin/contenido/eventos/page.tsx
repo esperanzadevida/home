@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Calendar, MapPin, Users, Edit3, Trash2 } from "lucide-react";
+import Image from "next/image";
+import { Plus, Search, Users, Edit3, Trash2 } from "lucide-react";
 import { MOCK_EVENTS } from "@/constants/data";
 import { Button } from "@/components/ui/button";
 
@@ -60,9 +61,11 @@ export default function AdminEventosPage() {
               <tr key={e.id} className="hover:bg-muted/30 transition-colors">
                 <td className="p-4">
                   <div className="flex items-center gap-3">
-                    <img
+                    <Image
                       src={e.coverImage}
                       alt={e.title}
+                      width={48}
+                      height={32}
                       className="w-12 h-8 rounded-lg object-cover border border-border shrink-0"
                     />
                     <div className="font-bold text-foreground text-sm line-clamp-1">

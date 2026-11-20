@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { RotateCw, ZoomIn, ZoomOut, Check, Crop, Sliders } from "lucide-react";
+import Image from "next/image";
+import { RotateCw, ZoomIn, Check, Crop, Sliders } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function ImageEditorDemo() {
@@ -42,9 +43,11 @@ export function ImageEditorDemo() {
 
       {/* Canvas / Preview con Transformaciones */}
       <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-black flex items-center justify-center border border-border/60">
-        <img
+        <Image
           src="/images/hero/hero-cinematic-main.jpg"
           alt="Preview de Edición"
+          width={1600}
+          height={900}
           className="max-h-full object-contain transition-transform duration-200"
           style={{
             transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,

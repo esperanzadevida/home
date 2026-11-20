@@ -1,11 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { Product } from "@/types";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import type { Product } from "@/types";
+
+export type CartProduct = Pick<Product, "id" | "name" | "price" | "coverImage" | "category">;
 
 export interface CartItem {
-  product: Product;
+  product: CartProduct;
   quantity: number;
+  variant?: string;
 }
 
 interface CartContextType {
@@ -14,83 +17,181 @@ interface CartContextType {
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
-  addItem: (product: Product, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addItem: (product: CartProduct, quantity?: number, variant?: string) => void;
+  removeItem: (productId: string, variant?: string) => void;
+  updateQuantity: (productId: string, quantity: number, variant?: string) => void;
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
 }
 
+const CART_STORAGE_KEY = "domenica_church_cart";
+const LEGACY_CART_STORAGE_KEY = "domenica-cart-v1";
+const MAX_QUANTITY = 20;
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+function isCartItem(value: unknown): value is CartItem {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<CartItem>;
+  const product = candidate.product;
+
+  return Boolean(
+    product &&
+      typeof product.id === "string" &&
+      typeof product.name === "string" &&
+      typeof product.price === "number" &&
+      typeof product.coverImage === "string" &&
+      typeof product.category === "string" &&
+      typeof candidate.quantity === "number" &&
+      Number.isInteger(candidate.quantity) &&
+      candidate.quantity > 0,
+  );
+}
+
+function parseCart(raw: string | null): CartItem[] {
+  if (!raw) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter(isCartItem) : [];
+  } catch {
+    return [];
+  }
+}
+
+function migrateLegacyCart(raw: string | null): CartItem[] {
+  if (!raw) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.flatMap((value): CartItem[] => {
+      if (!value || typeof value !== "object") return [];
+      const item = value as {
+        productId?: unknown;
+        title?: unknown;
+        unitPrice?: unknown;
+        quantity?: unknown;
+        variant?: unknown;
+      };
+
+      if (
+        typeof item.productId !== "string" ||
+        typeof item.title !== "string" ||
+        typeof item.unitPrice !== "number" ||
+        typeof item.quantity !== "number" ||
+        !Number.isInteger(item.quantity) ||
+        item.quantity < 1
+      ) {
+        return [];
+      }
+
+      const coverImage = item.productId.includes("camiseta")
+        ? "/images/hero/merch-tshirt-hoodie-minimal.jpg"
+        : item.productId.includes("cuaderno")
+          ? "/images/hero/christian-books-bible-store.jpg"
+          : "/images/hero/bible-study.jpg";
+
+      return [
+        {
+          product: {
+            id: item.productId,
+            name: item.title,
+            price: item.unitPrice,
+            coverImage,
+            category: item.productId.includes("camiseta")
+              ? "Ropa"
+              : item.productId.includes("cuaderno")
+                ? "Accesorios"
+                : "Biblias",
+          },
+          quantity: Math.min(MAX_QUANTITY, item.quantity),
+          ...(typeof item.variant === "string" ? { variant: item.variant } : {}),
+        },
+      ];
+    });
+  } catch {
+    return [];
+  }
+}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  // Cargar carrito desde localStorage
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("domenica_church_cart");
-      if (saved) {
-        setItems(JSON.parse(saved));
-      }
-    } catch (e) {
-      console.error("Error loading cart", e);
-    }
+    const saved = localStorage.getItem(CART_STORAGE_KEY);
+    const restored = saved
+      ? parseCart(saved)
+      : migrateLegacyCart(localStorage.getItem(LEGACY_CART_STORAGE_KEY));
+    setItems(restored);
+    setIsHydrated(true);
   }, []);
 
-  // Guardar en localStorage
   useEffect(() => {
+    if (!isHydrated) return;
     try {
-      localStorage.setItem("domenica_church_cart", JSON.stringify(items));
-    } catch (e) {
-      console.error("Error saving cart", e);
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // The cart remains usable for this visit when browser storage is unavailable.
     }
-  }, [items]);
+  }, [isHydrated, items]);
 
-  const openCart = () => setIsOpen(true);
-  const closeCart = () => setIsOpen(false);
-  const toggleCart = () => setIsOpen((prev) => !prev);
+  const openCart = useCallback(() => setIsOpen(true), []);
+  const closeCart = useCallback(() => setIsOpen(false), []);
+  const toggleCart = useCallback(() => setIsOpen((previous) => !previous), []);
 
-  const addItem = (product: Product, quantity = 1) => {
-    setItems((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
+  const addItem = useCallback((product: CartProduct, quantity = 1, variant?: string) => {
+    const safeQuantity = Math.min(MAX_QUANTITY, Math.max(1, Math.floor(quantity)));
+    setItems((previous) => {
+      const existing = previous.find(
+        (item) => item.product.id === product.id && item.variant === variant,
+      );
+
       if (existing) {
-        return prev.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
+        return previous.map((item) =>
+          item === existing
+            ? { ...item, quantity: Math.min(MAX_QUANTITY, item.quantity + safeQuantity) }
+            : item,
         );
       }
-      return [...prev, { product, quantity }];
+
+      return [...previous, { product, quantity: safeQuantity, ...(variant ? { variant } : {}) }];
     });
     setIsOpen(true);
-  };
+  }, []);
 
-  const removeItem = (productId: string) => {
-    setItems((prev) => prev.filter((item) => item.product.id !== productId));
-  };
+  const removeItem = useCallback((productId: string, variant?: string) => {
+    setItems((previous) =>
+      previous.filter((item) => !(item.product.id === productId && item.variant === variant)),
+    );
+  }, []);
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = useCallback((productId: string, quantity: number, variant?: string) => {
     if (quantity <= 0) {
-      removeItem(productId);
+      setItems((previous) =>
+        previous.filter((item) => !(item.product.id === productId && item.variant === variant)),
+      );
       return;
     }
-    setItems((prev) =>
-      prev.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
-      )
-    );
-  };
 
-  const clearCart = () => setItems([]);
+    const safeQuantity = Math.min(MAX_QUANTITY, Math.floor(quantity));
+    setItems((previous) =>
+      previous.map((item) =>
+        item.product.id === productId && item.variant === variant
+          ? { ...item, quantity: safeQuantity }
+          : item,
+      ),
+    );
+  }, []);
+
+  const clearCart = useCallback(() => setItems([]), []);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
+  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
   return (
     <CartContext.Provider

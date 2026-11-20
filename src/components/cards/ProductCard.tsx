@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingBag, Check } from "lucide-react";
 import { Product } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -25,9 +26,11 @@ export function ProductCard({ product }: ProductCardProps) {
     <div className="group rounded-2xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-all hover:-translate-y-1 shadow-sm flex flex-col">
       {/* Cover Image con Badges */}
       <div className="relative aspect-square w-full overflow-hidden bg-muted">
-        <img
+        <Image
           src={product.coverImage}
           alt={product.name}
+          fill
+          sizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc((100vw - 3rem) / 2), (max-width: 1279px) calc((100vw - 6rem) / 4), 18rem"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
 
@@ -36,14 +39,14 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.category}
           </span>
           {product.compareAtPrice && (
-            <span className="px-2 py-0.5 rounded bg-secondary text-white text-[10px] font-bold shadow">
+            <span className="px-2 py-0.5 rounded bg-secondary text-secondary-foreground text-[10px] font-bold shadow">
               Oferta
             </span>
           )}
         </div>
 
         {product.stock <= 5 && product.stock > 0 && (
-          <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded bg-warning/90 text-white text-[10px] font-semibold">
+          <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded bg-warning/90 text-warning-foreground text-[10px] font-semibold">
             ¡Últimas {product.stock} unidades!
           </span>
         )}

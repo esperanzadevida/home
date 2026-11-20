@@ -6,6 +6,8 @@ export type ContentDetail = {
   sections: { title: string; paragraphs: string[] }[];
   author?: string;
   authorRole?: string;
+  datePublished?: string;
+  startDates?: string[];
   tags?: string[];
   related?: { title: string; href: string }[];
 };
@@ -188,6 +190,7 @@ export const eventDetails = {
     intro:
       "Un domingo para encontrarnos con calma, compartir la música y recibir a quienes se acercan a Iglesia Doménica por primera vez.",
     meta: "Domingo 22 de noviembre · 09:00 y 11:30 · Sector Ficoa, Ambato",
+    startDates: ["2026-11-22T09:00:00-05:00", "2026-11-22T11:30:00-05:00"],
     related: [
       { title: "Una tarde para servir", href: "/eventos/una-tarde-para-servir" },
       { title: "Planifica tu visita", href: "/servicios" },
@@ -215,6 +218,7 @@ export const eventDetails = {
     intro:
       "Una jornada para preparar acciones sencillas de acompañamiento y servicio junto a familias y jóvenes de la comunidad.",
     meta: "Domingo 6 de diciembre · 15:00 · Iglesia Doménica, Ambato",
+    startDates: ["2026-12-06T15:00:00-05:00"],
     related: [
       { title: "Domingo de bienvenida", href: "/eventos/domingo-de-bienvenida" },
       { title: "Navidad en comunidad", href: "/eventos/navidad-en-comunidad" },
@@ -242,6 +246,7 @@ export const eventDetails = {
     intro:
       "Una tarde para celebrar la Navidad con música, historias y una mesa compartida por personas de todas las edades.",
     meta: "Domingo 20 de diciembre · 17:00 · Iglesia Doménica, Ambato",
+    startDates: ["2026-12-20T17:00:00-05:00"],
     related: [
       { title: "Domingo de bienvenida", href: "/eventos/domingo-de-bienvenida" },
       { title: "Una tarde para servir", href: "/eventos/una-tarde-para-servir" },
@@ -272,6 +277,7 @@ export const blogDetails = {
     intro:
       "A veces un nuevo comienzo no llega con ruido. Puede aparecer en una conversación, una pausa o una decisión pequeña que nos ayuda a mirar el día con más ánimo.",
     meta: "5 min de lectura · Comunidad Doménica",
+    datePublished: "2026-11-12",
     author: "María Fernanda López",
     authorRole: "Equipo editorial",
     tags: ["Vida cotidiana", "Esperanza", "Nuevos comienzos"],
@@ -302,6 +308,7 @@ export const blogDetails = {
     intro:
       "La gratitud y la atención cambian la manera en que miramos a las personas que están cerca. Escuchar puede convertirse en una forma concreta de cuidar.",
     meta: "4 min de lectura · Comunidad Doménica",
+    datePublished: "2026-11-05",
     author: "María Fernanda López",
     authorRole: "Equipo editorial",
     tags: ["Adoración", "Escucha", "Gratitud"],
@@ -332,6 +339,7 @@ export const blogDetails = {
     intro:
       "Crear momentos para escucharnos puede acercar a niños, jóvenes y adultos en medio de la rutina. Una mesa compartida abre espacio para preguntas y recuerdos.",
     meta: "6 min de lectura · Comunidad Doménica",
+    datePublished: "2026-10-29",
     author: "María Fernanda López",
     authorRole: "Equipo editorial",
     tags: ["Familia", "Comunidad", "Conversación"],

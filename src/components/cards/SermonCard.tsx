@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Play, Clock, BookOpen } from "lucide-react";
 import { Sermon } from "@/types";
 
@@ -11,16 +12,18 @@ export function SermonCard({ sermon }: SermonCardProps) {
     <div className="group rounded-2xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-all hover:-translate-y-1 shadow-sm flex flex-col">
       {/* Cover con Botón de Play Flotante */}
       <div className="relative aspect-video w-full overflow-hidden bg-muted">
-        <img
+        <Image
           src={sermon.coverImage}
           alt={sermon.title}
+          fill
+          sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1279px) calc((100vw - 4rem) / 3), 25rem"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
         {/* Badge de Serie */}
         {sermon.series && (
-          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-primary/90 text-white text-[11px] font-bold backdrop-blur-sm">
+          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-primary/90 text-primary-foreground text-[11px] font-bold backdrop-blur-sm">
             {sermon.series}
           </span>
         )}
@@ -32,7 +35,7 @@ export function SermonCard({ sermon }: SermonCardProps) {
 
         {/* Botón Central Play */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-white/90 text-primary flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
+          <div className="w-12 h-12 rounded-full bg-white/90 text-primary flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
             <Play className="w-5 h-5 fill-current ml-0.5" />
           </div>
         </div>

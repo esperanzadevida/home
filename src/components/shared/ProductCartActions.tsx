@@ -1,77 +1,40 @@
 "use client";
 
 import { useState } from "react";
-
-type StoredCartItem = {
-  productId: string;
-  title: string;
-  unitPrice: number;
-  quantity: number;
-  variant?: string;
-};
+import { useCart } from "@/providers/CartProvider";
+import type { Product } from "@/types";
 
 type ProductCartActionsProps = {
   productId: string;
   title: string;
   price: number;
+  coverImage: string;
+  category: Product["category"];
   variants?: string[];
 };
 
-const CART_KEY = "domenica-cart-v1";
 const MAX_QUANTITY = 20;
 
 export function ProductCartActions({
   productId,
   title,
   price,
+  coverImage,
+  category,
   variants = [],
 }: ProductCartActionsProps) {
   const [quantity, setQuantity] = useState(1);
   const [variant, setVariant] = useState(variants[0] ?? "");
   const [status, setStatus] = useState("");
+  const { addItem } = useCart();
 
-  function addToCart() {
-    try {
-      const stored = window.localStorage.getItem(CART_KEY);
-      const parsed: unknown = stored ? JSON.parse(stored) : [];
-      const items = Array.isArray(parsed)
-        ? (parsed as StoredCartItem[]).filter(
-            (item) =>
-              typeof item?.productId === "string" &&
-              typeof item?.title === "string" &&
-              typeof item?.unitPrice === "number" &&
-              typeof item?.quantity === "number",
-          )
-        : [];
-
-      const existing = items.find(
-        (item) => item.productId === productId && item.variant === (variant || undefined),
-      );
-
-      const next = existing
-        ? items.map((item) =>
-            item === existing
-              ? { ...item, quantity: Math.min(MAX_QUANTITY, item.quantity + quantity) }
-              : item,
-          )
-        : [
-            ...items,
-            {
-              productId,
-              title,
-              unitPrice: price,
-              quantity,
-              ...(variant ? { variant } : {}),
-            },
-          ];
-
-      window.localStorage.setItem(CART_KEY, JSON.stringify(next));
-      setStatus(
-        `${quantity} ${quantity === 1 ? "unidad añadida" : "unidades añadidas"} a tu carrito en este dispositivo. No se procesó ningún pedido ni pago.`,
-      );
-    } catch {
-      setStatus("No pudimos guardar el carrito en este navegador. Consulta disponibilidad en la sede.");
-    }
+  function handleAddToCart() {
+    addItem(
+      { id: productId, name: title, price, coverImage, category },
+      quantity,
+      variant || undefined,
+    );
+    setStatus(`${quantity} ${quantity === 1 ? "unidad añadida" : "unidades añadidas"} al carrito.`);
   }
 
   return (
@@ -82,8 +45,8 @@ export function ProductCartActions({
       <h2 id="product-cart-title" className="text-lg font-semibold text-foreground">
         {new Intl.NumberFormat("es-EC", { style: "currency", currency: "USD" }).format(price)}
       </h2>
-      <p className="mt-1 text-xs text-muted-foreground">
-        El carrito se guarda en este navegador; la compra y el pago no están habilitados.
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+        El carrito se guarda en este navegador; los pedidos y pagos en línea no están habilitados.
       </p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -128,7 +91,7 @@ export function ProductCartActions({
 
       <button
         type="button"
-        onClick={addToCart}
+        onClick={handleAddToCart}
         className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto"
       >
         Agregar al carrito

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ContentDetailPage } from "@/components/shared/ContentDetailPage";
 import { sermonDetails } from "@/config/content-details";
-import { churchProfile } from "@/config/church-profile";
+import { createPageMetadata } from "@/lib/page-metadata";
 
 type DetailProps = { params: Promise<{ slug: string }> };
 
@@ -17,10 +17,11 @@ export async function generateMetadata({ params }: DetailProps): Promise<Metadat
   const content = sermonDetails[slug as keyof typeof sermonDetails];
   if (!content) return {};
 
-  return {
-    title: `${content.title} | Sermones | ${churchProfile.name}`,
+  return createPageMetadata({
+    title: `${content.title} | Sermones`,
     description: content.intro,
-  };
+    pathname: `/sermones/${slug}`,
+  });
 }
 
 export default async function SermonDetailPage({ params }: DetailProps) {

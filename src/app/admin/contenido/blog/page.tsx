@@ -2,7 +2,7 @@
 
 import { BlockEditorDemo } from "@/components/shared/BlockEditorDemo";
 import { ImageEditorDemo } from "@/components/shared/ImageEditorDemo";
-import { FileText, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 export default function AdminBlogEditorPage() {
   return (

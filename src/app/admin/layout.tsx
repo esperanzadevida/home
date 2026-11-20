@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import type { Metadata } from "next";
 import {
   LayoutDashboard,
   FileText,
@@ -14,6 +15,11 @@ import {
   Layers,
 } from "lucide-react";
 
+export const metadata: Metadata = {
+  title: "Administración",
+  robots: { index: false, follow: false },
+};
+
 export default function AdminLayout({
   children,
 }: {
@@ -26,7 +32,7 @@ export default function AdminLayout({
         <div className="space-y-6">
           {/* Logo Admin */}
           <div className="flex items-center gap-3 px-2 py-1">
-            <div className="w-9 h-9 rounded-xl bg-primary text-white font-bold flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-primary text-primary-foreground font-bold flex items-center justify-center">
               AD
             </div>
             <div>
@@ -38,7 +44,7 @@ export default function AdminLayout({
           </div>
 
           {/* Menú de Navegación del Panel */}
-          <nav className="space-y-1 text-sm font-medium">
+          <nav aria-label="Navegación administrativa" className="space-y-1 text-sm font-medium">
             <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-2 py-1">
               General
             </div>

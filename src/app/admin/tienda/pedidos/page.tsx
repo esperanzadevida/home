@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Eye, Filter, CheckCircle2, Clock, Truck, AlertCircle, ShoppingBag } from "lucide-react";
+import { Search, Eye, CheckCircle2, Clock, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Order {

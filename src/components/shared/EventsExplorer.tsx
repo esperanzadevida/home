@@ -171,7 +171,7 @@ export function EventsExplorer({ events }: EventsExplorerProps) {
           </p>
         </div>
       ) : view === "list" ? (
-        <ul className="grid gap-4 md:grid-cols-2">
+        <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents.map((event, index) => (
             <li key={`${event.href}-${event.date}-${index}`}>
               <article className="flex h-full flex-col gap-4 rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/50 sm:p-6">

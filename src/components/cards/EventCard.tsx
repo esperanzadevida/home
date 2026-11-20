@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
 import { ChurchEvent } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -12,14 +13,16 @@ export function EventCard({ event }: EventCardProps) {
     <div className="group rounded-2xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-all hover:-translate-y-1 shadow-sm flex flex-col">
       {/* Cover Image con Badge */}
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
-        <img
+        <Image
           src={event.coverImage}
           alt={event.title}
+          fill
+          sizes="(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc((100vw - 3rem) / 2), (max-width: 1279px) calc((100vw - 6rem) * 7 / 24), 22rem"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
-        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-secondary text-white text-[11px] font-bold shadow">
+        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground text-[11px] font-bold shadow">
           {event.category}
         </span>
 

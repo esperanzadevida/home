@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, User, Phone, Mail, CheckCircle2, Shield, Edit3, Trash2 } from "lucide-react";
+import { Plus, Search, Phone, Mail, CheckCircle2, Edit3, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Member {

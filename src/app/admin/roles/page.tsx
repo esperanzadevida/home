@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Shield, Check, Lock, Users, Key } from "lucide-react";
+import { Shield, Check, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface RolePermission {

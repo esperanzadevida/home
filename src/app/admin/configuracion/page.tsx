@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Settings, Save, Check, Church, Globe, Phone, Mail, MapPin } from "lucide-react";
+import { Save, Check, Church, Globe, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AdminConfiguracionPage() {
