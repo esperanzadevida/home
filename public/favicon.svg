@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Doménica</title>
+  <circle cx="32" cy="32" r="30" fill="#1e40af" />
+  <path d="M23 16h10c10 0 17 7 17 16s-7 16-17 16H23V16Zm9 24c5 0 8-3 8-8s-3-8-8-8h-2v16h2Z" fill="#fff" />
+</svg>

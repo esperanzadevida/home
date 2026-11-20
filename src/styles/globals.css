@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+}
+
+@layer base {
+  :root {
+    /* Superficie y texto */
+    --background: #ffffff;
+    --foreground: #0f172a;
+    
+    /* Contenedores y Cards */
+    --card: #f8fafc;
+    --card-foreground: #0f172a;
+    
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+
+    /* Colores institucionales Asambleas de Dios */
+    /* Azul Real Primario */
+    --primary: #1e40af;
+    --primary-foreground: #ffffff;
+
+    /* Rojo Pentecostal Secundario */
+    --secondary: #b91c1c;
+    --secondary-foreground: #ffffff;
+
+    /* Elementos tenues / Muted */
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+
+    /* Acento Dorado / Ámbar */
+    --accent: #d4a017;
+    --accent-foreground: #1e293b;
+
+    /* Estados del sistema */
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    --success: #16a34a;
+    --success-foreground: #ffffff;
+    --warning: #d97706;
+    --warning-foreground: #ffffff;
+
+    /* Bordes, separadores e inputs */
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #1e40af;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Superficie y texto en Modo Oscuro - Estilo Cinematográfico / 10k */
+    --background: #090a0f;
+    --foreground: #f8fafc;
+
+    --card: #111420;
+    --card-foreground: #f8fafc;
+
+    --popover: #111420;
+    --popover-foreground: #f8fafc;
+
+    /* Azul Primario adaptado para contraste oscuro */
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+
+    /* Rojo Pentecostal adaptado para modo oscuro */
+    --secondary: #ef4444;
+    --secondary-foreground: #ffffff;
+
+    --muted: #1a2030;
+    --muted-foreground: #94a3b8;
+
+    /* Dorado luminoso para acentos en dark mode */
+    --accent: #fbbf24;
+    --accent-foreground: #090a0f;
+
+    --destructive: #f87171;
+    --destructive-foreground: #ffffff;
+    --success: #22c55e;
+    --success-foreground: #ffffff;
+    --warning: #f59e0b;
+    --warning-foreground: #090a0f;
+
+    --border: #1e293b;
+    --input: #1e293b;
+    --ring: #3b82f6;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
