@@ -33,7 +33,7 @@
 | 1. Base del sitio | Stack, tokens, metadatos, configuración de Next, navegación responsive y perfil editorial. | Parcial: stack, estilos y perfil existen; faltan cierres de configuración y validar la consistencia de datos con la Home aplazada. |
 | 2. Componentes UI base | Controles pertinentes, tema, búsqueda, estados vacíos y navegación. | Parcial: Button y tema existen; se agregan controles nativos de búsqueda/filtro para las listas que los necesitan. No hay catálogo de componentes shadcn configurado. |
 | 3. Layout y navegación | Layout público, auth/admin y protección de rutas. | Parcial: layouts y navegación existen; no hay autenticación ni middleware de protección implementados. |
-| 4. Modelo y seguridad | Reducir esquema, definir permisos, migraciones, RLS y clientes Supabase. | Pendiente de cerrar páginas y recibir credenciales; el esquema actual es solo un borrador. |
+| 4. Modelo y seguridad | Reducir esquema, definir permisos, migraciones, RLS y clientes Supabase. | Migraciones SQL y seeds completados localmente (20 tablas, triggers, RLS); pendiente conexión con proyecto Supabase en la nube. |
 | 5. Home y video | Recorrido, storyboard, copy, poster/video y mapa de secciones. | Aplazada expresamente por Nicola para una etapa posterior. La Home de prototipo no se está editando. |
 | 6. Páginas públicas interiores | Requisitos de contenido e interacciones por ruta, más detalles editoriales. | Parcial: 12 secciones y 15 fichas de detalle están implementadas. Búsqueda, filtros, calendario, divulgaciones y carrito local se comprobaron en navegador en el alcance descrito abajo. Formularios, mapa, medios, registro, pago y transmisión no tienen destino real conectado. |
 | 7. Autenticación | Supabase Auth, recuperación, sesión y middleware de protección. | Pendiente de modelo y credenciales. El login existente es UI de prototipo, no una sesión real. |
@@ -44,7 +44,7 @@
 | 12. Herramientas avanzadas | Mapas, editores, calendario, time picker e imágenes. | Parcial: calendario público local listo; mapas, editores y uploads esperan ubicación, activos y backend. |
 | 13. API y servidor | API de auth, contenido, registros, tienda, donaciones, miembros y uploads. | Pendiente de modelo, permisos y credenciales; no hay endpoints de servicio implementados. |
 | 14. Calidad | SEO, accesibilidad, responsive, rendimiento y pruebas. | Parcial: revisión inicial anterior de build/rutas/nav/móvil/tema/consola. Sitemap, robots, JSON-LD y revisión completa aún pendientes. |
-| 15. Publicación | Repositorio, CI/CD, Supabase, Vercel y verificación de producción. | Pendiente de repositorio y credenciales. |
+| 15. Publicación | Repositorio, CI/CD, Supabase, Vercel y verificación de producción. | Repositorio Git local inicializado (rama main, 119 archivos); pendiente remoto GitHub y credenciales Vercel/Supabase. |
 
 ## Orden ajustado de los 15 prompts
 
