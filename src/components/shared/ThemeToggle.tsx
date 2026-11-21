@@ -26,9 +26,9 @@ export function ThemeToggle() {
       aria-label="Cambiar modo claro / oscuro"
     >
       {theme === "dark" ? (
-        <Sun className="h-5 w-5 text-amber-400 transition-all rotate-0 scale-100" />
+        <Sun aria-hidden="true" className="h-5 w-5 text-amber-400 transition-[color,transform] rotate-0 scale-100" />
       ) : (
-        <Moon className="h-5 w-5 text-slate-700 transition-all rotate-0 scale-100" />
+        <Moon aria-hidden="true" className="h-5 w-5 text-slate-700 transition-[color,transform] rotate-0 scale-100" />
       )}
     </Button>
   );

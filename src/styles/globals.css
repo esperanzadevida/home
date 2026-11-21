@@ -1,12 +1,18 @@
 /* Hallmark · shape: Photographic · genre: editorial · theme: Editorial (deal 3/3, seed church-ambato-first-time-visitor-9187·6684d2cd·2026-11-20·r0) · redesign: full
- * hero: Poster, concept image · nav: sticky masthead retained · footer: colophon · imagery: photos · signature: the community-worship poster, held as a replaceable concept
- * axes: warm paper / condensed display / institutional blue · posture: restrained · contrast: pending · fold: pending · v2.0.0 */
-/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest P, the identity is authorised project material and remains unverified against a congregation. */
-/* Hallmark · waive 74 · preflight found the shared blue and gold theme variables · this Home uses its own editorial tokens while other routes retain their current palette. */
+ * hero: Poster, concept image · nav: sticky glass masthead · footer: photo-credit colophon · imagery: photos · signature: the community-worship poster, held as a replaceable concept
+ * axes: warm paper / condensed display / forest and leaf green · posture: restrained · contrast: recheck after the brand palette update · fold: CTA + horarios visible at 1280x800 · v2.0.0 */
+/* Hallmark · post-emit review: P4 H4 E4 S4 R4 V4 · no overflow at 390/768/1440; mobile keyboard, Escape and focus return pass; hero photo is conceptual. */
+/* Shared green brand tokens now carry through public pages, admin, and the editorial Home. */
 @import "tailwindcss";
 @import "./tokens.css";
 @import "./base.css" layer(base);
 @import "./editorial-home.css";
+@import "./scroll-scrub-hero.css";
+@import "./storefront.css";
+@import "./mobile-navigation.css";
+@import "./desktop-navigation.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --color-background: var(--background);
@@ -48,35 +54,32 @@
     --popover: #fbfaf6;
     --popover-foreground: #0f172a;
 
-    /* Colores institucionales Asambleas de Dios */
-    /* Azul Real Primario */
-    --primary: #1e40af;
+    /* Marca Esperanza de Vida: verdes hoja y bosque */
+    --primary: #166534;
     --primary-foreground: #f8fafc;
 
-    /* Rojo Pentecostal Secundario */
-    --secondary: #b91c1c;
-    --secondary-foreground: #f8fafc;
+    --secondary: #dcfce7;
+    --secondary-foreground: #14532d;
 
     /* Elementos tenues / Muted */
     --muted: #f1f5f9;
-    --muted-foreground: #64748b;
+    --muted-foreground: #565f6c;
 
-    /* Acento Dorado / Ámbar */
-    --accent: #d4a017;
-    --accent-foreground: #1e293b;
+    --accent: #a3e635;
+    --accent-foreground: #14261b;
 
     /* Estados del sistema */
     --destructive: #dc2626;
     --destructive-foreground: #f8fafc;
     --success: #16a34a;
     --success-foreground: #0f172a;
-    --warning: #d97706;
+    --warning: #9a4a00;
     --warning-foreground: #0f172a;
 
     /* Bordes, separadores e inputs */
     --border: #e2e8f0;
     --input: #e2e8f0;
-    --ring: #1e40af;
+    --ring: #15803d;
 
     --radius: 0.75rem;
   }
@@ -92,18 +95,18 @@
     --popover: var(--color-app-dark-card);
     --popover-foreground: var(--color-app-dark-foreground);
 
-    /* Azul Primario adaptado para contraste oscuro */
+    /* Verde primario adaptado para contraste oscuro */
     --primary: var(--color-app-dark-primary);
     --primary-foreground: var(--color-app-dark-primary-foreground);
 
-    /* Rojo Pentecostal adaptado para modo oscuro */
+    /* Verde secundario adaptado para modo oscuro */
     --secondary: var(--color-app-dark-secondary);
     --secondary-foreground: var(--color-app-dark-secondary-foreground);
 
     --muted: var(--color-app-dark-muted);
     --muted-foreground: var(--color-app-dark-muted-foreground);
 
-    /* Dorado luminoso para acentos en dark mode */
+    /* Verde lima para acentos en dark mode */
     --accent: var(--color-app-dark-accent);
     --accent-foreground: var(--color-app-dark-accent-foreground);
 

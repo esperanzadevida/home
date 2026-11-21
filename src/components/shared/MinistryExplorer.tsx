@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "@/components/shared/SiteImage";
 
 export type MinistryExplorerItem = {
   category: string;
@@ -6,6 +7,8 @@ export type MinistryExplorerItem = {
   description: string;
   meeting: string;
   leader: string;
+  imageSrc: string;
+  imageAlt: string;
 };
 
 type MinistryExplorerProps = {
@@ -25,7 +28,17 @@ export function MinistryExplorer({ items }: MinistryExplorerProps) {
     <ul aria-label="Ministerios de la iglesia" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item, index) => (
         <li key={`${item.title}-${index}`} className="h-full">
-          <article className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-sm transition-colors hover:border-primary/40 sm:p-6">
+          <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-sm transition-colors hover:border-primary/40 sm:p-6">
+            <div className="relative -mx-5 -mt-5 mb-5 aspect-[16/10] overflow-hidden bg-muted sm:-mx-6 sm:-mt-6">
+              <Image
+                src={item.imageSrc}
+                alt={item.imageAlt}
+                fill
+                sizes="(max-width: 640px) calc(100vw - 2.5rem), (max-width: 1024px) calc((100vw - 4rem) / 2), 33vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              />
+              <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-slate-950/30 to-transparent" />
+            </div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
               {item.category}
             </p>

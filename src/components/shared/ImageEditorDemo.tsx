@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import Image from "@/components/shared/SiteImage";
 import { RotateCw, ZoomIn, Check, Crop, Sliders } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

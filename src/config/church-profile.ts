@@ -1,17 +1,18 @@
 /**
- * Editorial profile used consistently across the local DOMENICA project.
+ * Editorial profile used consistently across the local Iglesia Esperanza de Vida project.
  * Public copy follows the fictional congregation brief supplied by the user.
  * Contact details are display-only until an official channel is connected.
  */
 export const churchProfile = {
-  name: "Iglesia Doménica",
+  name: "Iglesia Esperanza de Vida",
+  shortName: "Esperanza de Vida",
   denomination: "Asambleas de Dios",
   leadPastor: "Samuel Andrade",
-  signature: "Una fe que se vive en comunidad.",
+  signature: "Caminamos en la luz, crecemos en comunidad.",
   city: "Ambato · Tungurahua, Ecuador",
-  address: "Calle Los Arrayanes y avenida de los Guaytambos, sector Ficoa, Ambato",
-  phone: "+593 99 246 3817",
-  email: "hola@domenicaiglesia.ec",
+  address: "Avenida Miraflores y calle Los Arrayanes, sector Ficoa, Ambato",
+  phone: "+593 98 447 2651",
+  email: "hola@esperanzadevida.ec",
   founded: 2014,
   schedule: [
     {
@@ -31,8 +32,8 @@ export const churchProfile = {
     },
   ],
   socialHandles: [
-    { network: "Instagram", handle: "@domenica.ambato" },
-    { network: "Facebook", handle: "Iglesia Doménica Ambato" },
-    { network: "YouTube", handle: "@iglesiadomenica" },
+    { network: "Instagram", handle: "@esperanza.vida.ambato" },
+    { network: "Facebook", handle: "Iglesia Esperanza de Vida" },
+    { network: "YouTube", handle: "@esperanzadevida" },
   ],
 } as const;

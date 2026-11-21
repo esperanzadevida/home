@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/shared/SiteImage";
 import { ShoppingBag, Check } from "lucide-react";
 import { Product } from "@/types";
 import { Button } from "@/components/ui/button";

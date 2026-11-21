@@ -1,0 +1,560 @@
+.public-shell-with-mobile-navigation {
+  padding-bottom: calc(5.9rem + env(safe-area-inset-bottom, 0px));
+}
+
+.mobile-navigation-viewport {
+  position: fixed;
+  z-index: 60;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0 0.65rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.65rem, env(safe-area-inset-left, 0px));
+  pointer-events: none;
+}
+
+.mobile-navigation-bar {
+  display: grid;
+  width: min(100%, 42rem);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 0.125rem;
+  margin: 0 auto;
+  padding: 0.25rem;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: 1.15rem;
+  background: var(--background);
+  box-shadow: 0 0.8rem 2rem rgb(15 23 42 / 0.16);
+  pointer-events: auto;
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .mobile-navigation-bar {
+    background: color-mix(in srgb, var(--background) 88%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+  }
+}
+
+.mobile-navigation-bar > li {
+  min-width: 0;
+}
+
+.mobile-navigation-link {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 3.35rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border: 0;
+  border-radius: 0.8rem;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 550;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.mobile-navigation-link:hover {
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  color: var(--foreground);
+}
+
+.mobile-navigation-link.is-active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.mobile-navigation-link.is-active::before {
+  position: absolute;
+  top: 0.1rem;
+  width: 1.2rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent);
+  content: "";
+}
+
+.mobile-navigation-link:focus-visible,
+.mobile-navigation-menu-link:focus-visible,
+.mobile-navigation-close:focus-visible,
+.mobile-navigation-visit-link:focus-visible,
+.notification-center-trigger:focus-visible,
+.notification-panel-close:focus-visible,
+.notification-mark-all:focus-visible,
+.notification-mark-read:focus-visible,
+.notification-empty-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.mobile-navigation-overlay,
+.notification-panel-overlay {
+  position: fixed;
+  z-index: 400;
+  inset: 0;
+  background: rgb(15 23 42 / 0.42);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.mobile-navigation-overlay[data-state="open"],
+.notification-panel-overlay[data-state="open"] {
+  animation: mobile-ui-fade-in 180ms ease-out both;
+}
+
+.mobile-navigation-sheet,
+.notification-panel {
+  position: fixed;
+  z-index: 401;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  max-height: min(84svh, 48rem);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 -1rem 3rem rgb(15 23 42 / 0.2);
+  outline: none;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .mobile-navigation-sheet,
+  .notification-panel {
+    background: color-mix(in srgb, var(--background) 94%, transparent);
+    -webkit-backdrop-filter: blur(24px) saturate(145%);
+    backdrop-filter: blur(24px) saturate(145%);
+  }
+}
+
+.mobile-navigation-sheet[data-state="open"],
+.notification-panel[data-state="open"] {
+  animation: mobile-ui-slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.mobile-navigation-sheet-header,
+.notification-panel-header {
+  display: flex;
+  min-height: 4.5rem;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.85rem 1rem;
+}
+
+.mobile-navigation-brand-mark {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+}
+
+.mobile-navigation-sheet-title,
+.notification-panel-title {
+  color: var(--foreground);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.mobile-navigation-sheet-description,
+.notification-panel-description {
+  margin-top: 0.15rem;
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.mobile-navigation-close,
+.notification-panel-close {
+  display: inline-flex;
+  width: 2.55rem;
+  height: 2.55rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--background);
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.mobile-navigation-sheet-body,
+.notification-panel-body {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem;
+  scrollbar-gutter: stable;
+}
+
+.mobile-navigation-sheet-body section + section {
+  margin-top: 1.15rem;
+}
+
+.mobile-navigation-section-title {
+  margin: 0 0 0.5rem;
+  padding-inline: 0.2rem;
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.mobile-navigation-menu-list {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mobile-navigation-menu-link {
+  display: flex;
+  min-height: 2.85rem;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.7rem;
+  color: var(--foreground);
+  font-size: 0.9rem;
+  font-weight: 550;
+  text-decoration: none;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.mobile-navigation-menu-link:hover {
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+
+.mobile-navigation-menu-link.is-active {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+
+.mobile-navigation-current-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-left: auto;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.mobile-navigation-sheet-footer {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--border);
+  padding: 0.85rem 1rem;
+}
+
+.mobile-navigation-visit-link {
+  display: flex;
+  min-height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: filter 160ms ease;
+}
+
+.mobile-navigation-visit-link:hover {
+  filter: brightness(0.96);
+}
+
+.notification-center-trigger {
+  position: relative;
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.notification-center-trigger:hover {
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+
+.notification-count {
+  position: absolute;
+  top: 0.05rem;
+  right: 0.02rem;
+  display: inline-flex;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--background);
+  border-radius: 999px;
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.notification-panel-header {
+  justify-content: space-between;
+  padding-inline: 1.15rem;
+}
+
+.notification-panel-title {
+  font-size: 1.1rem;
+}
+
+.notification-mark-all {
+  display: inline-flex;
+  min-height: 2.4rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 650;
+  padding: 0.4rem 0.55rem;
+}
+
+.notification-mark-all:hover {
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.notification-loading {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.notification-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notification-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--background) 88%, var(--card));
+  padding: 0.85rem;
+}
+
+.notification-item.is-read {
+  opacity: 0.78;
+}
+
+.notification-item-icon,
+.notification-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+
+.notification-item-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+.notification-item-kind {
+  margin: 0 0 0.2rem;
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.notification-item-title {
+  display: inline-block;
+  color: var(--foreground);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.35;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.18em;
+}
+
+.notification-item-title:hover {
+  text-decoration-color: currentColor;
+}
+
+.notification-item-description {
+  margin: 0.35rem 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.notification-item-time {
+  display: block;
+  margin-top: 0.55rem;
+  color: var(--foreground);
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.notification-mark-read {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: var(--background);
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.notification-mark-read:hover {
+  background: color-mix(in srgb, var(--primary) 8%, var(--background));
+}
+
+.notification-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.notification-empty-icon {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.35rem;
+}
+
+.notification-empty-state h3 {
+  color: var(--foreground);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.notification-empty-state p {
+  max-width: 19rem;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.notification-empty-link {
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-underline-offset: 0.2em;
+}
+
+@keyframes mobile-ui-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mobile-ui-slide-up {
+  from { opacity: 0; transform: translateY(1.25rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 48rem) {
+  .notification-panel {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: auto;
+    width: min(30rem, calc(100vw - 2rem));
+    max-height: 100dvh;
+    border: 0;
+    border-left: 1px solid var(--border);
+    border-radius: 0;
+    padding-bottom: 0;
+  }
+
+  .notification-panel[data-state="open"] {
+    animation-name: notification-panel-slide-in;
+  }
+}
+
+@keyframes notification-panel-slide-in {
+  from { opacity: 0; transform: translateX(1.25rem); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (min-width: 64rem) {
+  .mobile-navigation-viewport {
+    display: none;
+  }
+
+  .public-shell-with-mobile-navigation {
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 22rem) {
+  .mobile-navigation-link {
+    font-size: 0.62rem;
+  }
+
+  .mobile-navigation-bar {
+    gap: 0;
+    padding: 0.18rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-navigation-link,
+  .mobile-navigation-menu-link,
+  .mobile-navigation-visit-link,
+  .notification-center-trigger {
+    transition-duration: 0.01ms;
+  }
+
+  .mobile-navigation-overlay[data-state="open"],
+  .notification-panel-overlay[data-state="open"],
+  .mobile-navigation-sheet[data-state="open"],
+  .notification-panel[data-state="open"] {
+    animation-duration: 0.01ms;
+  }
+}

@@ -1,0 +1,1264 @@
+/* ============================================================================
+   Scroll-scrubbed cinematic hero presentation
+   Desktop + Mobile scrub video + Magic UI / OriginKit motion system
+   ============================================================================ */
+
+@property --beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.scrub-hero {
+  --scrub-progress: 0;
+  --tshadow:
+    0 1px 2px rgba(4, 12, 8, 0.94),
+    0 4px 16px rgba(4, 12, 8, 0.78),
+    0 14px 42px rgba(4, 12, 8, 0.64);
+  position: relative;
+  width: 100%;
+  height: var(--scrub-height, 520vh);
+  background-color: #07120c;
+  color: #f3f7f4;
+  isolation: isolate;
+}
+
+.scrub-stage {
+  position: sticky;
+  top: 4rem;
+  width: 100%;
+  height: calc(100svh - 4rem);
+  overflow: clip;
+  background:
+    radial-gradient(ellipse 68% 58% at 14% 12%, rgba(74, 222, 128, 0.22) 0%, rgba(16, 62, 38, 0.12) 45%, transparent 74%),
+    radial-gradient(ellipse 60% 54% at 84% 82%, rgba(34, 197, 94, 0.14) 0%, transparent 70%),
+    #07120c;
+}
+
+/* Pause ambient GPU loops whenever hero is off-screen or browser tab is hidden */
+.scrub-stage[data-inview="false"] *,
+.scrub-stage[data-inview="false"] *::before,
+.scrub-stage[data-inview="false"] *::after,
+.scrub-stage[data-paused="true"] *,
+.scrub-stage[data-paused="true"] *::before,
+.scrub-stage[data-paused="true"] *::after {
+  animation-play-state: paused !important;
+}
+
+.scrub-poster {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.95;
+  transition: opacity 480ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scrub-stage.video-ready .scrub-poster {
+  opacity: 0;
+}
+
+.scrub-video {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
+  transition: opacity 480ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scrub-stage.video-ready .scrub-video {
+  opacity: 1;
+}
+
+.scrub-stage.video-failed .scrub-video {
+  display: none;
+}
+
+/* Global directional + radial scrim: calms the bright top-left mint glow while keeping the green ribbons alive */
+.scrub-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 74% 66% at 12% 14%, rgba(6, 18, 12, 0.58) 0%, rgba(6, 18, 12, 0.24) 56%, transparent 100%),
+    radial-gradient(ellipse 120% 95% at 50% 48%, rgba(6, 18, 12, 0.16) 30%, rgba(6, 18, 12, 0.64) 100%);
+}
+
+/* ============================================================================
+   Magic UI Whisper-Level Ambient Light Motes
+   ============================================================================ */
+.scrub-motes {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.scrub-mote {
+  position: absolute;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(200, 249, 143, 0.95) 0%, rgba(74, 222, 128, 0) 70%);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: scrub-mote-drift 11s ease-in-out infinite;
+}
+
+.scrub-mote--1 { left: 12%; top: 78%; width: 6px; height: 6px; animation-delay: -1.4s; animation-duration: 10s; }
+.scrub-mote--2 { left: 28%; top: 64%; width: 4px; height: 4px; animation-delay: -4.2s; animation-duration: 12s; }
+.scrub-mote--3 { left: 48%; top: 82%; width: 7px; height: 7px; animation-delay: -6.8s; animation-duration: 13s; }
+.scrub-mote--4 { left: 66%; top: 72%; width: 5px; height: 5px; animation-delay: -2.9s; animation-duration: 11s; }
+.scrub-mote--5 { left: 82%; top: 62%; width: 6px; height: 6px; animation-delay: -8.1s; animation-duration: 14s; }
+.scrub-mote--6 { left: 38%; top: 28%; width: 4px; height: 4px; animation-delay: -5.5s; animation-duration: 9.5s; }
+
+@keyframes scrub-mote-drift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale(0.7);
+  }
+  25% {
+    opacity: 0.62;
+  }
+  75% {
+    opacity: 0.42;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(18px, -110px, 0) scale(1.15);
+  }
+}
+
+/* ============================================================================
+   Narrative Overlay Slot & 4 Scroll-Synced Bands
+   ============================================================================ */
+.scrub-overlay-slot {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: clip;
+}
+
+.scrub-narrative {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.scrub-band {
+  --band-op: 0;
+  --k: 0;
+  --band-exit: 0;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-items: center;
+  padding: clamp(1.5rem, 4.5vw, 4.75rem) clamp(4.5rem, 8.2vw, 8.25rem) clamp(1.5rem, 4.5vw, 4.75rem) clamp(1.75rem, 5.5vw, 5.5rem);
+  opacity: var(--band-op);
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.scrub-band--welcome {
+  --band-op: 1;
+}
+
+.scrub-band::before {
+  position: absolute;
+  inset: -4%;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+  opacity: calc(0.28 + 0.72 * var(--k, 1));
+}
+
+.scrub-band--welcome::before,
+.scrub-band--community::before,
+.scrub-band--closing::before {
+  background: radial-gradient(
+    ellipse 74% 96% at 24% 50%,
+    rgba(6, 18, 12, 0.8) 0%,
+    rgba(6, 18, 12, 0.56) 44%,
+    rgba(6, 18, 12, 0.06) 80%
+  );
+}
+
+.scrub-band--service::before {
+  background: radial-gradient(
+    ellipse 74% 96% at 76% 50%,
+    rgba(6, 18, 12, 0.8) 0%,
+    rgba(6, 18, 12, 0.56) 44%,
+    rgba(6, 18, 12, 0.06) 80%
+  );
+}
+
+.scrub-band-inner {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 80rem);
+  margin-inline: auto;
+}
+
+.scrub-band[data-active="true"] .scrub-band-inner {
+  pointer-events: auto;
+}
+
+.scrub-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: clamp(1.75rem, 4.5vw, 4.75rem);
+}
+
+.scrub-split--reversed {
+  grid-template-columns: minmax(0, 0.98fr) minmax(0, 1.02fr);
+}
+
+.scrub-copy-col {
+  min-width: 0;
+  transform: translate3d(0, calc((1 - var(--k, 1)) * 18px - var(--band-exit, 0) * 18px), 0);
+  will-change: transform;
+}
+
+/* ============================================================================
+   Magic UI Typography: Animated Gradient Text + Multi-Choreo Split Words
+   ============================================================================ */
+.scrub-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.05rem;
+  padding: 0.36rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(185, 246, 117, 0.3);
+  background: rgba(6, 18, 12, 0.58);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #c8f98f;
+  font-family: var(--font-editorial-display), ui-sans-serif, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(4, 12, 8, 0.85);
+}
+
+.scrub-eyebrow-mark {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #b9f675;
+  box-shadow: 0 0 10px rgba(185, 246, 117, 0.85);
+}
+
+.scrub-band .scrub-title {
+  max-width: 11ch;
+  color: #f3f7f4;
+  font-family: var(--font-editorial-reading), Georgia, serif;
+  font-size: clamp(3.15rem, 6vw, 6.4rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+  text-shadow: var(--tshadow);
+}
+
+.scrub-band .scrub-title--mega {
+  font-size: clamp(3.75rem, 7.4vw, 7.6rem);
+  max-width: 9.5ch;
+}
+
+.scrub-word-line {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.24em;
+  row-gap: 0.04em;
+}
+
+/* Default choreography: smooth word-by-word rise with descender breathing room */
+.scrub-word {
+  --wk: clamp(0, (var(--k, 1) - var(--w-th, 0)) * 2.35, 1);
+  display: inline-block;
+  padding-bottom: 0.09em;
+  margin-bottom: -0.09em;
+  opacity: var(--wk);
+  transform: translate3d(0, calc((1 - var(--wk)) * 28px), 0) scale(calc(0.95 + 0.05 * var(--wk)));
+  will-change: transform, opacity;
+}
+
+/* Beat 2 Weave choreography: alternating words weave from top & bottom */
+[data-choreo="weave"] .scrub-word {
+  transform: translate3d(
+    0,
+    calc((1 - var(--wk)) * 30px * var(--w-dir, 1)),
+    0
+  );
+}
+
+/* Beat 3 Word-Punch choreography: elastic overshoot pop & settle */
+[data-choreo="punch"] .scrub-word {
+  --kc: clamp(0, (var(--k, 1) - var(--w-th, 0)) * 3.1, 1);
+  --ks: clamp(0, (var(--k, 1) - var(--w-th, 0) - 0.1) * 3.2, 1);
+  --ov: 0.14;
+  opacity: var(--kc);
+  transform: scale(calc(0.68 + (0.32 + var(--ov)) * var(--kc) - var(--ov) * var(--ks)));
+}
+
+[data-choreo="punch"] .scrub-word--em {
+  --ov: 0.22;
+}
+
+/* Magic UI Animated Gradient Text for italic emphasis words */
+.magic-gradient-text {
+  font-style: italic;
+  font-weight: 500;
+  color: #b9f675;
+  text-shadow: none;
+  background: linear-gradient(
+    110deg,
+    #86efac 0%,
+    #d9f99d 32%,
+    #f3f7f4 50%,
+    #b9f675 68%,
+    #86efac 100%
+  );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 6px rgba(4, 14, 9, 0.9)) drop-shadow(0 8px 24px rgba(4, 14, 9, 0.65));
+  animation: magic-gradient-pan 7s ease-in-out -2s infinite;
+}
+
+@keyframes magic-gradient-pan {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.scrub-phrase {
+  --pk: clamp(0, (var(--k, 1) - 0.34) * 2.5, 1);
+  max-width: 34ch;
+  margin-top: 1.15rem;
+  color: #eef5f0;
+  font-family: var(--font-editorial-display), ui-sans-serif, sans-serif;
+  font-size: clamp(1rem, 1.45vw, 1.28rem);
+  font-weight: 450;
+  line-height: 1.48;
+  text-shadow: var(--tshadow);
+  opacity: var(--pk);
+  transform: translate3d(0, calc((1 - var(--pk)) * 16px), 0);
+}
+
+.scrub-actions {
+  --ak: clamp(0, (var(--k, 1) - 0.5) * 3, 1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.65rem;
+  opacity: var(--ak);
+  transform: translate3d(0, calc((1 - var(--ak)) * 14px), 0);
+}
+
+/* ============================================================================
+   Buttons & Magic UI Shimmer Sweep
+   ============================================================================ */
+.scrub-button {
+  position: relative;
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.72rem 1.45rem;
+  font-family: var(--font-editorial-display), ui-sans-serif, sans-serif;
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-decoration: none;
+  text-shadow: none;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms ease;
+}
+
+.scrub-button--primary {
+  background: linear-gradient(135deg, #c8f98f 0%, #a3e635 100%);
+  color: #07120c;
+  box-shadow: 0 14px 36px rgba(163, 230, 53, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.scrub-button--primary:hover {
+  background: linear-gradient(135deg, #dcfca9 0%, #b9f675 100%);
+  color: #07120c;
+  transform: translateY(-2px);
+  box-shadow: 0 18px 44px rgba(163, 230, 53, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.magic-shimmer-btn::after {
+  content: "";
+  position: absolute;
+  inset: -40% auto -40% -65%;
+  width: 48%;
+  transform: skewX(-24deg);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%);
+  pointer-events: none;
+  animation: magic-shimmer-sweep 4.6s cubic-bezier(0.22, 1, 0.36, 1) -1.2s infinite;
+}
+
+@keyframes magic-shimmer-sweep {
+  0%,
+  58% {
+    transform: translateX(0) skewX(-24deg);
+    opacity: 0;
+  }
+  64% {
+    opacity: 1;
+  }
+  88% {
+    transform: translateX(460%) skewX(-24deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(460%) skewX(-24deg);
+    opacity: 0;
+  }
+}
+
+.scrub-button--quiet {
+  border-color: rgba(243, 247, 244, 0.42);
+  background: rgba(6, 18, 12, 0.54);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f3f7f4;
+}
+
+.scrub-button--quiet:hover {
+  border-color: rgba(185, 246, 117, 0.78);
+  background: rgba(6, 18, 12, 0.76);
+  color: #f3f7f4;
+  transform: translateY(-1px);
+}
+
+.scrub-band a:focus-visible,
+.scrub-chapter-btn:focus-visible,
+.scrub-mobile-dot:focus-visible {
+  outline: 3px solid #b9f675;
+  outline-offset: 4px;
+}
+
+/* ============================================================================
+   OriginKit Frosted Schedule & Location Chips
+   ============================================================================ */
+.scrub-mini-schedule {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.4rem;
+}
+
+.scrub-chip {
+  --ck: clamp(0, (var(--k, 1) - 0.38 - var(--chip-i, 0) * 0.09) * 3, 1);
+  opacity: var(--ck);
+  transform: translate3d(0, calc((1 - var(--ck)) * 14px), 0);
+}
+
+.scrub-chip,
+.scrub-address-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.48rem 0.88rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(243, 247, 244, 0.22);
+  background: linear-gradient(135deg, rgba(10, 28, 18, 0.74), rgba(6, 18, 12, 0.62));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #f3f7f4;
+  font-family: var(--font-editorial-display), ui-sans-serif, sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-shadow: 0 1px 3px rgba(4, 12, 8, 0.85);
+}
+
+.scrub-chip strong {
+  color: #c8f98f;
+  font-weight: 700;
+}
+
+.scrub-address-chip {
+  --dk: clamp(0, (var(--k, 1) - 0.42) * 2.7, 1);
+  margin-top: 1.15rem;
+  max-width: 34rem;
+  opacity: var(--dk);
+  transform: translate3d(0, calc((1 - var(--dk)) * 14px), 0);
+}
+
+/* ============================================================================
+   Visual PNG Choreography + Magic UI Border Beam + Orbital Rings
+   ============================================================================ */
+.scrub-visual-col {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1100px;
+}
+
+/* Beat 1: Transparent 3D Flame PNG + Dual Orbital Halo Rings */
+.scrub-flame-stage {
+  position: relative;
+  width: min(23rem, 34vw);
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  transform:
+    translate3d(0, calc((1 - var(--k, 1)) * 34px - var(--band-exit, 0) * 44px), 0)
+    scale(calc(0.82 + 0.18 * var(--k, 1) + var(--band-exit, 0) * 0.08))
+    rotate(calc((1 - var(--k, 1)) * -8deg + var(--band-exit, 0) * 6deg));
+  will-change: transform;
+}
+
+.scrub-flame-aura {
+  position: absolute;
+  inset: 8%;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    rgba(163, 230, 53, 0.42) 0%,
+    rgba(34, 197, 94, 0.2) 44%,
+    transparent 72%
+  );
+  filter: blur(22px);
+  animation: scrub-aura-pulse 6s ease-in-out -1.8s infinite;
+}
+
+.scrub-orbit-ring {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.scrub-orbit-ring--outer {
+  inset: 2%;
+  border: 1px solid rgba(185, 246, 117, 0.2);
+  border-top-color: rgba(185, 246, 117, 0.72);
+  border-right-color: rgba(74, 222, 128, 0.4);
+  animation: scrub-orbit-spin 16s linear -4s infinite;
+}
+
+.scrub-orbit-ring--inner {
+  inset: 14%;
+  border: 1px dashed rgba(134, 239, 172, 0.26);
+  border-bottom-color: rgba(200, 249, 143, 0.65);
+  animation: scrub-orbit-spin-rev 22s linear -9s infinite;
+}
+
+@keyframes scrub-orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scrub-orbit-spin-rev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes scrub-aura-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+.scrub-flame-png {
+  position: relative;
+  z-index: 2;
+  width: 82%;
+  height: 82%;
+  object-fit: contain;
+  filter: drop-shadow(0 24px 48px rgba(4, 18, 10, 0.65)) drop-shadow(0 0 32px rgba(74, 222, 128, 0.42));
+}
+
+/* Beats 2, 3, 4: Layered PNG Photographic Frames + Magic UI Border Beam */
+.scrub-visual-col--weave,
+.scrub-visual-col--depth,
+.scrub-visual-col--closing {
+  min-height: clamp(19rem, 32vw, 27rem);
+}
+
+.scrub-png-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(243, 247, 244, 0.2);
+  background: rgba(7, 18, 12, 0.62);
+  box-shadow: 0 28px 72px rgba(3, 10, 6, 0.58);
+  will-change: transform, opacity;
+}
+
+/* Magic UI Border Beam: rotating luminous emerald/lime light along frame perimeter */
+.magic-border-beam::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    transparent 245deg,
+    rgba(74, 222, 128, 0.6) 295deg,
+    rgba(200, 249, 143, 0.98) 332deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: magic-beam-rotate 7.5s linear -2.2s infinite;
+}
+
+@keyframes magic-beam-rotate {
+  to {
+    --beam-angle: 360deg;
+  }
+}
+
+.scrub-png-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scrub-png-tag {
+  position: absolute;
+  left: 0.85rem;
+  bottom: 0.85rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.36rem 0.76rem;
+  border-radius: 999px;
+  border: 1px solid rgba(243, 247, 244, 0.24);
+  background: rgba(6, 18, 12, 0.74);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f3f7f4;
+  font-family: var(--font-editorial-display), ui-sans-serif, sans-serif;
+  font-size: 0.73rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 2px rgba(4, 12, 8, 0.85);
+}
+
+/* Primary & Floating frame geometry + 3D perspective glide */
+.scrub-png-frame--primary {
+  width: min(100%, 28.5rem);
+  aspect-ratio: 16 / 10;
+}
+
+.scrub-png-frame--portrait {
+  width: min(100%, 29rem);
+  aspect-ratio: 4 / 3;
+  transform:
+    translate3d(0, calc((1 - var(--k, 1)) * 32px), 0)
+    scale(calc(0.9 + 0.1 * var(--k, 1)))
+    rotateY(calc((1 - var(--k, 1)) * -8deg));
+}
+
+/* Beat 2 Weave choreography: opposing 3D glides echoing crossing ribbons */
+.scrub-visual-col--weave .scrub-png-frame--primary {
+  transform:
+    translate3d(calc((1 - var(--k, 1)) * 28px), calc((1 - var(--k, 1)) * -28px - var(--band-exit, 0) * 24px), 0)
+    rotateY(calc((1 - var(--k, 1)) * -10deg))
+    rotate(calc((1 - var(--k, 1)) * 2deg));
+}
+
+/* Keep Beat 2 upper photo caption at top-left so the lower-left floating card never overlaps it */
+.scrub-visual-col--weave .scrub-png-frame--primary .scrub-png-tag {
+  top: 0.85rem;
+  bottom: auto;
+}
+
+.scrub-png-frame--floating {
+  position: absolute;
+  left: -1.5rem;
+  bottom: -1.5rem;
+  width: min(56%, 16.5rem);
+  aspect-ratio: 4 / 3;
+  border-color: rgba(185, 246, 117, 0.36);
+  transform:
+    translate3d(calc((1 - var(--k, 1)) * -26px), calc((1 - var(--k, 1)) * 44px - var(--band-exit, 0) * 32px), 0)
+    rotateY(calc((1 - var(--k, 1)) * 12deg))
+    rotate(calc(-1.5deg + (1 - var(--k, 1)) * -3deg));
+}
+
+/* Beat 3 Approach-from-depth 3D choreography */
+.scrub-visual-col--depth .scrub-png-frame--primary {
+  transform:
+    translate3d(calc((1 - var(--k, 1)) * -28px), calc((1 - var(--k, 1)) * 22px - var(--band-exit, 0) * 24px), 0)
+    scale(calc(0.86 + 0.14 * var(--k, 1)))
+    rotateY(calc((1 - var(--k, 1)) * 10deg));
+}
+
+.scrub-png-frame--floating-alt {
+  position: absolute;
+  right: -1.25rem;
+  bottom: -1.5rem;
+  width: min(56%, 16.5rem);
+  aspect-ratio: 4 / 3;
+  border-color: rgba(185, 246, 117, 0.36);
+  transform:
+    translate3d(calc((1 - var(--k, 1)) * 28px), calc((1 - var(--k, 1)) * 46px - var(--band-exit, 0) * 32px), 0)
+    rotateY(calc((1 - var(--k, 1)) * -12deg))
+    rotate(calc(1.5deg + (1 - var(--k, 1)) * 3deg));
+}
+
+/* ============================================================================
+   Desktop Right-Side Chapter Rail + Mobile Bottom OriginKit Chapter Dock
+   ============================================================================ */
+.scrub-chapter-rail {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  z-index: 6;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.65rem;
+  pointer-events: auto;
+}
+
+.scrub-chapter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.25rem 0.35rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: rgba(243, 247, 244, 0.72);
+  font-family: var(--font-editorial-display), ui-sans-serif, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 200ms ease;
+}
+
+.scrub-chapter-label {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(6, 18, 12, 0.72);
+  border: 1px solid rgba(243, 247, 244, 0.18);
+  opacity: 0;
+  transform: translateX(6px);
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.scrub-chapter-btn:hover .scrub-chapter-label,
+.scrub-chapter-btn:focus-visible .scrub-chapter-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scrub-chapter-btn[data-current="true"] {
+  color: #b9f675;
+}
+
+.scrub-chapter-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  border: 1.5px solid rgba(243, 247, 244, 0.58);
+  background: rgba(6, 18, 12, 0.5);
+  transition: transform 220ms ease, background-color 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.scrub-chapter-btn[data-current="true"] .scrub-chapter-dot {
+  border-color: #b9f675;
+  background: #b9f675;
+  transform: scale(1.25);
+  box-shadow: 0 0 12px rgba(185, 246, 117, 0.85);
+}
+
+/* Mobile floating OriginKit dock (hidden on desktop) */
+.scrub-mobile-dock {
+  display: none;
+}
+
+/* ============================================================================
+   Bottom Status: Streaming Progress Ring -> Subtle Scroll Cue
+   ============================================================================ */
+.scrub-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: 1.65rem;
+  z-index: 5;
+  transform: translateX(-50%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scrub-stage[data-scrolled="true"] .scrub-indicator {
+  opacity: 0;
+}
+
+.scrub-ring {
+  width: 2.6rem;
+  height: 2.6rem;
+  color: rgba(185, 246, 117, 0.92);
+  transform: rotate(-90deg);
+}
+
+.scrub-ring-track {
+  stroke: rgba(243, 247, 244, 0.16);
+}
+
+.scrub-ring-fill {
+  stroke: currentColor;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 120ms linear;
+}
+
+.scrub-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.9rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(185, 246, 117, 0.3);
+  background: rgba(6, 18, 12, 0.66);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: var(--font-editorial-display), ui-sans-serif, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(243, 247, 244, 0.94);
+  text-shadow: 0 1px 3px rgba(4, 12, 8, 0.85);
+}
+
+.scrub-cue-arrow {
+  width: 0.85rem;
+  height: 0.85rem;
+  animation: scrub-cue-bob 2.4s ease-in-out infinite;
+}
+
+@keyframes scrub-cue-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+/* Glowing bottom progress rail */
+.scrub-progress-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  height: 3px;
+  background: rgba(243, 247, 244, 0.12);
+  pointer-events: none;
+}
+
+.scrub-progress-fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  transform: scaleX(var(--scrub-progress, 0));
+  background: linear-gradient(90deg, #4ade80 0%, #b9f675 100%);
+  box-shadow: 0 0 12px rgba(185, 246, 117, 0.75);
+  will-change: transform;
+}
+
+/* ============================================================================
+   Tablet & Mobile Full Interactive Scroll-Scrub Layout
+   (Same sticky video + Magic UI animations, tuned for vertical touch viewports)
+   ============================================================================ */
+@media (max-width: 1120px) {
+  .scrub-chapter-label {
+    display: none;
+  }
+
+  .scrub-png-frame--floating {
+    left: -0.5rem;
+    bottom: -1rem;
+  }
+
+  .scrub-png-frame--floating-alt {
+    right: -0.5rem;
+    bottom: -1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .scrub-hero {
+    height: 440vh;
+  }
+
+  .scrub-band {
+    align-items: center;
+    padding: 0.95rem 1.15rem calc(7.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .scrub-band::before {
+    background: radial-gradient(
+      ellipse 100% 96% at 50% 44%,
+      rgba(6, 18, 12, 0.78) 0%,
+      rgba(6, 18, 12, 0.56) 52%,
+      rgba(6, 18, 12, 0.18) 100%
+    );
+  }
+
+  .scrub-split,
+  .scrub-split--reversed {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.05rem;
+  }
+
+  .scrub-split--reversed .scrub-copy-col {
+    order: 1;
+  }
+
+  .scrub-split--reversed .scrub-visual-col {
+    order: 2;
+  }
+
+  .scrub-eyebrow {
+    margin-bottom: 0.65rem;
+    padding: 0.3rem 0.72rem;
+    font-size: 0.65rem;
+  }
+
+  .scrub-band .scrub-title,
+  .scrub-band .scrub-title--mega {
+    max-width: 13ch;
+    font-size: clamp(2.15rem, 9.2vw, 3.3rem);
+    line-height: 0.98;
+  }
+
+  .scrub-phrase {
+    margin-top: 0.6rem;
+    font-size: clamp(0.9rem, 3.6vw, 1.05rem);
+    line-height: 1.42;
+  }
+
+  .scrub-actions {
+    margin-top: 0.8rem;
+    gap: 0.45rem;
+  }
+
+  .scrub-button {
+    min-height: 44px;
+    padding: 0.5rem 0.92rem;
+    font-size: 0.8rem;
+  }
+
+  .scrub-mini-schedule {
+    margin-top: 0.7rem;
+    gap: 0.4rem;
+  }
+
+  .scrub-chip,
+  .scrub-address-chip {
+    padding: 0.36rem 0.68rem;
+    font-size: 0.74rem;
+  }
+
+  .scrub-address-chip {
+    margin-top: 0.65rem;
+  }
+
+  /* Compact vertical PNG visuals that fit comfortably inside 375x667..375x812 */
+  .scrub-flame-stage {
+    width: min(10.75rem, 42vw);
+  }
+
+  .scrub-visual-col--weave,
+  .scrub-visual-col--depth,
+  .scrub-visual-col--closing {
+    min-height: 0;
+    justify-content: flex-start;
+    padding-bottom: 0.5rem;
+  }
+
+  .scrub-png-frame--primary,
+  .scrub-png-frame--portrait {
+    width: 100%;
+    max-width: 24rem;
+    aspect-ratio: 16 / 9;
+    max-height: 11.5rem;
+    border-radius: 1rem;
+  }
+
+  .scrub-png-frame--floating,
+  .scrub-png-frame--floating-alt {
+    left: auto;
+    right: 0.45rem;
+    bottom: -0.65rem;
+    width: 44%;
+    max-width: 10rem;
+    aspect-ratio: 4 / 3;
+    border-radius: 0.85rem;
+  }
+
+  .scrub-png-tag {
+    left: 0.55rem;
+    bottom: 0.55rem;
+    padding: 0.26rem 0.58rem;
+    font-size: 0.66rem;
+  }
+
+  .scrub-visual-col--weave .scrub-png-frame--primary .scrub-png-tag {
+    top: 0.55rem;
+    bottom: auto;
+  }
+
+  /* Swap desktop right rail for compact OriginKit bottom floating dock */
+  .scrub-chapter-rail {
+    display: none;
+  }
+
+  .scrub-mobile-dock {
+    position: absolute;
+    left: 50%;
+    bottom: calc(5.05rem + env(safe-area-inset-bottom, 0px));
+    z-index: 6;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.42rem 0.88rem;
+    border-radius: 999px;
+    border: 1px solid rgba(185, 246, 117, 0.28);
+    background: rgba(6, 18, 12, 0.8);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 12px 32px rgba(3, 10, 6, 0.52);
+    pointer-events: auto;
+    white-space: nowrap;
+  }
+
+  .scrub-mobile-dock-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-editorial-display), ui-sans-serif, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(243, 247, 244, 0.9);
+  }
+
+  .scrub-mobile-dock-label strong {
+    color: #b9f675;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .scrub-mobile-dock-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .scrub-mobile-dot {
+    display: inline-grid;
+    flex: 0 0 2.75rem;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .scrub-mobile-dot::before {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: rgba(243, 247, 244, 0.34);
+    content: "";
+    transition: width 220ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease;
+  }
+
+  .scrub-mobile-dot[data-current="true"]::before {
+    width: 1.35rem;
+    background: #b9f675;
+    box-shadow: 0 0 10px rgba(185, 246, 117, 0.75);
+  }
+
+  /* Keep mobile scroll cue & progress rail cleanly above the fixed mobile bottom nav */
+  .scrub-indicator {
+    bottom: calc(9.2rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .scrub-progress-bar {
+    bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 22rem) {
+  .scrub-mobile-dock {
+    gap: 0.25rem;
+    padding-inline: 0.5rem;
+  }
+
+  .scrub-mobile-dock-label {
+    display: none;
+  }
+
+  .scrub-mobile-dock-dots {
+    gap: 0.2rem;
+  }
+}
+
+/* Short screen guard (landscape phone or shallow desktop window) */
+@media (max-height: 580px) {
+  .scrub-indicator,
+  .scrub-chapter-rail {
+    display: none;
+  }
+
+  .scrub-png-frame--floating,
+  .scrub-png-frame--floating-alt {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   Accessibility Gate: Reduced Motion (static composed layout, no video download)
+   ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .scrub-hero {
+    height: auto !important;
+    min-height: 0;
+  }
+
+  .scrub-stage {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .scrub-overlay-slot {
+    position: relative;
+    inset: auto;
+    height: auto;
+    overflow: visible;
+    padding: 1.5rem clamp(1.15rem, 5vw, 2.5rem) 2.5rem;
+  }
+
+  .scrub-narrative {
+    display: grid;
+    gap: 2.25rem;
+    height: auto;
+  }
+
+  .scrub-band {
+    position: relative;
+    inset: auto;
+    padding: clamp(1rem, 4vw, 1.75rem) 0;
+    opacity: 1 !important;
+    pointer-events: auto;
+  }
+
+  .scrub-copy-col,
+  .scrub-word,
+  .scrub-phrase,
+  .scrub-actions,
+  .scrub-chip,
+  .scrub-address-chip,
+  .scrub-flame-stage,
+  .scrub-png-frame,
+  .scrub-visual-col--weave .scrub-png-frame--primary,
+  .scrub-visual-col--depth .scrub-png-frame--primary {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .magic-gradient-text {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: #b9f675;
+    color: #b9f675;
+  }
+
+  .magic-border-beam::after,
+  .magic-shimmer-btn::after,
+  .scrub-orbit-ring,
+  .scrub-motes,
+  .scrub-video,
+  .scrub-ring,
+  .scrub-progress-bar,
+  .scrub-indicator,
+  .scrub-chapter-rail,
+  .scrub-mobile-dock {
+    display: none;
+  }
+
+  .scrub-flame-aura,
+  .scrub-cue-arrow {
+    animation: none;
+  }
+
+  .scrub-poster {
+    opacity: 1;
+  }
+}
+
+@media (pointer: coarse) {
+  .scrub-button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

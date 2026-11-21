@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/shared/SiteImage";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
 import { ChurchEvent } from "@/types";
 import { Button } from "@/components/ui/button";

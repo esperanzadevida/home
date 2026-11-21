@@ -1,5 +1,9 @@
 node_modules/
-.next/
+.next*/
+public/images/esperanza-de-vida/*.png
+public/images/sendero-aurora/*.png
+sendero-home-desktop.png
+sendero-home-mobile.png
 out/
 build/
 .vercel/

@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { churchProfile } from "@/config/church-profile";
-import {
-  getCanonicalUrl,
-  getSiteOrigin,
-  isIndexableDeployment,
-} from "@/lib/site-url";
+import { getCanonicalUrl, getSiteOrigin, isIndexableDeployment, withBasePath } from "@/lib/site-url";
 import "@/styles/globals.css";
 
 const siteOrigin = getSiteOrigin();
@@ -24,7 +20,7 @@ export const metadata: Metadata = {
     index: isIndexableDeployment(),
     follow: isIndexableDeployment(),
   },
-  icons: { icon: "/favicon.svg" },
+  icons: { icon: withBasePath("/favicon.svg") },
   ...(homeCanonical ? { alternates: { canonical: homeCanonical } } : {}),
   openGraph: {
     title: `${churchProfile.name} | ${churchProfile.denomination} en Ambato`,
@@ -70,8 +66,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className="min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
+    <html lang="es" suppressHydrationWarning className="overflow-x-clip">
+      <body className="min-h-screen overflow-x-clip bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

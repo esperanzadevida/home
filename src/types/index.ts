@@ -32,7 +32,8 @@ export interface Product {
   id: string;
   name: string;
   slug: string;
-  category: "Biblias" | "Libros" | "Ropa" | "Accesorios" | "Digital";
+  sku?: string;
+  category: "Lectura" | "Hábitos" | "Comunidad" | "Biblias" | "Libros" | "Ropa" | "Accesorios" | "Digital";
   price: number;
   compareAtPrice?: number;
   coverImage: string;

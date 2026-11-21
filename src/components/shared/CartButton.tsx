@@ -17,7 +17,7 @@ export function CartButton() {
       aria-controls="cart-dialog"
       aria-expanded={isOpen}
     >
-      <ShoppingBag className="w-5 h-5" />
+      <ShoppingBag aria-hidden="true" className="w-5 h-5" />
       {totalItems > 0 && (
         <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-[10px] font-bold text-secondary-foreground shadow-sm animate-in zoom-in-50">
           {totalItems}

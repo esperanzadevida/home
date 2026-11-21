@@ -1,22 +1,12 @@
 import Link from "next/link";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import type { Metadata } from "next";
-import {
-  LayoutDashboard,
-  FileText,
-  Video,
-  Calendar,
-  ShoppingBag,
-  Users,
-  Heart,
-  Shield,
-  Settings,
-  LogOut,
-  Layers,
-} from "lucide-react";
+import { Info } from "lucide-react";
+import { AdminMobileMenu, AdminSidebar } from "@/components/admin/AdminNavigation";
+import { churchProfile } from "@/config/church-profile";
 
 export const metadata: Metadata = {
   title: "Administración",
+  description: `Panel de demostración local de ${churchProfile.name}. Sin autenticación ni almacenamiento de servidor.`,
   robots: { index: false, follow: false },
 };
 
@@ -27,148 +17,41 @@ export default function AdminLayout({
 }) {
   return (
     <div className="min-h-screen flex bg-background text-foreground">
-      {/* Sidebar Lateral */}
-      <aside className="w-64 border-r border-border bg-card flex flex-col justify-between p-4 shrink-0">
-        <div className="space-y-6">
-          {/* Logo Admin */}
-          <div className="flex items-center gap-3 px-2 py-1">
-            <div className="w-9 h-9 rounded-xl bg-primary text-primary-foreground font-bold flex items-center justify-center">
-              AD
-            </div>
-            <div>
-              <div className="font-bold text-sm leading-tight">Admin Portal</div>
-              <div className="text-[10px] text-muted-foreground uppercase font-semibold">
-                Asambleas de Dios
-              </div>
-            </div>
-          </div>
-
-          {/* Menú de Navegación del Panel */}
-          <nav aria-label="Navegación administrativa" className="space-y-1 text-sm font-medium">
-            <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-2 py-1">
-              General
-            </div>
-            <Link
-              href="/admin/dashboard"
-              className="flex items-center gap-3 px-3 py-2 rounded-xl bg-primary/10 text-primary font-semibold"
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Dashboard</span>
-            </Link>
-
-            <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-2 pt-4 py-1">
-              Contenido Público
-            </div>
-            <Link
-              href="/admin/contenido/sermones"
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <Video className="w-4 h-4" />
-              <span>Sermones</span>
-            </Link>
-            <Link
-              href="/admin/contenido/blog"
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <FileText className="w-4 h-4" />
-              <span>Blog y Noticias</span>
-            </Link>
-            <Link
-              href="/admin/contenido/eventos"
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Eventos y Calendario</span>
-            </Link>
-
-            <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-2 pt-4 py-1">
-              Tienda & Donaciones
-            </div>
-            <Link
-              href="/admin/tienda/productos"
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Productos y Stock</span>
-            </Link>
-            <Link
-              href="/admin/tienda/pedidos"
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <Layers className="w-4 h-4" />
-              <span>Pedidos y Ventas</span>
-            </Link>
-            <Link
-              href="/admin/donaciones"
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <Heart className="w-4 h-4" />
-              <span>Diezmos y Ofrendas</span>
-            </Link>
-
-            <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-2 pt-4 py-1">
-              Administración
-            </div>
-            <Link
-              href="/admin/miembros"
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <Users className="w-4 h-4" />
-              <span>Directorio Miembros</span>
-            </Link>
-            <Link
-              href="/admin/roles"
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <Shield className="w-4 h-4" />
-              <span>Roles y Permisos</span>
-            </Link>
-            <Link
-              href="/admin/configuracion"
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            >
-              <Settings className="w-4 h-4" />
-              <span>Configuración</span>
-            </Link>
-          </nav>
-        </div>
-
-        {/* Footer del Sidebar con Usuario y Salida */}
-        <div className="border-t border-border pt-4 space-y-3">
-          <div className="flex items-center justify-between px-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-xs">
-                PA
-              </div>
-              <div>
-                <div className="text-xs font-semibold">Pastor Principal</div>
-                <div className="text-[10px] text-muted-foreground">Super Administrador</div>
-              </div>
-            </div>
-            <ThemeToggle />
-          </div>
-          <Link
-            href="/"
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-destructive hover:bg-destructive/10 transition-colors w-full"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Cerrar Sesión</span>
-          </Link>
-        </div>
-      </aside>
+      <a
+        href="#admin-main-content"
+        className="sr-only z-[60] rounded-md bg-background px-4 py-3 text-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:ring-2 focus:ring-ring"
+      >
+        Ir al contenido principal
+      </a>
+      <AdminSidebar />
 
       {/* Área Principal de Contenido del Admin */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <header className="h-16 border-b border-border bg-card px-8 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Gestión de la Iglesia</h2>
-          <div className="flex items-center gap-3">
-            <Link href="/" target="_blank" className="text-xs text-primary hover:underline font-semibold">
-              Ver sitio público ↗
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-y-auto">
+        <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-card/95 px-4 backdrop-blur sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center gap-3">
+            <AdminMobileMenu />
+            <h2 className="truncate text-base font-bold sm:text-lg">Gestión de la Iglesia</h2>
+          </div>
+          <div className="flex shrink-0 items-center gap-3">
+            <Link
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg px-2 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:px-3"
+            >
+              <span className="sm:hidden">Ver sitio ↗</span>
+              <span className="hidden sm:inline">Ver sitio público ↗</span>
             </Link>
           </div>
         </header>
 
-        <main className="p-8 flex-1">{children}</main>
+        <main id="admin-main-content" tabIndex={-1} className="w-full flex-1 space-y-5 p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ring sm:p-6 lg:p-8">
+          <aside className="flex gap-3 rounded-xl border border-warning/30 bg-warning/5 px-4 py-3 text-xs leading-relaxed text-foreground sm:text-sm" aria-label="Estado de demostración del panel">
+            <Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+            <p><strong>Panel de demostración.</strong> No hay autenticación ni almacenamiento de servidor. El blog y la configuración general guardan borradores solo en este navegador; las demás pantallas usan datos de muestra. Ninguna acción local modifica el sitio público ni envía mensajes o pagos.</p>
+          </aside>
+          {children}
+        </main>
       </div>
     </div>
   );

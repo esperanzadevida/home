@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PublicPageRenderer } from "@/components/shared/PublicPageRenderer";
 import { churchProfile } from "@/config/church-profile";
+import { createPageMetadata } from "@/lib/page-metadata";
 import {
   publicPageBlueprints,
   type PublicPageSlug,
@@ -21,10 +22,12 @@ export async function generateMetadata({ params }: PublicPageProps): Promise<Met
 
   if (!page) return {};
 
-  return {
+  return createPageMetadata({
     title: `${page.title} | ${churchProfile.name}`,
     description: page.intro,
-  };
+    pathname: `/${slug}`,
+    titleAbsolute: true,
+  });
 }
 
 export default async function PublicSectionPage({ params }: PublicPageProps) {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/shared/SiteImage";
 import { Play, Clock, BookOpen } from "lucide-react";
 import { Sermon } from "@/types";
 

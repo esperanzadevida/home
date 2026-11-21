@@ -20,12 +20,23 @@ export function getSiteOrigin(): URL | undefined {
   }
 }
 
+export function withBasePath(pathname: string): string {
+  const configuredBasePath = process.env.NEXT_PUBLIC_BASE_PATH?.trim();
+  const basePath = configuredBasePath?.replace(/\/+$/, "") ?? "";
+  const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
+
+  if (!basePath || path === basePath || path.startsWith(`${basePath}/`)) {
+    return path;
+  }
+
+  return path === "/" ? `${basePath}/` : `${basePath}${path}`;
+}
+
 export function getCanonicalUrl(pathname: string): string | undefined {
   const origin = getSiteOrigin();
   if (!origin) return undefined;
 
-  const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
-  return new URL(path, origin).toString();
+  return new URL(withBasePath(pathname), origin).toString();
 }
 
 export function isIndexableDeployment(): boolean {

@@ -1,0 +1,501 @@
+/* ============================================================================
+   Multi-World Scroll-Scrub Themes (Tienda / Servicios / En Vivo)
+   + Luxury Boutique Storefront Styles (Light & Dark mode)
+   ============================================================================ */
+
+/* --- THEME: VIOLET (Tienda - Iridescent Liquid Obsidian Glass Orb) --- */
+.scrub-hero[data-scrub-theme="violet"] {
+  background-color: #08070f;
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-stage {
+  background:
+    radial-gradient(ellipse 64% 58% at 50% 48%, rgba(168, 85, 247, 0.2) 0%, rgba(56, 189, 248, 0.08) 42%, transparent 74%),
+    #08070f;
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-scrim {
+  background: radial-gradient(
+    ellipse 110% 95% at 50% 48%,
+    rgba(8, 7, 15, 0.14) 24%,
+    rgba(8, 7, 15, 0.72) 100%
+  );
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-eyebrow {
+  border-color: rgba(192, 132, 252, 0.34);
+  background: rgba(10, 8, 20, 0.64);
+  color: #e9d5ff;
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-eyebrow-mark {
+  background: #c084fc;
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.85);
+}
+
+.scrub-hero[data-scrub-theme="violet"] .magic-gradient-text {
+  background: linear-gradient(
+    110deg,
+    #c084fc 0%,
+    #67e8f9 36%,
+    #f5f3ff 52%,
+    #86efac 74%,
+    #c084fc 100%
+  );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-button--primary {
+  background: linear-gradient(135deg, #e9d5ff 0%, #c084fc 52%, #67e8f9 100%);
+  color: #090712;
+  box-shadow: 0 14px 38px rgba(192, 132, 252, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-button--primary:hover {
+  background: linear-gradient(135deg, #f3e8ff 0%, #d8b4fe 52%, #a5f3fc 100%);
+  color: #090712;
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-progress-fill {
+  background: linear-gradient(90deg, #a855f7 0%, #38bdf8 55%, #4ade80 100%);
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.8);
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-cue {
+  border-color: rgba(192, 132, 252, 0.34);
+  background: rgba(10, 8, 20, 0.72);
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-chapter-btn[data-current="true"] {
+  color: #d8b4fe;
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-chapter-btn[data-current="true"] .scrub-chapter-dot,
+.scrub-hero[data-scrub-theme="violet"] .scrub-mobile-dot[data-current="true"]::before {
+  border-color: #d8b4fe;
+  background: #d8b4fe;
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.85);
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-mobile-dock {
+  border-color: rgba(192, 132, 252, 0.3);
+  background: rgba(10, 8, 20, 0.84);
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-mobile-dock-label strong {
+  color: #d8b4fe;
+}
+
+.scrub-hero[data-scrub-theme="violet"] .magic-border-beam::after {
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    transparent 235deg,
+    rgba(192, 132, 252, 0.72) 288deg,
+    rgba(103, 232, 249, 0.98) 332deg,
+    transparent 360deg
+  );
+}
+
+.scrub-hero[data-scrub-theme="violet"] .scrub-mote {
+  background: radial-gradient(circle, rgba(216, 180, 254, 0.92) 0%, rgba(103, 232, 249, 0) 70%);
+}
+
+/* --- THEME: AMBER (Servicios - Royal Blue + Warm Amber Silk Wave) --- */
+.scrub-hero[data-scrub-theme="amber"] {
+  background-color: #070b14;
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-stage {
+  background:
+    radial-gradient(ellipse 62% 54% at 18% 72%, rgba(59, 130, 246, 0.24) 0%, transparent 65%),
+    radial-gradient(ellipse 56% 52% at 84% 28%, rgba(251, 146, 60, 0.2) 0%, transparent 65%),
+    #070b14;
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-scrim {
+  background: radial-gradient(
+    ellipse 115% 95% at 50% 45%,
+    rgba(7, 11, 20, 0.22) 25%,
+    rgba(7, 11, 20, 0.74) 100%
+  );
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-eyebrow {
+  border-color: rgba(251, 191, 36, 0.36);
+  background: rgba(8, 13, 26, 0.66);
+  color: #fde68a;
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-eyebrow-mark {
+  background: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.85);
+}
+
+.scrub-hero[data-scrub-theme="amber"] .magic-gradient-text {
+  background: linear-gradient(
+    110deg,
+    #93c5fd 0%,
+    #fde68a 38%,
+    #fff7ed 52%,
+    #fb923c 76%,
+    #93c5fd 100%
+  );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-button--primary {
+  background: linear-gradient(135deg, #fde68a 0%, #fbbf24 55%, #fb923c 100%);
+  color: #0b1120;
+  box-shadow: 0 14px 36px rgba(251, 191, 36, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-progress-fill {
+  background: linear-gradient(90deg, #3b82f6 0%, #fb923c 65%, #fde047 100%);
+  box-shadow: 0 0 12px rgba(251, 146, 60, 0.8);
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-chapter-btn[data-current="true"] {
+  color: #fde68a;
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-chapter-btn[data-current="true"] .scrub-chapter-dot,
+.scrub-hero[data-scrub-theme="amber"] .scrub-mobile-dot[data-current="true"]::before {
+  border-color: #fde68a;
+  background: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.85);
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-mobile-dock {
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(8, 13, 26, 0.84);
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-mobile-dock-label strong {
+  color: #fde68a;
+}
+
+.scrub-hero[data-scrub-theme="amber"] .magic-border-beam::after {
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    transparent 235deg,
+    rgba(96, 165, 250, 0.75) 288deg,
+    rgba(251, 191, 36, 0.98) 332deg,
+    transparent 360deg
+  );
+}
+
+.scrub-hero[data-scrub-theme="amber"] .scrub-mote {
+  background: radial-gradient(circle, rgba(253, 230, 138, 0.92) 0%, rgba(96, 165, 250, 0) 70%);
+}
+
+/* --- THEME: AURORA (En Vivo - Warm Sunrise Coral / Magenta / Violet Mesh) --- */
+.scrub-hero[data-scrub-theme="aurora"] {
+  background-color: #130816;
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .scrub-stage {
+  background:
+    radial-gradient(ellipse 68% 60% at 16% 80%, rgba(251, 191, 36, 0.24) 0%, transparent 65%),
+    radial-gradient(ellipse 62% 58% at 84% 20%, rgba(168, 85, 247, 0.28) 0%, transparent 68%),
+    #130816;
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .scrub-scrim {
+  background: radial-gradient(
+    ellipse 115% 95% at 50% 48%,
+    rgba(19, 8, 22, 0.34) 22%,
+    rgba(19, 8, 22, 0.78) 100%
+  );
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .scrub-eyebrow {
+  border-color: rgba(251, 113, 133, 0.42);
+  background: rgba(20, 8, 24, 0.72);
+  color: #fecdd3;
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .scrub-eyebrow-mark {
+  background: #fb7185;
+  box-shadow: 0 0 12px rgba(251, 113, 133, 0.9);
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .magic-gradient-text {
+  background: linear-gradient(
+    110deg,
+    #fde047 0%,
+    #fda4af 36%,
+    #fff1f2 52%,
+    #d8b4fe 76%,
+    #fde047 100%
+  );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .scrub-button--primary {
+  background: linear-gradient(135deg, #fef08a 0%, #fda4af 54%, #e879f9 100%);
+  color: #16071a;
+  box-shadow: 0 14px 38px rgba(251, 113, 133, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .scrub-progress-fill {
+  background: linear-gradient(90deg, #facc15 0%, #fb7185 52%, #a855f7 100%);
+  box-shadow: 0 0 12px rgba(251, 113, 133, 0.85);
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .scrub-chapter-btn[data-current="true"] {
+  color: #fecdd3;
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .scrub-chapter-btn[data-current="true"] .scrub-chapter-dot,
+.scrub-hero[data-scrub-theme="aurora"] .scrub-mobile-dot[data-current="true"]::before {
+  border-color: #fecdd3;
+  background: #fb7185;
+  box-shadow: 0 0 12px rgba(251, 113, 133, 0.9);
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .scrub-mobile-dock {
+  border-color: rgba(251, 113, 133, 0.34);
+  background: rgba(20, 8, 24, 0.86);
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .scrub-mobile-dock-label strong {
+  color: #fecdd3;
+}
+
+.scrub-hero[data-scrub-theme="aurora"] .magic-border-beam::after {
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    transparent 235deg,
+    rgba(251, 113, 133, 0.78) 288deg,
+    rgba(254, 240, 138, 0.98) 332deg,
+    transparent 360deg
+  );
+}
+
+/* ============================================================================
+   Shared Glass Feature Cards for 2-Beat Subpage Heroes (Tienda / Servicios / En Vivo)
+   ============================================================================ */
+.scrub-sub-cards {
+  display: grid;
+  gap: 0.95rem;
+  width: min(100%, 28rem);
+}
+
+.scrub-sub-card {
+  --card-k: clamp(0, (var(--k, 1) - 0.16 - var(--card-i, 0) * 0.12) * 2.8, 1);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.85rem;
+  padding: 1rem 1.15rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(135deg, rgba(14, 15, 26, 0.78), rgba(8, 10, 18, 0.68));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.42);
+  opacity: var(--card-k);
+  transform: translate3d(calc((1 - var(--card-k)) * 22px), calc((1 - var(--card-k)) * 12px), 0);
+  will-change: transform, opacity;
+}
+
+.scrub-sub-card-icon {
+  display: flex;
+  width: 2.35rem;
+  height: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  flex-shrink: 0;
+}
+
+.scrub-sub-card h3 {
+  color: #f8fafc;
+  font-family: var(--font-editorial-display), ui-sans-serif, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.scrub-sub-card p {
+  margin-top: 0.25rem;
+  color: rgba(241, 245, 249, 0.82);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+/* Compact store hero teaser showcase */
+.scrub-store-showcase {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  width: min(100%, 28rem);
+}
+
+.scrub-store-mini {
+  --mini-k: clamp(0, (var(--k, 1) - 0.14 - var(--mini-i, 0) * 0.14) * 2.6, 1);
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(12, 10, 22, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  opacity: var(--mini-k);
+  transform:
+    translate3d(0, calc((1 - var(--mini-k)) * 28px + var(--mini-offset, 0px)), 0)
+    scale(calc(0.9 + 0.1 * var(--mini-k)));
+  will-change: transform, opacity;
+}
+
+.scrub-store-mini--stagger {
+  --mini-offset: 1.25rem;
+}
+
+.scrub-store-mini-photo {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scrub-store-mini-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  font-family: var(--font-editorial-display), ui-sans-serif, sans-serif;
+  font-size: 0.76rem;
+  color: #f8fafc;
+}
+
+.scrub-store-mini-meta strong {
+  color: #d8b4fe;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .scrub-hero[data-scrub-theme="violet"],
+  .scrub-hero[data-scrub-theme="amber"],
+  .scrub-hero[data-scrub-theme="aurora"] {
+    height: 280vh;
+  }
+
+  .scrub-store-showcase {
+    max-width: 22rem;
+    gap: 0.65rem;
+  }
+
+  .scrub-store-mini--stagger {
+    --mini-offset: 0px;
+  }
+
+  .scrub-store-mini-photo {
+    aspect-ratio: 4 / 3;
+  }
+
+  .scrub-store-mini-meta {
+    padding: 0.45rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .scrub-sub-cards {
+    gap: 0.55rem;
+  }
+
+  .scrub-sub-card {
+    padding: 0.7rem 0.85rem;
+    gap: 0.65rem;
+  }
+
+  .scrub-sub-card-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .scrub-sub-card h3 {
+    font-size: 0.86rem;
+  }
+
+  .scrub-sub-card p {
+    font-size: 0.76rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrub-sub-card,
+  .scrub-store-mini {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ============================================================================
+   Luxury Boutique Storefront Cards & Interactive Hover Beam
+   ============================================================================ */
+.store-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 280ms ease, border-color 220ms ease;
+}
+
+.store-card:hover {
+  transform: translateY(-4px);
+}
+
+.store-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    transparent 230deg,
+    rgba(192, 132, 252, 0.72) 288deg,
+    rgba(74, 222, 128, 0.95) 334deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease;
+  animation: magic-beam-rotate 6.5s linear infinite;
+}
+
+.store-card:hover::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-card:hover {
+    transform: none;
+  }
+
+  .store-card::after {
+    display: none;
+  }
+}

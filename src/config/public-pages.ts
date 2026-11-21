@@ -1,5 +1,6 @@
 import { churchProfile } from "@/config/church-profile";
 import { fundamentalTruths } from "@/config/fundamental-truths";
+import { churchGalleryItems } from "@/config/gallery";
 
 export const publicNavigation = [
   { href: "/nosotros", label: "Nosotros" },
@@ -18,6 +19,41 @@ export const moreNavigation = [
   { href: "/oracion", label: "Oración" },
   { href: "/en-vivo", label: "En vivo" },
 ] as const;
+
+const discoverNavigationHrefs = new Set(["/blog", "/tienda", "/galeria"]);
+
+export const desktopMegaMenuSections = [
+  {
+    label: "Descubre",
+    items: moreNavigation.filter((item) => discoverNavigationHrefs.has(item.href)),
+  },
+  {
+    label: "Participa",
+    items: moreNavigation.filter((item) => !discoverNavigationHrefs.has(item.href)),
+  },
+] as const;
+
+const mobilePrimaryHrefs = new Set(["/", "/servicios", "/eventos", "/en-vivo"]);
+const mobileNavigationItems = [
+  { href: "/", label: "Inicio" },
+  ...publicNavigation,
+  ...moreNavigation,
+];
+
+export const mobilePrimaryNavigation = mobileNavigationItems.filter((item) =>
+  mobilePrimaryHrefs.has(item.href),
+);
+
+export const mobileMoreSections = [
+  {
+    label: "Explorar",
+    items: publicNavigation.filter((item) => !mobilePrimaryHrefs.has(item.href)),
+  },
+  {
+    label: "Comunidad",
+    items: moreNavigation.filter((item) => !mobilePrimaryHrefs.has(item.href)),
+  },
+];
 
 export type PublicPageCard = {
   eyebrow?: string;
@@ -46,7 +82,7 @@ export type PublicPageSection = {
   title: string;
   intro?: string;
   explorer?: "sermons" | "events" | "blog" | "shop" | "ministries";
-  presentation?: "numbered-list" | "contact-methods" | "social-profiles" | "callout";
+  presentation?: "numbered-list" | "contact-methods" | "social-profiles" | "callout" | "image-gallery";
   source?: { label: string; href: string; note?: string };
   cards: PublicPageCard[];
 };
@@ -69,7 +105,7 @@ export const publicPageBlueprints = {
     title: "Una comunidad para caminar juntos",
     eyebrow: "Conócenos · Ambato",
     intro:
-      "Somos Iglesia Doménica, una familia de fe que aprende de Jesús, sirve a la ciudad y acompaña a las personas en cada etapa de la vida.",
+      `Somos ${churchProfile.name}, una familia de fe que aprende de Jesús, sirve a la ciudad y acompaña a las personas en cada etapa de la vida.`,
     action: { label: "Conoce nuestros encuentros", href: "/servicios" },
     sections: [
       {
@@ -133,6 +169,8 @@ export const publicPageBlueprints = {
             description:
               "Acompaña la enseñanza bíblica, la vida comunitaria y la formación de nuevos equipos de servicio.",
             meta: "Enseñanza · Comunidad",
+            imageSrc: "/images/esperanza-de-vida/samuel-andrade.webp",
+            imageAlt: "Retrato del pastor Samuel Andrade en un espacio comunitario.",
           },
           {
             eyebrow: "Pastora de familias",
@@ -140,6 +178,8 @@ export const publicPageBlueprints = {
             description:
               "Coordina espacios de acompañamiento para familias y ministerios de niñez en cada etapa.",
             meta: "Familias · Exploradores",
+            imageSrc: "/images/esperanza-de-vida/maria-fernanda-lopez.webp",
+            imageAlt: "Retrato de la pastora María Fernanda López en un espacio comunitario.",
           },
           {
             eyebrow: "Pastor de jóvenes y música",
@@ -147,6 +187,8 @@ export const publicPageBlueprints = {
             description:
               "Apoya a Embajadores y al equipo de adoración para que más personas puedan aportar sus dones.",
             meta: "Embajadores · Adoración",
+            imageSrc: "/images/esperanza-de-vida/david-mena.webp",
+            imageAlt: "Retrato del pastor de jóvenes David Mena.",
           },
         ],
       },
@@ -154,7 +196,7 @@ export const publicPageBlueprints = {
         eyebrow: "Nuestra historia",
         title: "Una comunidad que sigue creciendo",
         intro:
-          "Desde el primer encuentro hasta hoy, la historia de Doménica se ha escrito con personas que comparten fe y servicio.",
+          `Desde el primer encuentro hasta hoy, la historia de ${churchProfile.shortName} se ha escrito con personas que comparten fe y servicio.`,
         cards: [
           {
             eyebrow: "2014",
@@ -501,6 +543,8 @@ export const publicPageBlueprints = {
             meta: "Aprender · Crear · Compartir",
             meeting: "Domingos · 09:00 y 11:30",
             leader: "María Fernanda López",
+            imageSrc: "/images/esperanza-de-vida/exploradores.webp",
+            imageAlt: "Una líder acompaña a niñas y niños en una actividad creativa de Exploradores.",
           },
           {
             eyebrow: "Juventud",
@@ -510,6 +554,8 @@ export const publicPageBlueprints = {
             meta: "Viernes · 19:30",
             meeting: "Viernes · 19:30",
             leader: "David Mena",
+            imageSrc: "/images/esperanza-de-vida/embajadores-jovenes.webp",
+            imageAlt: "Jóvenes conversan en una reunión del ministerio Embajadores.",
           },
           {
             eyebrow: "Música",
@@ -519,6 +565,8 @@ export const publicPageBlueprints = {
             meta: "Música · Servicio",
             meeting: "Ensayo: jueves · 19:00. Servicio: domingos.",
             leader: "David Mena",
+            imageSrc: "/images/esperanza-de-vida/culto-dominical.webp",
+            imageAlt: "La comunidad se reúne para un culto dominical con enseñanza y música.",
           },
           {
             eyebrow: "Acompañamiento",
@@ -528,6 +576,8 @@ export const publicPageBlueprints = {
             meta: "Fe · Cuidado",
             meeting: "Miércoles · 19:30",
             leader: "Samuel Andrade",
+            imageSrc: "/images/esperanza-de-vida/equipo-pastoral.webp",
+            imageAlt: "El equipo pastoral conversa en el jardín de la iglesia.",
           },
           {
             eyebrow: "Vida en familia",
@@ -537,6 +587,8 @@ export const publicPageBlueprints = {
             meta: "Vínculos · Comunidad",
             meeting: "Segundo sábado del mes · 16:00",
             leader: "María Fernanda López",
+            imageSrc: "/images/esperanza-de-vida/familias-encuentro.webp",
+            imageAlt: "Una familia de varias generaciones comparte una actividad en comunidad.",
           },
           {
             eyebrow: "Servicio",
@@ -546,6 +598,41 @@ export const publicPageBlueprints = {
             meta: "Hospitalidad · Servicio",
             meeting: "Domingos · 08:30 y 11:00",
             leader: "Equipo pastoral",
+            imageSrc: "/images/esperanza-de-vida/bienvenida-visita.webp",
+            imageAlt: "Voluntarios reciben a una pareja visitante en la entrada de la iglesia.",
+          },
+          {
+            eyebrow: "Servicio en la ciudad",
+            title: "Servicio comunitario",
+            description:
+              "Personas que convierten la fe en acciones de apoyo y acompañamiento para el barrio.",
+            meta: "Comunidad · Servicio",
+            meeting: "Próximas jornadas · consulta la agenda",
+            leader: "Equipo de servicio",
+            imageSrc: "/images/esperanza-de-vida/servicio-comunitario.webp",
+            imageAlt: "Voluntarios preparan alimentos para compartir durante una jornada comunitaria.",
+          },
+          {
+            eyebrow: "Aprender juntos",
+            title: "Formación bíblica",
+            description:
+              "Un espacio para leer las Escrituras, hacer preguntas y relacionar la fe con la vida diaria.",
+            meta: "Biblia · Conversación",
+            meeting: "Consulta las próximas fechas.",
+            leader: "Equipo de formación",
+            imageSrc: "/images/esperanza-de-vida/formacion-biblica.webp",
+            imageAlt: "Un grupo de adultos conversa alrededor de Biblias abiertas y cuadernos.",
+          },
+          {
+            eyebrow: "Comunicación",
+            title: "Medios y comunicación",
+            description:
+              "Un equipo que sirve con fotografía, audio y video para compartir lo que vive la comunidad.",
+            meta: "Foto · Audio · Video",
+            meeting: "Según la agenda de encuentros.",
+            leader: "Equipo de comunicación",
+            imageSrc: "/images/esperanza-de-vida/comunicaciones-equipo.webp",
+            imageAlt: "Voluntarios colaboran con una cámara y una consola de sonido durante un encuentro.",
           },
         ],
       },
@@ -639,11 +726,11 @@ export const publicPageBlueprints = {
           },
           {
             eyebrow: "Comunidad",
-            title: "Camiseta Doménica",
+            title: "Camiseta Esperanza de Vida",
             description:
               "Una prenda sencilla con la identidad visual de la comunidad, disponible en varias tallas.",
             meta: "$18,00",
-            href: "/tienda/camiseta-domenica",
+            href: "/tienda/camiseta-esperanza-de-vida",
             filterValues: { categoría: "Comunidad", precio: "De $10 a $20" },
             sortPrice: 18,
             sortDate: "2026-11-12",
@@ -680,38 +767,15 @@ export const publicPageBlueprints = {
         title: "Imágenes de nuestra comunidad",
         intro:
           "La música, las conversaciones y el servicio aparecen en momentos cotidianos que compartimos como comunidad.",
-        cards: [
-          {
-            eyebrow: "Encuentros",
-            title: "Domingos para compartir",
-            description:
-              "Celebraciones y conversaciones alrededor de la fe, la música y la bienvenida.",
-            meta: "Encuentros dominicales · 2026",
-            imageSrc: "/images/gallery/domingos-para-compartir.png",
-            imageAlt: "Personas se saludan durante un encuentro dominical de la Iglesia Doménica.",
-            visual: "gathering",
-          },
-          {
-            eyebrow: "Niñez y juventud",
-            title: "Aprender en cada etapa",
-            description:
-              "Actividades de Exploradores y Embajadores que invitan a aprender, crear y compartir.",
-            meta: "Generaciones · 2026",
-            imageSrc: "/images/gallery/aprender-en-cada-etapa.png",
-            imageAlt: "Niñas, jóvenes y adultos comparten una actividad creativa alrededor de una mesa.",
-            visual: "generations",
-          },
-          {
-            eyebrow: "Servicio",
-            title: "Una ciudad que cuidamos juntos",
-            description:
-              "Jornadas de servicio y pequeños gestos que conectan a la comunidad con su entorno.",
-            meta: "Servicio · 2026",
-            imageSrc: "/images/gallery/servir-en-comunidad.png",
-            imageAlt: "Personas colaboran en una jornada de ayuda comunitaria en Ambato.",
-            visual: "service",
-          },
-        ],
+        presentation: "image-gallery",
+        cards: churchGalleryItems.map((item) => ({
+          eyebrow: item.album,
+          title: item.title,
+          description: item.description,
+          meta: `${item.album} · ${item.year}`,
+          imageSrc: item.src,
+          imageAlt: item.alt,
+        })),
       },
     ],
   },
@@ -749,7 +813,7 @@ export const publicPageBlueprints = {
     sections: [
       {
         eyebrow: "Encuéntranos",
-        title: "Iglesia Doménica en Ambato",
+        title: `${churchProfile.name} en Ambato`,
         intro:
           "Estamos en el sector Ficoa. Puedes llegar a cualquiera de nuestros encuentros semanales; el equipo de bienvenida estará en la entrada.",
         presentation: "contact-methods",
@@ -769,7 +833,7 @@ export const publicPageBlueprints = {
             description:
               "Atención de lunes a viernes, de 09:00 a 17:00.",
             meta: "Equipo de bienvenida",
-            href: "tel:+593992463817",
+            href: `tel:${churchProfile.phone.replace(/[^\d+]/g, "")}`,
             actionLabel: "Llamar ahora",
           },
           {

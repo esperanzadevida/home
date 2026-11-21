@@ -1,3 +1,5 @@
+import { churchProfile } from "@/config/church-profile";
+
 export type ContentDetail = {
   title: string;
   eyebrow: string;
@@ -188,7 +190,7 @@ export const eventDetails = {
     title: "Domingo de bienvenida",
     eyebrow: "Encuentro · 22 nov 2026",
     intro:
-      "Un domingo para encontrarnos con calma, compartir la música y recibir a quienes se acercan a Iglesia Doménica por primera vez.",
+      `Un domingo para encontrarnos con calma, compartir la música y recibir a quienes se acercan a ${churchProfile.name} por primera vez.`,
     meta: "Domingo 22 de noviembre · 09:00 y 11:30 · Sector Ficoa, Ambato",
     startDates: ["2026-11-22T09:00:00-05:00", "2026-11-22T11:30:00-05:00"],
     related: [
@@ -217,7 +219,7 @@ export const eventDetails = {
     eyebrow: "Comunidad · 6 dic 2026",
     intro:
       "Una jornada para preparar acciones sencillas de acompañamiento y servicio junto a familias y jóvenes de la comunidad.",
-    meta: "Domingo 6 de diciembre · 15:00 · Iglesia Doménica, Ambato",
+    meta: `Domingo 6 de diciembre · 15:00 · ${churchProfile.name}, Ambato`,
     startDates: ["2026-12-06T15:00:00-05:00"],
     related: [
       { title: "Domingo de bienvenida", href: "/eventos/domingo-de-bienvenida" },
@@ -245,7 +247,7 @@ export const eventDetails = {
     eyebrow: "Celebración · 20 dic 2026",
     intro:
       "Una tarde para celebrar la Navidad con música, historias y una mesa compartida por personas de todas las edades.",
-    meta: "Domingo 20 de diciembre · 17:00 · Iglesia Doménica, Ambato",
+    meta: `Domingo 20 de diciembre · 17:00 · ${churchProfile.name}, Ambato`,
     startDates: ["2026-12-20T17:00:00-05:00"],
     related: [
       { title: "Domingo de bienvenida", href: "/eventos/domingo-de-bienvenida" },
@@ -276,7 +278,7 @@ export const blogDetails = {
     eyebrow: "Vida cotidiana · 12 nov 2026",
     intro:
       "A veces un nuevo comienzo no llega con ruido. Puede aparecer en una conversación, una pausa o una decisión pequeña que nos ayuda a mirar el día con más ánimo.",
-    meta: "5 min de lectura · Comunidad Doménica",
+    meta: `5 min de lectura · Comunidad ${churchProfile.shortName}`,
     datePublished: "2026-11-12",
     author: "María Fernanda López",
     authorRole: "Equipo editorial",
@@ -307,7 +309,7 @@ export const blogDetails = {
     eyebrow: "Adoración · 5 nov 2026",
     intro:
       "La gratitud y la atención cambian la manera en que miramos a las personas que están cerca. Escuchar puede convertirse en una forma concreta de cuidar.",
-    meta: "4 min de lectura · Comunidad Doménica",
+    meta: `4 min de lectura · Comunidad ${churchProfile.shortName}`,
     datePublished: "2026-11-05",
     author: "María Fernanda López",
     authorRole: "Equipo editorial",
@@ -338,7 +340,7 @@ export const blogDetails = {
     eyebrow: "Familia · 29 oct 2026",
     intro:
       "Crear momentos para escucharnos puede acercar a niños, jóvenes y adultos en medio de la rutina. Una mesa compartida abre espacio para preguntas y recuerdos.",
-    meta: "6 min de lectura · Comunidad Doménica",
+    meta: `6 min de lectura · Comunidad ${churchProfile.shortName}`,
     datePublished: "2026-10-29",
     author: "María Fernanda López",
     authorRole: "Equipo editorial",
@@ -375,7 +377,7 @@ export const productDetails = {
     meta: "Desde $28,00 · Consulta disponibilidad en la sede",
     related: [
       { title: "Cuaderno de reflexión", href: "/tienda/cuaderno-de-reflexion" },
-      { title: "Camiseta Doménica", href: "/tienda/camiseta-domenica" },
+      { title: "Camiseta Esperanza de Vida", href: "/tienda/camiseta-esperanza-de-vida" },
     ],
     sections: [
       {
@@ -388,7 +390,7 @@ export const productDetails = {
       {
         title: "Disponibilidad",
         paragraphs: [
-          "El catálogo presencial puede variar. La consulta y compra se realizan en el punto de recursos de Iglesia Doménica; esta página no procesa pedidos ni pagos.",
+          `El catálogo presencial puede variar. La consulta y compra se realizan en el punto de recursos de ${churchProfile.name}; esta página no procesa pedidos ni pagos.`,
         ],
       },
     ],
@@ -401,7 +403,7 @@ export const productDetails = {
     meta: "$9,00 · Consulta disponibilidad en la sede",
     related: [
       { title: "Biblia de estudio", href: "/tienda/biblia-de-estudio" },
-      { title: "Camiseta Doménica", href: "/tienda/camiseta-domenica" },
+      { title: "Camiseta Esperanza de Vida", href: "/tienda/camiseta-esperanza-de-vida" },
     ],
     sections: [
       {
@@ -414,13 +416,13 @@ export const productDetails = {
       {
         title: "Disponibilidad",
         paragraphs: [
-          "El catálogo presencial puede variar. La consulta y compra se realizan en el punto de recursos de Iglesia Doménica; esta página no procesa pedidos ni pagos.",
+          `El catálogo presencial puede variar. La consulta y compra se realizan en el punto de recursos de ${churchProfile.name}; esta página no procesa pedidos ni pagos.`,
         ],
       },
     ],
   },
-  "camiseta-domenica": {
-    title: "Camiseta Doménica",
+  "camiseta-esperanza-de-vida": {
+    title: "Camiseta Esperanza de Vida",
     eyebrow: "Recurso · Comunidad",
     intro:
       "Una prenda sencilla con la identidad visual de la comunidad, disponible en una selección de tallas.",

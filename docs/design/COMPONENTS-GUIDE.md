@@ -108,3 +108,22 @@ Secciones de página completas y reutilizables:
 ### 9. Icons (src/components/icons/)
 - Iconos SVG personalizados de la iglesia
 - Re-exports de Lucide icons
+
+## Navegación móvil y recordatorios públicos
+
+- `src/components/shared/MobileNavigation.tsx` — barra inferior móvil con Inicio, Servicios, Eventos, En vivo y Más; el panel Más conserva las rutas configuradas y el CTA de visita.
+- `src/components/shared/MobileNavigationItem.tsx` — enlace reutilizable para pestañas móviles y enlaces del panel, con estado actual accesible.
+- `src/config/public-pages.ts` — deriva los destinos principales y las secciones de Más desde la navegación pública existente.
+- `src/components/shared/NotificationCenter.tsx` — botón con pendientes y panel de recordatorios de eventos próximos; contiene el elemento, el contador y el estado vacío.
+- `src/providers/NotificationProvider.tsx` — estado local de lectura, sincronizado entre pestañas y guardado en `localStorage`.
+- `src/lib/public-notifications.ts` — crea recordatorios a partir de eventos existentes con fecha de inicio dentro de los siguientes siete días.
+- `src/components/shared/ToastViewport.tsx` — único punto de montaje de Sonner para avisos breves en las páginas públicas.
+- `src/styles/mobile-navigation.css` — estilos responsive, superficie glass con fondo de respaldo, áreas seguras del dispositivo y movimiento reducido.
+
+El centro muestra recordatorios dentro del sitio basados en los datos actuales de `eventDetails`. El estado de lectura vive en el navegador de cada persona. No hay integración de notificaciones push, service worker ni backend; el sitio no solicita permisos del sistema operativo.
+
+## Navegación de escritorio
+
+- `src/components/shared/DesktopMegaMenu.tsx` — navegación principal en escritorio con grupos Descubre y Participa, estados de ruta y CTA de visita; usa la primitiva accesible de Radix Navigation Menu.
+- `src/config/public-pages.ts` — `desktopMegaMenuSections` agrupa los destinos ya existentes de `moreNavigation` sin cambiar sus rutas.
+- `src/styles/desktop-navigation.css` — estilos del panel glass, tratamiento claro/oscuro, foco visible, animación breve y movimiento reducido.

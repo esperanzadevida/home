@@ -123,11 +123,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(CART_STORAGE_KEY);
-    const restored = saved
-      ? parseCart(saved)
-      : migrateLegacyCart(localStorage.getItem(LEGACY_CART_STORAGE_KEY));
-    setItems(restored);
+    try {
+      const saved = localStorage.getItem(CART_STORAGE_KEY);
+      const restored = saved
+        ? parseCart(saved)
+        : migrateLegacyCart(localStorage.getItem(LEGACY_CART_STORAGE_KEY));
+      setItems(restored);
+    } catch {
+      // The cart remains usable for this visit when browser storage is unavailable.
+    }
     setIsHydrated(true);
   }, []);
 

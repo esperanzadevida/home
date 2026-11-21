@@ -176,7 +176,7 @@ export function EventsExplorer({ events }: EventsExplorerProps) {
             <li key={`${event.href}-${event.date}-${index}`}>
               <article className="flex h-full flex-col gap-4 rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/50 sm:p-6">
                 <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
-                  <span className="rounded-full bg-primary/10 px-3 py-1 text-primary">{event.category}</span>
+                  <span className="rounded-full bg-primary/5 px-3 py-1 text-primary">{event.category}</span>
                   <time dateTime={event.date} className="text-muted-foreground">
                     {event.dateLabel}
                   </time>
@@ -256,7 +256,7 @@ export function EventsExplorer({ events }: EventsExplorerProps) {
                                     <Link
                                       href={event.href}
                                       aria-label={`Ver detalles de ${event.title}, ${event.dateLabel}, evento ${index + 1}`}
-                                      className="block rounded-lg bg-primary/10 px-2 py-1.5 text-xs font-medium leading-4 text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                      className="block rounded-lg bg-primary/5 px-2 py-1.5 text-xs font-medium leading-4 text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                     >
                                       <span className="line-clamp-2">{event.title}</span>
                                     </Link>

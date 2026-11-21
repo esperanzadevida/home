@@ -1,58 +1,26 @@
-# Guía Visual, Moodboard y Banco de Recursos — Proyecto Doménica
+# Guía visual y recursos — Iglesia Esperanza de Vida
 
-Este documento cataloga la identidad visual de la iglesia Asambleas de Dios, el resultado gráfico anhelado generado con IA, los activos vectoriales y el banco de 13 fotografías en alta resolución organizadas por sección.
+Actualizada el 2026-11-21. La dirección visual conserva el tono cálido y editorial: verde bosque, fotografía de luz natural y tipografía de lectura clara. La identidad, nombres, horarios y datos de perfil son contenido creativo autorizado para esta ambientación.
 
----
+## Identidad activa
 
-## 1. Identidad y Logotipo (Resultado Anhelado)
+- **Nombre:** Iglesia Esperanza de Vida, Asambleas de Dios, Ambato.
+- **Símbolo visual:** `public/images/brand/esperanza-de-vida-flame.png`.
+- **Colores:** tokens en `src/styles/globals.css` y `src/styles/tokens.css`; conservar la paleta existente mientras se revisa el sistema de color.
+- **Perfil y horarios:** `src/config/church-profile.ts`.
 
-### Logotipo Premium de Alta Gama (Generado por IA)
-* **Archivo:** `public/images/brand/aog-logo-premium.jpg` (y en Obsidian: `Fuentes/brand/aog-logo-premium.jpg`).
-* **Concepto:** Isotipo geométrico en oro líquido y azul real profundo sobre fondo obsidiana/navy.
-* **Símbolos integrados:** Paloma descendiendo con alas desplegadas, cruz armónica sobre el pecho, llama de fuego pentecostal y tipografía sans-serif geométrica de alta gama *"ASAMBLEAS DE DIOS"*.
+El símbolo es una propuesta gráfica para el proyecto, no un emblema oficial de la denominación. Sendero de la Aurora y sus recursos quedan archivados como variante anterior.
 
-### Vectores SVG del Sistema
-* **`public/images/brand/aog-emblem.svg`**: Emblema oficial circular escalable (Paloma, Fuego, Biblia, Cruz).
-* **`public/images/brand/aog-logo-horizontal.svg`**: Logotipo horizontal para barra de navegación.
+## Imágenes generadas existentes
 
----
+Las nueve imágenes WebP de `public/images/esperanza-de-vida/` ya cubren retratos pastorales, culto, ministerios, servicio comunitario y galería. Reutilizarlas; no generar duplicados para las secciones actuales. El inventario canónico, sus usos y textos alternativos está en [`docs/ASSETS-ESPERANZA-DE-VIDA.md`](../ASSETS-ESPERANZA-DE-VIDA.md). Horarios, nombres y descripciones se mantienen como texto HTML accesible, nunca rasterizados dentro de las imágenes.
 
-## 2. Hero Visual Cinematográfico (Resultado Anhelado / 8K)
+Los retratos y escenas generados ambientan el producto y no constituyen documentación de personas o servicios reales. El sitio público mantiene la presentación editorial normal solicitada por Nicola.
 
-* **Archivo:** `public/images/hero/hero-cinematic-main.jpg` (706 KB).
-* **Concepto:**
-  * Auditorio contemporáneo de alto nivel arquitectónico con listones de roble cálido, paneles acústicos oscuros y lucernarios con rayos volumétricos de luz dorada.
-  * Siluetas de la congregación adorando con manos alzadas.
-  * Pantallas LED con gradientes cálidos de ambiente.
-  * Estética inspirada en `/10k-websites` y referencias globales (*Elevation Church*, *Hillsong*).
+## Material de referencia heredado
 
----
+`docs/assets/` y algunos archivos de `public/images/hero/` pertenecen a exploraciones anteriores. Sus autores y licencias no están documentados de forma suficiente; no describirlos como fotos de esta congregación ni sustituir las imágenes actuales sin revisar procedencia y permiso.
 
-## 3. Banco de Fotografías en Alta Resolución (Descargadas)
+## Home y video
 
-Guardadas en `public/images/hero/` y respaldadas en Obsidian (`Fuentes/referencias-visuales/`):
-
-1. **`hero-cinematic-main.jpg`** (706 KB): Hero principal de la landing page.
-2. **`worship-crowd-hands.jpg`** (180 KB): Servicios y cultos dominicales.
-3. **`worship-band-stage.jpg`** (154 KB): Banda de adoración, guitarras y sonido en vivo.
-4. **`worship-vocalist-sanctuary.jpg`** (147 KB): Voz líder y streaming en directo (`/en-vivo`).
-5. **`altar-prayer-devotion.jpg`** (195 KB): Muro de oración y ministración (`/oracion`).
-6. **`stage-worship-lights.jpg`** (87 KB): Iluminación escénica para congresos y eventos.
-7. **`youth-celebration-concert.jpg`** (143 KB): Ministerio de jóvenes (*Embajadores de Cristo*).
-8. **`fellowship-community-group.jpg`** (209 KB): Grupos pequeños y células en hogares.
-9. **`community-gathering.jpg`** (401 KB): Vida en comunidad y confraternidad.
-10. **`royal-rangers-kids-ministry.jpg`** (198 KB): Ministerio de niños y *Exploradores del Rey*.
-11. **`bible-study.jpg`** (146 KB): Devocionales y notas de sermón.
-12. **`christian-books-bible-store.jpg`** (314 KB): Catálogo de librería y biblias de estudio.
-13. **`merch-tshirt-hoodie-minimal.jpg`** (372 KB): Tienda online y prendas minimalistas.
-14. **`communion-sacrament-worship.jpg`** (698 KB): Santa Cena y ordenanzas bíblicas.
-
----
-
-## Verificación de procedencia — 2026-11-19
-
-El repositorio contiene copias en `docs/assets/` y `public/images/`, pero esta guía no incluye las URLs de origen, autores ni licencias de las fotografías. No presentarlas como fotografías de la congregación ni publicarlas hasta verificar su procedencia y permiso de uso.
-
-Los vectores `aog-emblem.svg` y `aog-logo-horizontal.svg` son artes locales estilizadas. Su presencia aquí no demuestra que sean los emblemas oficiales de la denominación; hace falta compararlos con una fuente institucional antes de usar esa descripción o adoptarlos como marca. `aog-logo-premium.jpg` parece una ilustración/render, no una fuente oficial.
-
-Hasta completar esa verificación, tratar todos estos archivos como referencias visuales. La identidad y las fotos reales de la iglesia siguen pendientes de confirmación.
+La Home integra localmente un MP4 sincronizado al scroll, un poster WebP y tres escenas HTML. El movimiento reducido siempre conserva el poster; cuando el navegador expone Network Information API, `saveData` o `downlink` <= 2 Mb/s también evita descargar el video. En móvil con conexión suficiente y movimiento normal el scrubbing se mantiene. La descarga local agregada, procedencia y permiso del clip están documentados en `docs/PLAN-MAESTRO.md`; valida redes reales antes de publicar.

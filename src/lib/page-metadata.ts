@@ -11,6 +11,7 @@ type PageMetadataInput = {
   description: string;
   pathname: string;
   openGraphType?: "website" | "article";
+  titleAbsolute?: boolean;
 };
 
 export function createPageMetadata({
@@ -18,13 +19,14 @@ export function createPageMetadata({
   description,
   pathname,
   openGraphType = "website",
+  titleAbsolute = false,
 }: PageMetadataInput): Metadata {
   const canonical = getCanonicalUrl(pathname);
   const origin = getSiteOrigin();
-  const socialImage = origin ? new URL("/og", origin).toString() : undefined;
+  const socialImage = origin ? getCanonicalUrl("/og.png") : undefined;
 
   return {
-    title,
+    title: titleAbsolute ? { absolute: title } : title,
     description,
     robots: {
       index: isIndexableDeployment(),

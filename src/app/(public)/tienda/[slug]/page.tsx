@@ -15,17 +15,17 @@ const productOffers = {
   "biblia-de-estudio": {
     price: 28,
     coverImage: "/images/hero/bible-study.jpg",
-    category: "Biblias",
+    category: "Lectura",
   },
   "cuaderno-de-reflexion": {
     price: 9,
     coverImage: "/images/hero/christian-books-bible-store.jpg",
-    category: "Accesorios",
+    category: "Hábitos",
   },
-  "camiseta-domenica": {
+  "camiseta-esperanza-de-vida": {
     price: 18,
     coverImage: "/images/hero/merch-tshirt-hoodie-minimal.jpg",
-    category: "Ropa",
+    category: "Comunidad",
     variants: ["S", "M", "L", "XL"],
   },
 } as const;

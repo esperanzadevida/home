@@ -126,7 +126,7 @@ export function CartDrawer() {
                 Tu carrito
               </h2>
               <p id="cart-description" className="mt-0.5 text-xs text-muted-foreground">
-                {totalItems} {totalItems === 1 ? "recurso" : "recursos"} guardados en este navegador
+                {totalItems} {totalItems === 1 ? "recurso guardado" : "recursos guardados"} en este navegador
               </p>
             </div>
           </div>

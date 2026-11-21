@@ -1,153 +1,92 @@
 "use client";
 
-import { useState } from "react";
-import { Shield, Check, Lock } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Check, LockKeyhole, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ADMIN_ROLES, type AdminRoleId } from "@/config/admin-roles";
 
+type ActionKey = "view" | "create" | "edit" | "delete" | "publish" | "manage";
 interface RolePermission {
   module: string;
-  view: boolean;
-  create: boolean;
-  edit: boolean;
-  delete: boolean;
+  actions: Record<ActionKey, boolean>;
+}
+
+const actionLabels: Record<ActionKey, string> = {
+  view: "Ver",
+  create: "Crear",
+  edit: "Editar",
+  delete: "Eliminar",
+  publish: "Publicar",
+  manage: "Administrar",
+};
+const actionKeys = Object.keys(actionLabels) as ActionKey[];
+const modules = ["Sermones", "Blog y noticias", "Eventos", "Galería", "Productos", "Pedidos y pagos", "Pedidos propios", "Miembros", "Ministerios", "Donaciones", "Peticiones de oración", "Mensajes de contacto", "Mi perfil", "Configuración", "Usuarios"];
+
+function createRolePermissions(roleId: AdminRoleId): RolePermission[] {
+  return modules.map((module) => {
+    let actions: Record<ActionKey, boolean> = { view: false, create: false, edit: false, delete: false, publish: false, manage: false };
+    if (roleId === "super_admin") actions = { view: true, create: true, edit: true, delete: true, publish: true, manage: true };
+    if (roleId === "admin") actions = { view: true, create: true, edit: true, delete: false, publish: true, manage: true };
+    if (roleId === "editor" && ["Sermones", "Blog y noticias", "Eventos", "Galería"].includes(module)) {
+      actions = { view: true, create: true, edit: true, delete: false, publish: module === "Blog y noticias", manage: false };
+    }
+    if (roleId === "editor" && module === "Productos") actions.view = true;
+    if (roleId === "moderator" && ["Peticiones de oración", "Mensajes de contacto"].includes(module)) {
+      actions = { view: true, create: false, edit: true, delete: false, publish: false, manage: false };
+    }
+    if (roleId === "member" && module === "Mi perfil") {
+      actions = { view: true, create: false, edit: true, delete: false, publish: false, manage: false };
+    }
+    if (roleId === "member" && module === "Pedidos propios") {
+      actions.view = true;
+    }
+    return { module, actions };
+  });
 }
 
 export default function AdminRolesPage() {
-  const [activeRole, setActiveRole] = useState<string>("editor");
-  const [saved, setSaved] = useState(false);
+  const [activeRole, setActiveRole] = useState<AdminRoleId>("editor");
+  const [permissionsByRole, setPermissionsByRole] = useState<Record<string, RolePermission[]>>(() =>
+    Object.fromEntries(ADMIN_ROLES.map((role) => [role.id, createRolePermissions(role.id)])),
+  );
+  const [notice, setNotice] = useState("");
+  const activeRoleLabel = ADMIN_ROLES.find((role) => role.id === activeRole)?.label ?? activeRole;
+  const permissions = useMemo(() => permissionsByRole[activeRole] ?? [], [permissionsByRole, activeRole]);
 
-  const [permissions, setPermissions] = useState<RolePermission[]>([
-    { module: "Sermones y Mensajes", view: true, create: true, edit: true, delete: false },
-    { module: "Blog y Devocionales", view: true, create: true, edit: true, delete: false },
-    { module: "Eventos y Calendario", view: true, create: true, edit: true, delete: false },
-    { module: "Tienda y Productos", view: true, create: false, edit: false, delete: false },
-    { module: "Muro de Oración", view: true, create: true, edit: true, delete: true },
-    { module: "Directorio de Miembros", view: true, create: false, edit: false, delete: false },
-    { module: "Finanzas y Donaciones", view: false, create: false, edit: false, delete: false },
-    { module: "Configuración del Sistema", view: false, create: false, edit: false, delete: false },
-  ]);
-
-  const togglePermission = (index: number, key: keyof Omit<RolePermission, "module">) => {
-    setPermissions((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, [key]: !p[key] } : p))
-    );
+  const togglePermission = (moduleIndex: number, key: ActionKey) => {
+    setPermissionsByRole((current) => ({
+      ...current,
+      [activeRole]: current[activeRole].map((permission, index) => index === moduleIndex
+        ? { ...permission, actions: { ...permission.actions, [key]: !permission.actions[key] } }
+        : permission),
+    }));
+    setNotice("");
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const saveView = () => {
+    setNotice("Matriz actualizada solo en esta vista. No se cambiaron permisos de cuentas reales.");
   };
 
   return (
-    <div className="space-y-8 max-w-5xl">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Control de Acceso, Roles y Permisos
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            Define privilegios granulares para pastores, líderes de ministerios, editores de blog y encargados de tienda.
-          </p>
-        </div>
-
-        <Button
-          variant={saved ? "accent" : "default"}
-          className="font-semibold gap-1.5 self-start"
-          onClick={handleSave}
-        >
-          {saved ? <Check className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-          {saved ? "Guardado con éxito" : "Guardar Cambios de Permisos"}
-        </Button>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div><p className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Shield aria-hidden="true" className="h-4 w-4" /> Administración · muestra local</p><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Roles y permisos</h1><p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Compara permisos por módulo. Estas reglas no protegen rutas ni se aplican a usuarios hasta conectar y validar autenticación.</p></div>
+        <Button type="button" onClick={saveView} className="min-h-11 self-start sm:self-auto"><Check aria-hidden="true" className="h-4 w-4" /> Aplicar en esta vista</Button>
       </div>
 
-      {/* Selector de Roles */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { id: "super_admin", name: "Pastor Principal", desc: "Acceso total sin restricciones" },
-          { id: "admin", name: "Administrador General", desc: "Gestión completa de ChMS y Tienda" },
-          { id: "editor", name: "Editor de Medios", desc: "Sube sermones, blog y eventos" },
-          { id: "leader", name: "Líder de Ministerio", desc: "Gestiona células y su ministerio" },
-        ].map((r) => (
-          <button
-            key={r.id}
-            onClick={() => setActiveRole(r.id)}
-            className={`p-4 rounded-2xl border text-left transition-all ${
-              activeRole === r.id
-                ? "bg-primary/10 border-primary text-foreground shadow-sm"
-                : "bg-card border-border hover:bg-muted/50 text-muted-foreground"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <Shield className={`w-4 h-4 ${activeRole === r.id ? "text-primary" : "text-muted-foreground"}`} />
-              <span className="font-bold text-sm text-foreground">{r.name}</span>
-            </div>
-            <p className="text-[11px] mt-1 line-clamp-1">{r.desc}</p>
-          </button>
-        ))}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="Seleccionar rol de muestra">
+        {ADMIN_ROLES.map((role) => <button key={role.id} type="button" aria-pressed={activeRole === role.id} onClick={() => { setActiveRole(role.id); setNotice(""); }} className={`min-h-28 rounded-2xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${activeRole === role.id ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-muted-foreground hover:bg-muted/50"}`}><span className="flex items-center gap-2 font-bold text-foreground"><Shield aria-hidden="true" className={`h-4 w-4 ${activeRole === role.id ? "text-primary" : "text-muted-foreground"}`} />{role.label}</span><span className="mt-2 block text-xs leading-relaxed">{role.description}</span></button>)}
       </div>
 
-      {/* Matriz de Permisos */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
-        <div className="p-4 bg-muted/40 border-b border-border flex items-center justify-between">
-          <span className="font-bold text-xs uppercase tracking-wider text-foreground">
-            Módulos del Sistema vs Acciones Permitidas
-          </span>
-          <span className="text-xs text-muted-foreground font-semibold">
-            Editando: <strong className="text-primary">{activeRole.toUpperCase()}</strong>
-          </span>
-        </div>
+      <p aria-live="polite" className="min-h-5 text-sm text-success">{notice}</p>
 
-        <table className="w-full text-left text-xs">
-          <thead className="bg-muted/20 border-b border-border/60 text-muted-foreground font-semibold">
-            <tr>
-              <th className="p-4">Módulo</th>
-              <th className="p-4 text-center">Ver</th>
-              <th className="p-4 text-center">Crear</th>
-              <th className="p-4 text-center">Editar</th>
-              <th className="p-4 text-center">Eliminar</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/60">
-            {permissions.map((p, idx) => (
-              <tr key={p.module} className="hover:bg-muted/30 transition-colors">
-                <td className="p-4 font-semibold text-foreground">{p.module}</td>
-                <td className="p-4 text-center">
-                  <input
-                    type="checkbox"
-                    checked={p.view}
-                    onChange={() => togglePermission(idx, "view")}
-                    className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer"
-                  />
-                </td>
-                <td className="p-4 text-center">
-                  <input
-                    type="checkbox"
-                    checked={p.create}
-                    onChange={() => togglePermission(idx, "create")}
-                    className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer"
-                  />
-                </td>
-                <td className="p-4 text-center">
-                  <input
-                    type="checkbox"
-                    checked={p.edit}
-                    onChange={() => togglePermission(idx, "edit")}
-                    className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer"
-                  />
-                </td>
-                <td className="p-4 text-center">
-                  <input
-                    type="checkbox"
-                    checked={p.delete}
-                    onChange={() => togglePermission(idx, "delete")}
-                    className="w-4 h-4 rounded text-primary focus:ring-primary cursor-pointer"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <section className="space-y-3 xl:hidden" aria-label={`Permisos de ${activeRoleLabel}`}>
+        {permissions.map((permission, index) => <article key={permission.module} className="rounded-2xl border border-border bg-card p-4"><h2 className="font-semibold">{permission.module}</h2><div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">{actionKeys.map((key) => { const inputId = `permission-${activeRole}-${index}-${key}`; return <label key={key} htmlFor={inputId} className="flex min-h-11 items-center gap-2 rounded-xl border border-border/70 bg-background px-3 text-xs font-medium"><input id={inputId} type="checkbox" checked={permission.actions[key]} onChange={() => togglePermission(index, key)} className="h-4 w-4 shrink-0 rounded accent-primary focus-visible:ring-2 focus-visible:ring-ring" />{actionLabels[key]}</label>; })}</div></article>)}
+      </section>
+
+      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card shadow-sm xl:block"><div className="flex items-center justify-between gap-3 border-b border-border bg-muted/40 p-4"><span className="text-xs font-bold uppercase tracking-wide">Permisos por módulo</span><span className="text-xs text-muted-foreground">Editando: <strong className="text-primary">{activeRoleLabel}</strong></span></div><div className="overflow-x-auto"><table className="w-full min-w-[880px] text-left text-xs"><caption className="sr-only">Matriz local de permisos por módulo y rol</caption><thead className="border-b border-border/60 bg-muted/20 text-muted-foreground"><tr><th scope="col" className="px-4 py-3">Módulo</th>{actionKeys.map((key) => <th key={key} scope="col" className="px-3 py-3 text-center">{actionLabels[key]}</th>)}</tr></thead><tbody className="divide-y divide-border/60">{permissions.map((permission, index) => <tr key={permission.module} className="hover:bg-muted/20"><th scope="row" className="px-4 py-3 font-semibold">{permission.module}</th>{actionKeys.map((key) => <td key={key} className="px-3 py-3 text-center"><input aria-label={`${permission.module}: ${actionLabels[key]}`} type="checkbox" checked={permission.actions[key]} onChange={() => togglePermission(index, key)} className="h-4 w-4 rounded accent-primary focus-visible:ring-2 focus-visible:ring-ring" /></td>)}</tr>)}</tbody></table></div></div>
+
+      <aside className="flex gap-3 rounded-xl border border-warning/30 bg-warning/5 px-4 py-3 text-sm text-foreground"><LockKeyhole aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-warning" /><p><strong>Seguridad pendiente.</strong> Una matriz visual no sustituye políticas del servidor. Antes de conectar cuentas hay que unificar el modelo de roles y validar permisos en la base y en cada ruta.</p></aside>
     </div>
   );
 }

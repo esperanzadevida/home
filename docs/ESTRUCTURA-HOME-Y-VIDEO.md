@@ -1,57 +1,43 @@
-# Estructura prevista de Home y video — Doménica
+# Home y recorrido visual — Iglesia Esperanza de Vida
 
-**Estado al 2026-11-19:** Home rediseñada con imagen estática local y datos editoriales centrales. El video de fondo, su storyboard y el asset final siguen aplazados.
+**Estado local, 2026-11-21:** la Home integra el MP4 local de cintas verdes con tres escenas sincronizadas al scroll. El motor de carga/scrubbing vive en `ScrollScrubHero.tsx`; el contenido y el fallback estático viven en `ScrollScrubNarrative.tsx` y `scroll-scrub-hero.css`.
 
 ## Propósito de la portada
 
-Ayudar a alguien que todavía no conoce la iglesia a entender rápidamente quiénes son, cuándo reunirse y cómo planificar una primera visita. El recorrido principal termina en **Planifica tu visita** (`/servicios`). Los mensajes, la agenda y los ministerios quedan como rutas secundarias para quien quiera conocer más antes de ir.
+Orientar a quien llega por primera vez y dejar visibles tres acciones: planificar la visita, conocer los horarios/ubicación y contactar a la comunidad. La agenda, ministerios y mensajes aparecen después como rutas secundarias.
 
-## Recorrido propuesto
+## Recorrido de contenido
 
-1. **Hero de bienvenida.** Imagen estática local, titular en HTML, lema, CTA a `/servicios` y `/nosotros`, y horarios de `churchProfile`.
-2. **Una comunidad para caminar juntos.** Tres ideas editoriales de comunidad, fe cotidiana y servicio.
-3. **Mensaje reciente.** Primer mensaje de `sermonDetails`, enlazado a su ficha y al índice `/sermones`.
-4. **Próximos encuentros.** Hasta tres eventos de `eventDetails`, con fecha, resumen y enlace a `/eventos`.
-5. **Vida en comunidad.** Tres ministerios de `publicPageBlueprints`, enlazados a `/ministerios`.
-6. **Ven a conocernos.** Ciudad, dirección y horario dominical de `churchProfile`, con CTA a `/servicios`.
-7. **Footer compartido.** Se conserva el footer del layout público, con horarios, contacto, rutas y redes de la misma fuente central.
+1. **Bienvenida (0–0,28 del recorrido).** Titular HTML, copy breve y enlaces a `/servicios` y `/ministerios`.
+2. **Información práctica (0,32–0,64).** Horarios desde `churchProfile.schedule`, dirección desde `churchProfile.address` y enlace a `/contacto`. Las dos tarjetas dejan libre el centro del encuadre.
+3. **Cierre (0,68–1).** Invitación breve y enlace a `/contacto`; permanece visible al final.
+4. **Home editorial.** Comunidad, próximos encuentros, ministerios y mensaje reciente desde las configuraciones compartidas.
+5. **Pie compartido.** Horarios, contacto y rutas comunes.
 
-No se necesita publicar en Home cifras, testimonios, mapas, cuentas bancarias ni transiciones de servicio que no estén respaldados por contenido o integraciones funcionales. Cada bloque debe reutilizar las rutas y datos centrales, sin otra copia independiente de horarios, eventos o perfiles.
+No duplicar horarios, eventos o perfiles. Las cifras, testimonios, mapas, aportes, compras y envíos solo se muestran cuando el contenido o una integración funcional los respalda.
 
-## Dirección narrativa del video
+## Video y movimiento
 
-Idea de trabajo: **llegar, encontrar un lugar, compartir y servir**. La secuencia puede mostrar detalles de bienvenida y preparación, conversaciones entre generaciones, música y un plano amplio de comunidad. La dirección final se decidirá al preparar el storyboard y revisar los assets disponibles.
+- El MP4 servido es H.264, 1920 × 1080, 24 fps, 5,04 s y 4,29 MB; se conserva una copia verificada del original en docs/assets. El poster es un fotograma WebP de 1280 × 720.
+- Las bandas cambian opacidad y posición con una curva `smoothstep`, leyendo `--scrub-progress`; ScrollScrubHero maneja carga nativa, fallback y scrubbing sin copiar el MP4 a un Blob de JavaScript.
+- Cada banda usa un scrim radial y los textos sobre video usan tres sombras. Los botones no usan sombra tipográfica.
+- En los cinco gates del motor (incluido móvil y `prefers-reduced-motion: reduce`) las tres escenas pasan al flujo estático. El video no se descarga en esos modos.
+- El contenido conserva HTML, foco visible y enlaces reales. Las bandas inactivas usan `inert` y `aria-hidden` hasta entrar en su tramo.
 
-- El metraje acompaña el ambiente; los titulares, el lema y los botones se maquetan en la página.
-- Evitar carteles, texto generado, logotipos inventados dentro del video y detalles arquitectónicos que se quieran presentar como una sede real específica.
-- Componer el inicio y el cierre con encuadres compatibles para que un loop no se sienta cortado.
-- Crear un poster legible para la variante estática y revisar el encuadre en móvil antes de generar/exportar.
-- El comportamiento se elige después de revisar el storyboard: loop breve de fondo si el metraje funciona como ambiente; secuencia ligada al scroll solo si hay momentos claros y el flick test lo confirma.
+## Evidencia local y pendientes
 
-## Implementación prevista
+- En 1440 × 900, revisé el primer cuadro, la escena práctica cerca de progreso 0,5 y el cierre cerca de 1. El ancho del documento se mantuvo en 1440 px; no hubo errores de consola salvo el mensaje informativo de React DevTools.
+- A 390 × 844 con tema oscuro y movimiento reducido, las tres escenas quedaron visibles y ordenadas, no hubo overflow y el navegador no solicitó el MP4. Los enlaces miden al menos 44 px de alto.
+- En la build de producción local (3146), el poster se pintó y el reproductor pasó a `video-ready`. La versión comprimida pesa 4.290.098 bytes y marcó VMAF 92,854 frente al original. En Chrome local, el scrub llegó a `currentTime` 2,52 s en progreso 0,5 y 5,01 s en 0,994. La petición inicial respondió con un rango que abarcaba el archivo completo; al buscar, el navegador solicitó sufijos superpuestos. El tamaño del archivo no se presenta como una medición de bytes agregados en la sesión.
+- Lighthouse móvil de Home (390 × 844, movimiento reducido): Accesibilidad 100, Buenas prácticas 100 y navegación por agentes 100. SEO 66 por el `noindex,nofollow` intencional del entorno local.
+- En la Home de escritorio, el primer Tab revela «Ir al contenido principal» con foco visible. Es una comprobación puntual; falta recorrer toda la secuencia de teclado.
+- El poster se pintó antes del video. Preview local de producción: `http://localhost:3146/`; queda abierto para revisión.
+- Quedan pendientes la matriz integral de accesibilidad/teclado/lector de pantalla, las demás rutas y Admin, la auditoría integral de rendimiento del sitio y la autorización de publicación/permiso del material.
 
-- Mantener Next.js, Tailwind y los tokens/componentes actuales.
-- Cargar el video silenciado, en línea y de forma diferida; proveer poster desde el primer render.
-- En móvil, conexión limitada o `prefers-reduced-motion: reduce`, mostrar el poster sin forzar reproducción.
-- Pausar cuando la pestaña no esté visible. No depender del video para entender el mensaje o completar una acción.
-- Probar teclado, contraste de la copia sobre el peor fotograma, controles de movimiento reducido, carga con el video ausente y tamaños de teléfono/escritorio.
-- No pedir créditos ni enviar material a un generador hasta elegir herramienta, comprobar costo y revisar el storyboard.
+## Orden local siguiente
 
-## Estado de implementación local
-
-- La Home dejó de usar `CHURCH_INFO`, tarjetas de datos de muestra, mapa simulado, contadores y publicaciones personales de oración. Ahora comparte perfil, eventos, sermones y ministerios con las páginas interiores.
-- La portada usa `next/image` con carga prioritaria y un diseño que funciona sin video. El archivo de imagen existente es conceptual; su procedencia y permiso siguen sin comprobarse.
-- Los metadatos públicos de `/` usan `createPageMetadata`; la ruta se añade al sitemap de producción y local/preview continúa sin indexación según la configuración existente.
-- La revisión visual se hizo a 390 px y 412 px en móvil y 1440 px en escritorio; no se observó desbordamiento horizontal. Se comprobó la lectura en modo claro y oscuro. El recorrido amplio de teclado/lector y la aprobación del origen de la imagen siguen pendientes.
-
-## Siguiente fase de video
-
-1. Cerrar y revisar storyboard antes de producir imágenes o video.
-2. Seleccionar herramientas y assets, confirmando costos y permisos.
-3. Preparar un poster legible que pueda usarse como portada estática.
-4. Integrar el video solo si mejora el relato y conserva una alternativa accesible sin movimiento.
-5. Revisar teclado, contraste, movimiento reducido, carga sin video y tamaños móvil/escritorio.
-
-## Datos de código que habrá que reconciliar
-
-`src/constants/data.ts` conserva datos de muestra usados en prototipos administrativos, pero la Home ya no los consume. No retirar esas constantes sin revisar las demás rutas que puedan depender de ellas.
+1. Completar la revisión de las rutas públicas y sus estados vacíos/enlaces.
+2. Revisar Admin en móvil/escritorio y claro/oscuro, con sus estados declarados como prototipos locales.
+3. Terminar QA de contraste, teclado, lector de pantalla y carga/error.
+4. Validar migraciones/seed/RLS localmente antes de conectar servicios.
+5. Integrar Supabase, GitHub o Vercel solo con credenciales y autorización correspondiente; no se ha publicado este cambio.

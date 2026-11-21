@@ -1,8 +1,18 @@
 # Prompts de Desarrollo por Fases
 
 ## Instrucciones de uso
-Cada prompt está diseñado para ser ejecutado en orden. Cada uno produce un resultado
-concreto y verificable. Copia el prompt completo y úsalo como instrucción.
+Este archivo conserva los 15 prompts originales como material de trabajo; su numeración temática no es el orden operativo del proyecto. Antes de ejecutar un prompt, adáptalo al stack, componentes, decisiones y estado del repositorio actual. La identidad editorial vigente es **Iglesia Esperanza de Vida**. Sendero de la Aurora pertenece a una variante anterior.
+
+### Orden operativo y puertas de salida
+
+1. **Cerrar lo local primero:** revisar y completar las rutas públicas (fases 1–3 solo en lo que haga falta, fase 6 y las piezas de Home de la fase 5). Mantener datos de muestra claramente limitados a prototipos, sin inventar persistencia ni servicios conectados.
+2. **Completar el Admin local:** implementar y revisar pantallas y flujos de muestra de las fases 8–10. Tratar las acciones como prototipos mientras no exista autenticación y persistencia.
+3. **Temas y herramientas locales:** fase 11 antes del QA; de fase 12, implementar solo calendarios/controles locales que resuelvan una necesidad confirmada. Posponer mapas con ubicación real, upload y cualquier persistencia hasta contar con datos y backend.
+4. **QA local:** ejecutar la fase 14 por partes sobre páginas públicas y Admin. Cubrir responsive, navegación por teclado, contraste, nombres/alternativas accesibles, estados de error/carga y ambos temas; dejar un registro explícito de qué rutas y estados se probaron. No declarar puntajes Lighthouse o QA visual completos sin evidencia de esa corrida.
+5. **Integraciones después de credenciales:** fases 4, 7, 13 y 15 se planifican o ejecutan cuando Nicola entregue las credenciales de Supabase, GitHub y Vercel. La fase 12 solo se conecta en lo que dependa de esos servicios. Antes de conectar: cerrar el modelo de datos, permisos/RLS y alcance de los flujos. No desplegar ni aplicar migraciones remotas anticipadamente.
+6. **Home audiovisual local:** la fase 5 integra el video y poster disponibles, sincronizados con tres escenas narrativas. Queda pendiente revisar rendimiento, permisos de publicación y QA integral antes de desplegar.
+
+Cada bloque debe dejar un resultado local revisable y evidencia acotada; registrar como pendiente aquello que dependa de una credencial, permiso, dato real o revisión que aún no ocurrió. No copies un prompt sin comprobar si contradice este orden.
 
 ---
 

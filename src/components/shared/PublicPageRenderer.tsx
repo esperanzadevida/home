@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import Image from "@/components/shared/SiteImage";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -15,6 +15,7 @@ import { createPageMetadata } from "@/lib/page-metadata";
 import { EventsExplorer } from "@/components/shared/EventsExplorer";
 import { FilterableCardGrid } from "@/components/shared/FilterableCardGrid";
 import { MinistryExplorer } from "@/components/shared/MinistryExplorer";
+import { GalleryExplorer } from "@/components/shared/GalleryExplorer";
 import {
   publicPageBlueprints,
   type PublicPageBlueprint,
@@ -122,6 +123,25 @@ function CardAction({
 }
 
 function SectionCards({ section }: { section: PublicPageSection }) {
+  if (section.presentation === "image-gallery") {
+    return (
+      <GalleryExplorer
+        items={section.cards.flatMap((card) =>
+          card.imageSrc
+            ? [{
+                eyebrow: card.eyebrow,
+                title: card.title,
+                description: card.description,
+                meta: card.meta,
+                imageSrc: card.imageSrc,
+                imageAlt: card.imageAlt ?? "",
+              }]
+            : [],
+        )}
+      />
+    );
+  }
+
   if (section.explorer === "ministries") {
     return (
       <MinistryExplorer
@@ -134,6 +154,8 @@ function SectionCards({ section }: { section: PublicPageSection }) {
                   description: card.description,
                   meeting: card.meeting,
                   leader: card.leader,
+                  imageSrc: card.imageSrc ?? "/images/esperanza-de-vida/culto-dominical.webp",
+                  imageAlt: card.imageAlt ?? `Encuentro del ministerio ${card.title}.`,
                 },
               ]
             : [],
@@ -305,7 +327,7 @@ function SectionCards({ section }: { section: PublicPageSection }) {
                   {card.description}
                 </p>
                 {card.meta ? (
-                  <p className="mt-3 text-xs font-medium leading-5 text-primary/80">
+                  <p className="mt-3 text-xs font-medium leading-5 text-primary">
                     {card.meta}
                   </p>
                 ) : null}
@@ -353,7 +375,7 @@ function SectionCards({ section }: { section: PublicPageSection }) {
               <span className="absolute -bottom-6 -right-1 h-24 w-24 rounded-full border border-foreground/15" />
               <span className="absolute left-6 top-6 h-3 w-3 rounded-full bg-primary/70" />
               <span className="absolute bottom-5 left-6 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/70">
-                Iglesia Doménica · Ambato
+                {churchProfile.shortName} · Ambato
               </span>
             </div>
           ) : null}
@@ -396,7 +418,13 @@ export function getPublicPageMetadata(slug: PublicPageSlug): Metadata {
   });
 }
 
-export function PublicPageRenderer({ slug }: { slug: PublicPageSlug }) {
+export function PublicPageRenderer({
+  slug,
+  hideHero = false,
+}: {
+  slug: PublicPageSlug;
+  hideHero?: boolean;
+}) {
   const page: PublicPageBlueprint = publicPageBlueprints[slug];
   const hasExplorer = page.sections.some((section) => section.explorer);
   const compactHero = hasExplorer || page.compactHero;
@@ -415,6 +443,7 @@ export function PublicPageRenderer({ slug }: { slug: PublicPageSlug }) {
 
   return (
     <article>
+      {!hideHero && (
       <section className="relative isolate overflow-hidden border-b border-border bg-muted/50">
         <div
           aria-hidden="true"
@@ -491,6 +520,7 @@ export function PublicPageRenderer({ slug }: { slug: PublicPageSlug }) {
           ) : null}
         </div>
       </section>
+      )}
 
       <div className={contentLayoutClass}>
         <div className={sectionSpacingClass}>
@@ -571,7 +601,7 @@ export function PublicPageRenderer({ slug }: { slug: PublicPageSlug }) {
           <section className="mt-20 overflow-hidden rounded-[2rem] bg-accent px-6 py-9 text-accent-foreground sm:mt-24 sm:px-10 sm:py-11 lg:flex lg:items-center lg:justify-between lg:gap-10">
             <div className="max-w-2xl">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-foreground">
-                Iglesia Doménica · Ambato
+                {churchProfile.shortName} · Ambato
               </p>
               <h2 className="mt-3 font-serif text-2xl font-medium tracking-tight sm:text-3xl">
                 {churchProfile.signature}

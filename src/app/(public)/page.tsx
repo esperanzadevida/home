@@ -1,15 +1,21 @@
-import Image from "next/image";
+import Image from "@/components/shared/SiteImage";
 import Link from "next/link";
 import Script from "next/script";
-import { ArrowRight, Clock3, HeartHandshake, MapPin, Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowRight, Play } from "lucide-react";
+import { ScrollScrubHero } from "@/components/shared/ScrollScrubHero";
+import { ScrollScrubNarrative } from "@/components/shared/ScrollScrubNarrative";
 import { churchProfile } from "@/config/church-profile";
 import { eventDetails, sermonDetails } from "@/config/content-details";
 import { publicPageBlueprints } from "@/config/public-pages";
 import { createPageMetadata } from "@/lib/page-metadata";
+import { withBasePath } from "@/lib/site-url";
 
 const [latestSermonSlug, latestSermon] = Object.entries(sermonDetails)[0];
-const upcomingEvents = Object.entries(eventDetails).slice(0, 3);
+const currentTime = Date.now();
+const upcomingEvents = Object.entries(eventDetails)
+  .filter(([, event]) => event.startDates?.some((date) => Date.parse(date) > currentTime))
+  .sort(([, first], [, second]) => Date.parse(first.startDates?.[0] ?? "") - Date.parse(second.startDates?.[0] ?? ""))
+  .slice(0, 3);
 const ministryRooms = publicPageBlueprints.ministerios.sections[0].cards;
 const displayCity = churchProfile.city.replaceAll(/\s+\u00b7\s+/g, ", ");
 const latestSermonMeta = latestSermon.meta
@@ -36,8 +42,7 @@ const hallmarkSlotsScript = [
 
 export const metadata = createPageMetadata({
   title: "Una fe que se vive en comunidad",
-  description:
-    "Conoce Iglesia Doménica, una comunidad de Asambleas de Dios en Ambato. Revisa los horarios, escucha mensajes y encuentra tu lugar para servir.",
+  description: `Conoce ${churchProfile.name}, una comunidad de ${churchProfile.denomination} en Ambato. Revisa los horarios, escucha mensajes y encuentra tu lugar para servir.`,
   pathname: "/",
 });
 
@@ -77,63 +82,21 @@ export default function HomePage() {
   return (
     <>
       <div className="home-page pb-20">
-        <section className="relative isolate flex min-h-[min(46rem,calc(100svh-4rem))] overflow-clip bg-scrim text-hero-ink">
-          <div
-            data-slot="hero"
-            data-alt="Personas reunidas en un auditorio durante un encuentro de culto."
-            className="absolute inset-0 -z-20"
-          >
-            <Image
-              src="/images/hero/hero-cinematic-main.jpg"
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-[center_54%]"
-            />
-          </div>
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-t from-scrim/95 via-scrim/75 to-scrim/15 md:bg-gradient-to-r md:from-scrim/95 md:via-scrim/70 md:to-scrim/15"
+        <ScrollScrubHero
+          videoSrc={withBasePath("/videos/hero-scrub.mp4")}
+          posterSrc={withBasePath("/videos/hero-poster.webp")}
+          estimatedBytes={4_290_098}
+          scrollHeightVh={520}
+          accentTheme="emerald"
+          cueLabel="Desliza para descubrir"
+        >
+          <ScrollScrubNarrative
+            name={churchProfile.name}
+            city={displayCity}
+            address={churchProfile.address}
+            schedule={churchProfile.schedule}
           />
-
-          <div className="mx-auto flex w-full max-w-7xl flex-col justify-end px-5 pb-7 pt-24 sm:px-8 sm:pb-10 md:justify-center md:px-10 lg:px-12">
-            <div className="max-w-4xl">
-              <h1>La fe crece caminando juntos.</h1>
-              <p className="mt-5 max-w-xl text-base leading-7 text-hero-ink/85 sm:mt-6 sm:text-lg sm:leading-8">
-                Una comunidad de fe en Ambato para compartir, aprender y servir.
-              </p>
-
-              <Button
-                asChild
-                size="lg"
-                variant="default"
-                className="mt-7 min-h-12 rounded-none bg-accent px-6 font-display text-base font-semibold text-accent-ink shadow-none transition-colors hover:bg-accent/90 sm:mt-8"
-              >
-                <Link href="/servicios">
-                  Planifica tu visita
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
-            </div>
-
-            <div className="mt-10 grid grid-cols-3 gap-3 border-t border-hero-ink/35 pt-5 sm:mt-12 sm:gap-5 sm:pt-6 md:max-w-4xl">
-              {churchProfile.schedule.map((service) => (
-                <div key={service.days} className="min-w-0 pr-1 sm:pr-4">
-                  <p className="font-display text-sm font-semibold text-gold sm:text-base">
-                    {service.days}
-                  </p>
-                  <p className="mt-1 text-base font-semibold text-hero-ink sm:text-lg">
-                    {service.time}
-                  </p>
-                  <p className="mt-1 text-sm leading-5 text-hero-ink/80 sm:text-base sm:leading-6">
-                    {service.title.replaceAll(/\s+\u00b7\s+/g, " y ")}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        </ScrollScrubHero>
 
         <section
           aria-labelledby="community-title"
@@ -147,28 +110,38 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div
+            <ul
               aria-label="Espacios de la comunidad"
-              className="home-rail mt-8"
-              role="list"
+              className="home-rail mt-8 list-none"
               tabIndex={0}
             >
               {ministryRooms.map((ministry) => (
-                <Link
-                  key={ministry.title}
-                  href="/ministerios"
-                  className="home-rail-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                  role="listitem"
-                >
-                  <h3>{ministry.title}</h3>
-                  <p>{ministry.description}</p>
-                  <span className="home-meta inline-flex items-center gap-2">
-                    Conocer ministerios
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                </Link>
+                <li key={ministry.title}>
+                  <Link
+                    href="/ministerios"
+                    className="home-rail-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  >
+                    {ministry.imageSrc ? (
+                      <span className="home-rail-image">
+                        <Image
+                          src={ministry.imageSrc}
+                          alt={ministry.imageAlt ?? ""}
+                          fill
+                          sizes="(max-width: 640px) 80vw, 19rem"
+                          className="object-cover"
+                        />
+                      </span>
+                    ) : null}
+                    <h3>{ministry.title}</h3>
+                    <p>{ministry.description}</p>
+                    <span className="home-meta inline-flex items-center gap-2">
+                      Conocer ministerios
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
 
@@ -204,7 +177,7 @@ export default function HomePage() {
               <h2 id="events-title">Próximos encuentros</h2>
               <Link
                 href="/eventos"
-                className="inline-flex min-h-11 items-center gap-2 self-start font-display text-base font-semibold text-accent underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:self-auto"
+                className="inline-flex min-h-11 items-center gap-2 self-start font-display text-base font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:self-auto"
               >
                 Ver la agenda <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
@@ -232,10 +205,15 @@ export default function HomePage() {
                       <h3>{event.title}</h3>
                       <p>{event.intro}</p>
                     </div>
-                    <ArrowRight className="h-5 w-5 text-accent" aria-hidden="true" />
+                    <ArrowRight className="h-5 w-5 text-primary" aria-hidden="true" />
                   </Link>
                 );
               })}
+              {upcomingEvents.length === 0 && (
+                <p className="rounded-2xl border border-border bg-card px-5 py-6 text-sm text-muted-foreground">
+                  Pronto compartiremos nuevas fechas. Mientras tanto, revisa nuestros horarios semanales.
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -245,39 +223,20 @@ export default function HomePage() {
           className="home-section bg-paper-2 px-5 sm:px-8 lg:px-12"
         >
           <div className="home-feature mx-auto max-w-7xl">
-            <figure className="home-photo-figure">
-              <div
-                data-slot="sermon-feature"
-                data-alt="Colinas verdes bajo la luz de la mañana."
-                data-photo-credit="Caleb Riston, Wikimedia Commons, CC BY 4.0"
-                className="home-photo"
-              >
-                <Image
-                  src="/images/hallmark/palousefromsteptoebuttemay2023-2-1920.jpg"
-                  alt="Colinas verdes y onduladas bajo la luz de la mañana."
-                  fill
-                  sizes="(min-width: 48rem) 56vw, 100vw"
-                  className="object-cover object-center"
-                />
-              </div>
-              <figcaption className="home-photo-credit">
-                Fotografía: {" "}
-                <a
-                  href="https://commons.wikimedia.org/wiki/File:PalouseFromSteptoeButteMay2023-2.jpg"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Caleb Riston, Wikimedia Commons
-                </a>. {" "}Licencia: {" "}
-                <a
-                  href="https://creativecommons.org/licenses/by/4.0/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  CC BY 4.0
-                </a>
-              </figcaption>
-            </figure>
+            <div
+              data-slot="sermon-feature"
+              data-alt="Amanecer dorado sobre un valle andino cercano a Ambato."
+              data-photo-credit="Imagen original generada para Iglesia Esperanza de Vida."
+              className="home-photo"
+            >
+              <Image
+                src="/images/esperanza-de-vida/esperanza-amanecer.webp"
+                alt="Amanecer dorado sobre un valle andino cercano a Ambato."
+                fill
+                sizes="(min-width: 48rem) 56vw, 100vw"
+                className="object-cover object-center"
+              />
+            </div>
 
             <article className="home-feature-copy">
               <h2 id="message-title">{latestSermon.title}</h2>
@@ -287,7 +246,7 @@ export default function HomePage() {
               </p>
               <Link
                 href={"/sermones/" + latestSermonSlug}
-                className="mt-6 inline-flex min-h-11 items-center gap-2 font-display font-semibold text-accent underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="mt-6 inline-flex min-h-11 items-center gap-2 font-display font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Play className="h-4 w-4" aria-hidden="true" />
                 Leer el mensaje
@@ -296,56 +255,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section
-          id="visit"
-          aria-labelledby="visit-title"
-          className="home-visit-band mx-5 px-5 py-10 sm:mx-8 sm:px-8 sm:py-14 lg:mx-auto lg:grid lg:max-w-7xl lg:grid-cols-2 lg:gap-16 lg:px-12 lg:py-16"
-        >
-          <div>
-            <h2 id="visit-title">Ven tal como eres. Hay un lugar para ti.</h2>
-            <p className="mt-4 max-w-lg text-base leading-7">
-              Nos reunimos en {displayCity}. Si es tu primera visita, conoce los horarios y algunos detalles prácticos antes de venir.
-            </p>
-            <Link
-              href="/servicios"
-              className="mt-6 inline-flex min-h-11 items-center gap-2 font-display font-semibold text-band-ink underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:mt-7"
-            >
-              Tu primera visita <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </div>
-
-          <div className="home-visit-details mt-8 lg:mt-0">
-            <div className="home-visit-detail">
-              <MapPin className="mt-1 h-5 w-5 shrink-0" aria-hidden="true" />
-              <div>
-                <h3>Dirección</h3>
-                <address className="mt-1 not-italic text-base leading-6">
-                  {churchProfile.address}
-                </address>
-              </div>
-            </div>
-            <div className="home-visit-detail">
-              <Clock3 className="mt-1 h-5 w-5 shrink-0" aria-hidden="true" />
-              <div>
-                <h3>Encuentro principal</h3>
-                <p className="mt-1 text-base leading-6">
-                  {churchProfile.schedule[0].days}, {churchProfile.schedule[0].time}
-                  <br />
-                  Celebración y enseñanza
-                </p>
-              </div>
-            </div>
-            <div className="home-visit-detail">
-              <HeartHandshake className="mt-1 h-5 w-5 shrink-0" aria-hidden="true" />
-              <div>
-                <h3>Una comunidad para todos</h3>
-                <p className="mt-1 text-base leading-6">
-                  Acércate al equipo de bienvenida cuando llegues; con gusto te orientamos.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
       <Script id="hallmark-slots" strategy="afterInteractive">
         {hallmarkSlotsScript}
