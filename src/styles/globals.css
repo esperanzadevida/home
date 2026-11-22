@@ -71,10 +71,10 @@
     /* Estados del sistema */
     --destructive: #dc2626;
     --destructive-foreground: #f8fafc;
-    --success: #16a34a;
-    --success-foreground: #0f172a;
+    --success: #166534;
+    --success-foreground: #f8fafc;
     --warning: #9a4a00;
-    --warning-foreground: #0f172a;
+    --warning-foreground: #f8fafc;
 
     /* Bordes, separadores e inputs */
     --border: #e2e8f0;
