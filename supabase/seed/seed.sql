@@ -3,17 +3,7 @@
 -- Archivo: supabase/seed/seed.sql
 -- ==============================================================================
 
--- 1. Roles del Sistema
-INSERT INTO roles (id, name, description, permissions) VALUES
-  ('a0000000-0000-0000-0000-000000000001', 'super_admin', 'Acceso total y configuración del sistema', '{"all": true}'::jsonb),
-  ('a0000000-0000-0000-0000-000000000002', 'admin', 'Gestión general de contenido, miembros y tienda', '{"blog": {"all": true}, "sermons": {"all": true}, "events": {"all": true}, "members": {"all": true}, "store": {"all": true}, "donations": {"read": true}}'::jsonb),
-  ('a0000000-0000-0000-0000-000000000003', 'editor', 'Redacción de blog, publicación de sermones y eventos', '{"blog": {"create": true, "edit": true}, "sermons": {"create": true, "edit": true}, "events": {"create": true, "edit": true}}'::jsonb),
-  ('a0000000-0000-0000-0000-000000000004', 'moderator', 'Moderación de peticiones de oración y mensajes de contacto', '{"prayer": {"moderate": true}, "contact": {"read": true, "reply": true}}'::jsonb),
-  ('a0000000-0000-0000-0000-000000000005', 'member', 'Miembro registrado con acceso a comunidad y pedidos', '{"profile": {"edit_self": true}, "orders": {"view_self": true}}'::jsonb),
-  ('a0000000-0000-0000-0000-000000000006', 'visitor', 'Cuenta registrada sin permisos administrativos', '{"profile": {"edit_self": true}}'::jsonb)
-ON CONFLICT (name) DO NOTHING;
-
--- 2. Configuración Global del Sitio
+-- Configuración Global del Sitio
 INSERT INTO site_settings (key, value) VALUES
   ('church_profile', '{
     "name": "Iglesia Esperanza de Vida",
@@ -41,7 +31,7 @@ INSERT INTO site_settings (key, value) VALUES
   ]'::jsonb)
 ON CONFLICT (key) DO NOTHING;
 
--- 3. Categorías de Blog
+-- Categorías de Blog
 INSERT INTO blog_categories (id, name, slug, description) VALUES
   ('b0000000-0000-0000-0000-000000000001', 'Vida Cristiana', 'vida-cristiana', 'Artículos sobre devoción diaria, oración y crecimiento espiritual'),
   ('b0000000-0000-0000-0000-000000000002', 'Doctrina y Teología', 'doctrina-teologia', 'Estudios de las 16 Verdades Fundamentales y la doctrina pentecostal'),
@@ -49,21 +39,21 @@ INSERT INTO blog_categories (id, name, slug, description) VALUES
   ('b0000000-0000-0000-0000-000000000004', 'Familia y Juventud', 'familia-juventud', 'Principios bíblicos para matrimonios, padres y nuevas generaciones')
 ON CONFLICT (slug) DO NOTHING;
 
--- 4. Series de Sermones
+-- Series de Sermones
 INSERT INTO sermon_series (id, title, slug, description, start_date, status) VALUES
   ('c0000000-0000-0000-0000-000000000001', 'El Poder del Espíritu Santo', 'poder-espiritu-santo', 'Un recorrido por el libro de Hechos y el bautismo en el Espíritu Santo', '2026-10-01', 'active'),
   ('c0000000-0000-0000-0000-000000000002', 'Gracia Inquebrantable', 'gracia-inquebrantable', 'Fundamentos de la salvación y la seguridad eterna en Cristo', '2026-08-01', 'completed')
 ON CONFLICT (slug) DO NOTHING;
 
 -- Fixtures editoriales del catálogo público actual; confirmar catálogo y existencias antes de publicar en DB.
--- 5. Categorías de Tienda
+-- Categorías de Tienda
 INSERT INTO product_categories (id, name, slug, description, order_index) VALUES
   ('d0000000-0000-0000-0000-000000000001', 'Lectura', 'lectura', 'Recursos editoriales para explorar pasajes, temas y referencias.', 1),
   ('d0000000-0000-0000-0000-000000000002', 'Hábitos', 'habitos', 'Recursos para acompañar preguntas, gratitud y aprendizajes semanales.', 2),
   ('d0000000-0000-0000-0000-000000000003', 'Comunidad', 'comunidad', 'Recursos con la identidad visual de la comunidad.', 3)
 ON CONFLICT (slug) DO NOTHING;
 
--- 6. Productos editoriales: sin stock, ficha técnica ni imágenes confirmadas.
+-- Productos editoriales: sin stock, ficha técnica ni imágenes confirmadas.
 INSERT INTO products (id, name, slug, description, price, compare_at_price, category_id, stock_quantity, featured, status, images) VALUES
   (
     'e0000000-0000-0000-0000-000000000001',

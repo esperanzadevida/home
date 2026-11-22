@@ -36,6 +36,9 @@ jobs:
           GITHUB_PAGES: "true"
           NEXT_PUBLIC_BASE_PATH: /home
           NEXT_PUBLIC_SITE_URL: https://esperanzadevida.github.io
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_ADMIN_DEMO_MODE: "false"
       - name: Give the social image a PNG extension
         run: cp ./out/og ./out/og.png
       - name: Upload Pages artifact

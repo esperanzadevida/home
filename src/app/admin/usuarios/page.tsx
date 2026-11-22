@@ -4,14 +4,14 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useMemo, useRef, useState, type FormEvent } from "react";
 import { Check, MailPlus, Search, Shield, UserRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ADMIN_ROLES, ADMIN_ROLE_LABELS, type AdminRoleId } from "@/config/admin-roles";
+import { ADMIN_ROLE_LABELS, ASSIGNABLE_PROFILE_ROLES, type ProfileRoleId } from "@/config/admin-roles";
 import { restoreDialogTriggerFocus } from "@/lib/admin-dialog-focus";
 
 interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: AdminRoleId;
+  role: ProfileRoleId;
   lastAccess: string;
   active: boolean;
 }
@@ -31,7 +31,7 @@ export default function AdminUsersPage() {
   const dialogTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<AdminRoleId>("editor");
+  const [role, setRole] = useState<ProfileRoleId>("editor");
   const [announcement, setAnnouncement] = useState("");
 
   const filtered = useMemo(() => users.filter((user) => {
@@ -57,7 +57,7 @@ export default function AdminUsersPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div><p className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Shield aria-hidden="true" className="h-4 w-4" /> Administración · muestra local</p><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Usuarios del sistema</h1><p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Revisa los niveles de acceso de ejemplo. La autenticación, invitaciones y cambios de contraseña requieren configurar el servicio de identidad.</p></div>
+        <div><p className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Shield aria-hidden="true" className="h-4 w-4" /> Administración · muestra local</p><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Usuarios del sistema</h1><p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Revisa roles generales de cuenta. Los cargos de cada ministerio son asignaciones separadas; autenticación, invitaciones y cambios reales requieren el servicio de identidad y un flujo protegido.</p></div>
         <Button type="button" onClick={(event) => { dialogTriggerRef.current = event.currentTarget; setDialogOpen(true); }} className="min-h-11 self-start sm:self-auto"><MailPlus aria-hidden="true" className="h-4 w-4" /> Añadir usuario de muestra</Button>
       </div>
 
@@ -109,8 +109,8 @@ export default function AdminUsersPage() {
               </label>
               <label className="block space-y-1.5 text-sm font-medium">
                 <span>Rol de muestra</span>
-                <select id="sample-user-role" name="sampleUserRole" value={role} onChange={(event) => setRole(event.target.value as AdminRoleId)} className="h-11 w-full rounded-xl border border-input bg-background px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  {ADMIN_ROLES.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                <select id="sample-user-role" name="sampleUserRole" value={role} onChange={(event) => setRole(event.target.value as ProfileRoleId)} className="h-11 w-full rounded-xl border border-input bg-background px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  {ASSIGNABLE_PROFILE_ROLES.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
                 </select>
               </label>
               <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end">

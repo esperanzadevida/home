@@ -11,6 +11,8 @@ import {
   Images,
   LayoutDashboard,
   Layers,
+  LogOut,
+  Mail,
   Menu,
   Settings,
   Shield,
@@ -23,9 +25,14 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { BrandMark } from "@/components/shared/BrandMark";
 import { churchProfile } from "@/config/church-profile";
+import { ADMIN_ROLE_LABELS } from "@/config/admin-roles";
+import { canAccessAdminPath } from "@/lib/admin-access";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser-client";
+import { useAdminAccess } from "@/components/admin/AdminAuthGate";
 
 const adminSections = [
   {
@@ -39,6 +46,13 @@ const adminSections = [
       { href: "/admin/contenido/blog", label: "Blog y Noticias", icon: FileText },
       { href: "/admin/contenido/eventos", label: "Eventos y Calendario", icon: Calendar },
       { href: "/admin/contenido/galeria", label: "Galería", icon: Images },
+    ],
+  },
+  {
+    title: "Moderación",
+    links: [
+      { href: "/admin/oracion", label: "Peticiones de oración", icon: Heart },
+      { href: "/admin/mensajes", label: "Mensajes de contacto", icon: Mail },
     ],
   },
   {
@@ -91,21 +105,27 @@ function AdminBrand() {
 
 function AdminLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const { role } = useAdminAccess();
 
   return (
     <nav aria-label="Navegación administrativa" className="space-y-1 text-sm font-medium">
       {adminSections.map((section, sectionIndex) => (
-        <section key={section.title} aria-labelledby={`admin-section-${sectionIndex}`}>
-          <h2
-            id={`admin-section-${sectionIndex}`}
-            className={`px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground ${
-              sectionIndex === 0 ? "" : "pt-4"
-            }`}
-          >
-            {section.title}
-          </h2>
-          <ul className="space-y-1">
-            {section.links.map(({ href, label, icon: Icon }) => {
+        (() => {
+          const visibleLinks = section.links.filter(({ href }) => canAccessAdminPath(role, href));
+          if (visibleLinks.length === 0) return null;
+
+          return (
+            <section key={section.title} aria-labelledby={`admin-section-${sectionIndex}`}>
+              <h2
+                id={`admin-section-${sectionIndex}`}
+                className={`px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground ${
+                  sectionIndex === 0 ? "" : "pt-4"
+                }`}
+              >
+                {section.title}
+              </h2>
+              <ul className="space-y-1">
+                {visibleLinks.map(({ href, label, icon: Icon }) => {
               const active = isActivePath(pathname, href);
               return (
                 <li key={href}>
@@ -125,22 +145,39 @@ function AdminLinks({ onNavigate }: { onNavigate?: () => void }) {
                 </li>
               );
             })}
-          </ul>
-        </section>
+              </ul>
+            </section>
+          );
+        })()
       ))}
     </nav>
   );
 }
 
 function AdminFooter({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
+  const router = useRouter();
+  const { role, demoMode } = useAdminAccess();
+
+  async function signOut() {
+    const client = getSupabaseBrowserClient();
+    try {
+      if (client) await client.auth.signOut();
+    } catch {
+      // Keep navigation available if the network is unavailable during sign-out.
+    } finally {
+      onNavigate?.();
+      router.replace("/login");
+    }
+  }
+
   return (
     <div className="space-y-3 border-t border-border pt-4">
       <div className="flex items-center justify-between px-2">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">{churchInitials}</div>
           <div>
-            <div className="text-xs font-semibold">Sesión de muestra</div>
-            <div className="text-[10px] text-muted-foreground">Sin autenticación</div>
+            <div className="text-xs font-semibold">{demoMode ? "Vista de demostración" : ADMIN_ROLE_LABELS[role]}</div>
+            <div className="text-[10px] text-muted-foreground">{demoMode ? "Datos sintéticos" : "Cuenta verificada"}</div>
           </div>
         </div>
         {mobile ? (
@@ -160,6 +197,16 @@ function AdminFooter({ mobile = false, onNavigate }: { mobile?: boolean; onNavig
         <House aria-hidden="true" className="h-3.5 w-3.5" />
         <span>Ir al sitio público</span>
       </Link>
+      {!demoMode && (
+        <button
+          type="button"
+          onClick={() => void signOut()}
+          className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <LogOut aria-hidden="true" className="h-3.5 w-3.5" />
+          <span>Cerrar sesión</span>
+        </button>
+      )}
     </div>
   );
 }
