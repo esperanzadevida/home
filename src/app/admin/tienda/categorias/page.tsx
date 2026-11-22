@@ -51,7 +51,7 @@ type TreeCategory = Category & {
   canMoveDown: boolean;
   onMove: (direction: -1 | 1) => void;
   onEdit: () => void;
-  onDelete: () => void;
+  onDelete: (trigger: HTMLButtonElement) => void;
   _children: TreeCategory[];
 };
 
@@ -105,7 +105,7 @@ function CategoryRow({
   canMoveDown: boolean;
   onMove: (direction: -1 | 1) => void;
   onEdit: () => void;
-  onDelete: () => void;
+  onDelete: (trigger: HTMLButtonElement) => void;
 }) {
   const [expanded, setExpanded] = useState(true);
   const hasChildren = category._children.length > 0;
@@ -158,7 +158,7 @@ function CategoryRow({
           <Button variant="ghost" size="icon" aria-label={`Editar ${category.name}`} onClick={onEdit} className="h-11 w-11 rounded-lg sm:h-9 sm:w-9">
             <Pencil aria-hidden="true" className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label={`Eliminar ${category.name}`} onClick={onDelete} className="h-11 w-11 rounded-lg text-destructive hover:bg-destructive/10 sm:h-9 sm:w-9">
+          <Button variant="ghost" size="icon" aria-label={`Eliminar ${category.name}`} onClick={(event) => onDelete(event.currentTarget)} className="h-11 w-11 rounded-lg text-destructive hover:bg-destructive/10 sm:h-9 sm:w-9">
             <Trash2 aria-hidden="true" className="h-4 w-4" />
           </Button>
         </div>
@@ -181,6 +181,9 @@ export default function AdminCategoriasTiendaPage() {
   const [feedback, setFeedback] = useState("");
   const editorTriggerRef = useRef<HTMLElement | null>(null);
   const newCategoryButtonRef = useRef<HTMLButtonElement | null>(null);
+  const deleteTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const deleteConfirmationRef = useRef<HTMLElement | null>(null);
+  const restoreDeleteFocusRef = useRef(false);
 
   useEffect(() => {
     if (draft !== null || !editorTriggerRef.current) return;
@@ -190,6 +193,20 @@ export default function AdminCategoriasTiendaPage() {
     const focusTarget = trigger.isConnected ? trigger : newCategoryButtonRef.current;
     focusTarget?.focus({ preventScroll: true });
   }, [draft]);
+
+  useEffect(() => {
+    if (deleteCandidate) {
+      deleteConfirmationRef.current?.focus();
+      return;
+    }
+
+    if (!restoreDeleteFocusRef.current) return;
+    restoreDeleteFocusRef.current = false;
+    const trigger = deleteTriggerRef.current;
+    deleteTriggerRef.current = null;
+    const focusTarget = trigger?.isConnected ? trigger : newCategoryButtonRef.current;
+    focusTarget?.focus({ preventScroll: true });
+  }, [deleteCandidate]);
 
   const visibleIds = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("es");
@@ -293,7 +310,11 @@ export default function AdminCategoriasTiendaPage() {
         canMoveDown: siblingIndex < siblings.length - 1,
         onMove: (direction) => moveCategory(category.id, direction),
         onEdit: () => openEdit(category),
-        onDelete: () => setDeleteCandidate(category),
+        onDelete: (trigger) => {
+          deleteTriggerRef.current = trigger;
+          restoreDeleteFocusRef.current = true;
+          setDeleteCandidate(category);
+        },
         _children: buildTree(category.id),
       };
     });
@@ -457,7 +478,7 @@ export default function AdminCategoriasTiendaPage() {
       </section>
 
       {deleteCandidate && (
-        <section aria-labelledby="delete-category-title" aria-describedby="delete-category-description" className="rounded-2xl border border-destructive/30 bg-card p-5 shadow-sm">
+        <section ref={deleteConfirmationRef} role="group" tabIndex={-1} aria-labelledby="delete-category-title" aria-describedby="delete-category-description" className="scroll-mt-20 rounded-2xl border border-destructive/30 bg-card p-5 shadow-sm focus:outline-none focus:ring-2 focus:ring-ring">
             <h2 id="delete-category-title" className="text-lg font-bold text-foreground">Eliminar “{deleteCandidate.name}”</h2>
             <p id="delete-category-description" className="mt-2 text-sm leading-6 text-muted-foreground">También se quitarán sus subcategorías de la demostración. Los productos de muestra no se modifican y esta acción no se guarda al recargar.</p>
             <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
