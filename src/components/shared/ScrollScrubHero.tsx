@@ -11,20 +11,18 @@ import { withBasePath } from "@/lib/site-url";
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const LOW_BANDWIDTH_CONNECTION_TYPES = new Set(["slow-2g", "2g"]);
 
-const RING_CIRCUMFERENCE = 126; // 2 * Math.PI * 20
-const LERP_STRENGTH = 0.16; // Smoothing per 60fps reference frame
-const WATCHDOG_TIMEOUT_MS = 20_000;
+const DESKTOP_LERP_STRENGTH = 0.22;
+const TOUCH_LERP_STRENGTH = 0.32;
+const VERY_SLOW_DOWNLINK_MBPS = 0.5;
 
 export interface ScrollScrubHeroProps {
   /** Local MP4 path under /public; the component applies the configured deployment base path. */
   videoSrc?: string;
   /** Local poster path under /public; the component applies the deployment base path. */
   posterSrc?: string;
-  /** Known byte size of the encoded video (fallback when Content-Length header is absent) */
-  estimatedBytes?: number;
   /** Scroll track height in vh for desktop scrub mode (default 520vh for 4 paced beats) */
   scrollHeightVh?: number;
-  /** Scroll track height in vh for narrow mobile screens (default 440vh) */
+  /** Scroll track height in vh for narrow mobile screens (default 280vh) */
   mobileScrollHeightVh?: number;
   /** Visual world theme matching the video palette */
   accentTheme?: "emerald" | "violet" | "amber" | "aurora";
@@ -33,10 +31,6 @@ export interface ScrollScrubHeroProps {
   /** Overlay narrative slot (titles, phrases, PNG visuals, CTAs) */
   children?: ReactNode;
 }
-
-type FetchInitWithPriority = RequestInit & {
-  priority?: "high" | "low" | "auto";
-};
 
 type NavigatorWithNetworkInformation = Navigator & {
   connection?: {
@@ -49,9 +43,8 @@ type NavigatorWithNetworkInformation = Navigator & {
 export function ScrollScrubHero({
   videoSrc = "/videos/hero-scrub.mp4",
   posterSrc = "/videos/hero-poster.webp",
-  estimatedBytes = 4_290_098,
   scrollHeightVh = 520,
-  mobileScrollHeightVh = 440,
+  mobileScrollHeightVh = 280,
   accentTheme = "emerald",
   cueLabel = "Desliza para descubrir",
   children,
@@ -60,7 +53,6 @@ export function ScrollScrubHero({
   const stageRef = useRef<HTMLDivElement>(null);
   const posterRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const ringCircleRef = useRef<SVGCircleElement>(null);
 
   const [loadState, setLoadState] = useState<"idle" | "loading" | "ready" | "fallback">("idle");
   const resolvedVideoSrc = withBasePath(videoSrc);
@@ -77,8 +69,6 @@ export function ScrollScrubHero({
     let scrubOn = false;
     let heroInitialized = false;
     let heroOnScreen = true;
-    let objectUrl: string | null = null;
-    let activeAbort: AbortController | null = null;
     let posterTimeoutId: number | null = null;
     let revealFallbackId: number | null = null;
     let initialSeekPending = false;
@@ -89,6 +79,10 @@ export function ScrollScrubHero({
     let shownProgress = 0;
     let rafId: number | null = null;
     let lastTick = 0;
+    const isTouchViewport =
+      window.matchMedia("(pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 900px)").matches;
+    const lerpStrength = isTouchViewport ? TOUCH_LERP_STRENGTH : DESKTOP_LERP_STRENGTH;
 
     // Delta-gated DOM write caches
     let lastWrittenProgress = -1;
@@ -188,7 +182,7 @@ export function ScrollScrubHero({
       lastTick = now;
 
       shownProgress +=
-        (targetProgress - shownProgress) * (1 - Math.pow(1 - LERP_STRENGTH, dt / 16.667));
+        (targetProgress - shownProgress) * (1 - Math.pow(1 - lerpStrength, dt / 16.667));
 
       if (Math.abs(targetProgress - shownProgress) < 0.0005) {
         shownProgress = targetProgress;
@@ -236,103 +230,38 @@ export function ScrollScrubHero({
       revealVideo();
     }
 
-    async function loadHeroBlob() {
-      if (disposed || !stageEl || !videoEl) return;
+    function loadVideoSource() {
+      if (disposed || !videoEl) return;
       videoFailed = false;
       setLoadState("loading");
-
-      const ctrl = new AbortController();
-      activeAbort = ctrl;
-      let watchdog = window.setTimeout(() => ctrl.abort(), WATCHDOG_TIMEOUT_MS);
-
-      try {
-        const fetchOpts: FetchInitWithPriority = {
-          priority: "low",
-          signal: ctrl.signal,
-        };
-        const res = await fetch(resolvedVideoSrc, fetchOpts);
-        if (!res.ok) {
-          throw new Error(`Video unavailable (${res.status})`);
-        }
-
-        const contentType = res.headers.get("Content-Type") || "video/mp4";
-        const total = Number(res.headers.get("Content-Length")) || estimatedBytes;
-
-        let blob: Blob;
-        if (res.body && typeof res.body.getReader === "function") {
-          const reader = res.body.getReader();
-          const chunks: Uint8Array<ArrayBuffer>[] = [];
-          let received = 0;
-          let lastRingPaint = 0;
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            if (disposed) {
-              reader.cancel().catch(() => {});
-              return;
-            }
-            window.clearTimeout(watchdog);
-            watchdog = window.setTimeout(() => ctrl.abort(), WATCHDOG_TIMEOUT_MS);
-
-            chunks.push(value);
-            received += value.length;
-
-            const frac = clamp01(received / total);
-            const now = performance.now();
-            if (now - lastRingPaint > 100 || frac === 1) {
-              lastRingPaint = now;
-              ringCircleRef.current?.style.setProperty(
-                "--ld",
-                String(Math.round(RING_CIRCUMFERENCE * (1 - frac)))
-              );
-            }
-          }
-          blob = new Blob(chunks, { type: contentType });
-        } else {
-          blob = await res.blob();
-        }
-
-        window.clearTimeout(watchdog);
-        if (disposed || reducedMotionMql.matches) return;
-
-        ringCircleRef.current?.style.setProperty("--ld", "0");
-
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
-        objectUrl = URL.createObjectURL(blob);
-
-        videoEl.src = objectUrl;
-        videoEl.load();
-      } catch {
-        window.clearTimeout(watchdog);
-        failVideo();
-      }
+      videoEl.src = resolvedVideoSrc;
+      videoEl.load();
     }
 
     function initHeroOnce() {
       if (heroInitialized || disposed || !posterEl) return;
       heroInitialized = true;
 
-      let blobStarted = false;
-      const startBlobFetch = () => {
-        if (blobStarted || disposed || reducedMotionMql.matches) return;
-        blobStarted = true;
+      let videoLoadStarted = false;
+      const startVideoLoad = () => {
+        if (videoLoadStarted || disposed || reducedMotionMql.matches) return;
+        videoLoadStarted = true;
         if (posterTimeoutId !== null) {
           window.clearTimeout(posterTimeoutId);
           posterTimeoutId = null;
         }
-        void loadHeroBlob();
+        loadVideoSource();
       };
 
       if (resolvedPosterSrc) {
         posterEl.style.backgroundImage = `url('${resolvedPosterSrc}')`;
         const posterProbe = new window.Image();
-        posterProbe.onload = startBlobFetch;
-        posterProbe.onerror = startBlobFetch;
+        posterProbe.onload = startVideoLoad;
+        posterProbe.onerror = startVideoLoad;
         posterProbe.src = resolvedPosterSrc;
-        posterTimeoutId = window.setTimeout(startBlobFetch, 3500);
+        posterTimeoutId = window.setTimeout(startVideoLoad, 3500);
       } else {
-        startBlobFetch();
+        startVideoLoad();
       }
     }
 
@@ -373,16 +302,10 @@ export function ScrollScrubHero({
         window.clearTimeout(revealFallbackId);
         revealFallbackId = null;
       }
-      activeAbort?.abort();
-      activeAbort = null;
       if (videoEl && videoEl.hasAttribute("src")) {
         videoEl.pause();
         videoEl.removeAttribute("src");
         videoEl.load();
-      }
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-        objectUrl = null;
       }
       heroInitialized = false;
       videoFailed = false;
@@ -402,14 +325,15 @@ export function ScrollScrubHero({
     const reducedMotionMql = window.matchMedia(REDUCED_MOTION_QUERY);
     const applyHeroMode = () => {
       const connection = (navigator as NavigatorWithNetworkInformation).connection;
-      const hasLimitedDownlink =
+      const hasVerySlowDownlink =
         typeof connection?.downlink === "number" &&
         Number.isFinite(connection.downlink) &&
-        connection.downlink <= 2;
+        connection.downlink > 0 &&
+        connection.downlink <= VERY_SLOW_DOWNLINK_MBPS;
       const conserveData =
         connection?.saveData === true ||
         LOW_BANDWIDTH_CONNECTION_TYPES.has(connection?.effectiveType ?? "") ||
-        hasLimitedDownlink;
+        hasVerySlowDownlink;
 
       if (reducedMotionMql.matches || conserveData) {
         pinStaticPoster();
@@ -457,7 +381,6 @@ export function ScrollScrubHero({
       document.removeEventListener("visibilitychange", onVisibilityChange);
       if (posterTimeoutId !== null) window.clearTimeout(posterTimeoutId);
       if (revealFallbackId !== null) window.clearTimeout(revealFallbackId);
-      activeAbort?.abort();
       videoEl.removeEventListener("seeked", handleSeeked);
       videoEl.removeEventListener("error", handleVideoError);
       videoEl.removeEventListener("loadeddata", handleMediaReady);
@@ -466,12 +389,8 @@ export function ScrollScrubHero({
       videoEl.pause();
       videoEl.removeAttribute("src");
       videoEl.load();
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-        objectUrl = null;
-      }
     };
-  }, [resolvedVideoSrc, resolvedPosterSrc, estimatedBytes]);
+  }, [resolvedVideoSrc, resolvedPosterSrc]);
 
   return (
     <section
@@ -500,7 +419,7 @@ export function ScrollScrubHero({
         <video
           ref={videoRef}
           className="scrub-video"
-          preload="none"
+          preload="metadata"
           muted
           playsInline
           aria-hidden="true"
@@ -538,15 +457,14 @@ export function ScrollScrubHero({
                 strokeWidth="2.5"
               />
               <circle
-                ref={ringCircleRef}
                 className="scrub-ring-fill"
                 cx="24"
                 cy="24"
                 r="20"
                 fill="none"
                 strokeWidth="2.5"
-                strokeDasharray={RING_CIRCUMFERENCE}
-                style={{ strokeDashoffset: "var(--ld, 126)" }}
+                strokeDasharray="32 94"
+                strokeDashoffset="0"
               />
             </svg>
           ) : (

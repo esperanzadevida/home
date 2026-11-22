@@ -84,9 +84,8 @@ export default function HomePage() {
         <ScrollScrubHero
           videoSrc="/videos/hero-scrub.mp4"
           posterSrc="/videos/hero-poster.webp"
-          estimatedBytes={4_290_098}
           scrollHeightVh={520}
-          mobileScrollHeightVh={380}
+          mobileScrollHeightVh={280}
           accentTheme="emerald"
           cueLabel="Desliza para descubrir"
         >

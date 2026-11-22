@@ -10,7 +10,6 @@ export default function ServiciosPage() {
       <ScrollScrubHero
         videoSrc="/videos/services-scrub.mp4"
         posterSrc="/videos/services-poster.webp"
-        estimatedBytes={3_006_961}
         scrollHeightVh={300}
         accentTheme="amber"
         cueLabel="Desliza para conocer los horarios"

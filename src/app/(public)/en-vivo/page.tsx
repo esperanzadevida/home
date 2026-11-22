@@ -10,7 +10,6 @@ export default function EnVivoPage() {
       <ScrollScrubHero
         videoSrc="/videos/live-scrub.mp4"
         posterSrc="/videos/live-poster.webp"
-        estimatedBytes={3_438_872}
         scrollHeightVh={280}
         accentTheme="aurora"
         cueLabel="Desliza para entrar"

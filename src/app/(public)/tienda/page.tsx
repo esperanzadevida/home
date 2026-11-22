@@ -11,7 +11,6 @@ export default function TiendaPage() {
       <ScrollScrubHero
         videoSrc="/videos/store-scrub.mp4"
         posterSrc="/videos/store-poster.webp"
-        estimatedBytes={1_120_916}
         scrollHeightVh={300}
         accentTheme="violet"
         cueLabel="Desliza para abrir la colección"

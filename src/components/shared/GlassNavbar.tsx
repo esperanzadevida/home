@@ -10,7 +10,8 @@ import { DesktopMegaMenu } from "@/components/shared/DesktopMegaMenu";
 import { BrandMark } from "@/components/shared/BrandMark";
 import { churchProfile } from "@/config/church-profile";
 import { publicNavigation, moreNavigation } from "@/config/public-pages";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function GlassNavbar() {
   const pathname = usePathname();
@@ -64,11 +65,11 @@ export function GlassNavbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="group flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80 max-[359px]:gap-2"
+          className="group flex shrink-0 items-center gap-3 transition-opacity hover:opacity-80 max-[359px]:gap-1"
         >
           {/* Logo mark */}
           <BrandMark className="h-10 w-10 shrink-0 object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.04]" />
-          <span className="flex max-w-[132px] flex-col leading-tight max-[359px]:max-w-[108px]">
+          <span className="flex max-w-[132px] flex-col leading-tight max-[359px]:max-w-[76px]">
             <span className="text-[14px] font-bold tracking-tight text-foreground sm:text-[15px]">
               {churchProfile.shortName}
             </span>
@@ -81,8 +82,19 @@ export function GlassNavbar() {
         <DesktopMegaMenu />
 
         {/* Right actions */}
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 max-[359px]:gap-0.5 sm:gap-2">
           <NotificationCenter />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="rounded-full text-foreground hover:bg-muted sm:hidden"
+            aria-label="Recargar página"
+            title="Recargar página"
+            onClick={() => window.location.reload()}
+          >
+            <RefreshCw aria-hidden="true" className="h-4 w-4" />
+          </Button>
           <ThemeToggle />
           <CartButton />
 

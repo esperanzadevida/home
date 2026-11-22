@@ -27,6 +27,7 @@
   position: sticky;
   top: 4rem;
   width: 100%;
+  height: calc(100vh - 4rem);
   height: calc(100svh - 4rem);
   overflow: clip;
   background:
@@ -845,7 +846,16 @@
   width: 2.6rem;
   height: 2.6rem;
   color: rgba(185, 246, 117, 0.92);
-  transform: rotate(-90deg);
+  animation: scrub-ring-spin 1.15s linear infinite;
+}
+
+@keyframes scrub-ring-spin {
+  from {
+    transform: rotate(-90deg);
+  }
+  to {
+    transform: rotate(270deg);
+  }
 }
 
 .scrub-ring-track {
@@ -855,7 +865,6 @@
 .scrub-ring-fill {
   stroke: currentColor;
   stroke-linecap: round;
-  transition: stroke-dashoffset 120ms linear;
 }
 
 .scrub-cue {
@@ -937,7 +946,7 @@
 
 @media (max-width: 900px) {
   .scrub-hero {
-    height: 440vh;
+    height: var(--scrub-height-mobile, 280vh);
   }
 
   .scrub-band {
@@ -1172,12 +1181,6 @@
   .scrub-png-frame--floating,
   .scrub-png-frame--floating-alt {
     display: none;
-  }
-}
-
-@media (max-width: 640px) {
-  .scrub-hero {
-    height: var(--scrub-height-mobile, 440vh);
   }
 }
 

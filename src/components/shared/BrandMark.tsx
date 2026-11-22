@@ -14,6 +14,7 @@ export function BrandMark({ className }: BrandMarkProps) {
       width={1024}
       height={1024}
       sizes="48px"
+      priority
     />
   );
 }
