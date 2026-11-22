@@ -11,11 +11,11 @@ Las nueve imágenes WebP se reutilizan desde `public/images/esperanza-de-vida/`;
 | Orden | Bloque | Trabajo y condición de salida |
 |---|---|---|
 | 1 | Identidad y contenido local | Mantener marca, perfil, rutas de imagen, catálogo y seed alineados con Esperanza de Vida; conservar el slug anterior de camiseta solo como redirección 308. |
-| 2 | Páginas públicas | Completar la revisión de rutas, navegación, enlaces, imágenes, estados vacíos y experiencia de primera visita. Las acciones sin backend siguen descritas como prototipos locales. |
+| 2 | Páginas públicas | Barrido base de las 28 rutas públicas en producción a 320 × 740 y 1440 × 1000, títulos/H1, enlaces internos e imágenes completado. Siguen pendientes recorridos funcionales más amplios y las acciones sin backend continúan siendo prototipos locales. |
 | 3 | Panel Admin local | Revisar formularios, tablas y navegación Admin en móvil/escritorio. No implicar autenticación ni persistencia donde solo hay UI/datos de muestra. |
 | 4 | Calidad local | Recorrer rutas y temas; revisar teclado, contraste, texto alternativo, carga/error y lector de pantalla, registrando solo lo comprobado. |
 | 5 | Datos y permisos | Simplificar y validar migraciones, seed, roles y RLS antes de conectar una cuenta. |
-| 6 | Servicios y publicación | La exportación estática ya se publica por GitHub Pages. Conectar Supabase o Vercel solo con credenciales y autorización; verificar cada integración antes de activarla. |
+| 6 | Servicios y publicación | La exportación estática se publica y verificó en GitHub Pages. Supabase, Vercel y flujos con datos reales siguen sin conectar; verificar modelo, permisos y credenciales antes de activarlos. |
 | 7 | Hero con video | Integración, exportación estática y prefijo de medios verificadas. En caché fría, el build local transfirió 4,290,398 bytes en una sola descarga; ocho posiciones de scrubbing reutilizaron el Blob local. En Slow 4G simulado (390 × 844, 4× CPU, downlink 1,6 Mb/s) el fetch tardó 25,1 s, por lo que el poster reemplaza la animación en conexiones limitadas. Siguen pendientes la prueba en red real y la procedencia/permisos del clip. |
 
 La web pública actual es una exportación estática de GitHub Pages. No conectar Supabase ni Vercel antes del cierre local y la entrega de credenciales; los flujos de Auth, persistencia y RLS siguen sin verificarse.
@@ -27,13 +27,13 @@ La web pública actual es una exportación estática de GitHub Pages. No conecta
 - En la exportación de Pages de 2026-11-22, `npm run lint`, `npm run type-check` y `npm run build` pasan y Next genera 64 rutas estáticas. La salida incorpora el prefijo `/home` para Home y los tres heroes de video. La pasada anterior revisó 46 rutas declaradas y 54 paths internos; el slug antiguo de la camiseta devuelve 308 hacia el canónico.
 - GitHub Actions publicó el commit `13460a6` en la ejecución [`44970952196`](https://github.com/esperanzadevida/home/actions/runs/44970952196), completada con éxito. Chrome recibió 200 para el MP4 y poster de `/home/`, `/home/servicios/`, `/home/tienda/` y `/home/en-vivo/`; antes, los medios de las tres rutas interiores devolvían 404.
 - QA de `/servicios` en producción a 320 × 740: ancho del documento 320 px, etiqueta de capítulo visible, dock de 220,8 px, sin errores de consola. Con movimiento reducido y con `downlink` 1,6 Mb/s simulado, el poster respondió 200 y no se solicitó `services-scrub.mp4`. En local también se comprobó 390 × 844; la licencia del clip sigue sin verificarse.
-- Cobertura móvil documentada: Lighthouse revisó 26 rutas y 46 combinaciones de tema; Accesibilidad, Buenas prácticas y navegación por agentes dieron 100. A 390 px, el documento/cuerpo coincide en 17 rutas estáticas Admin y tres detalles dinámicos. A 320 px, 49 URL locales conservaron ancho de documento y cuerpo igual al viewport, con título y H1. Quedan el recorrido integral de teclado, lector de pantalla, contraste manual, estados de carga/error y rutas dinámicas no cubiertas.
-- La Home recibió una comprobación puntual de teclado en desktop: el primer Tab revela el enlace visible «Ir al contenido principal». No equivale a un recorrido completo de foco.
+- Cobertura previa de Lighthouse: 26 rutas y 46 combinaciones de tema; Accesibilidad, Buenas prácticas y navegación por agentes dieron 100. En producción, 28 rutas públicas pasaron el barrido a 320 × 740 y 1440 × 1000: título, un H1 y ancho de documento/cuerpo igual al viewport. El análisis adicional del HTML exportado encontró 1.158 enlaces internos, todos con destino existente y prefijo `/home`. Quedan el recorrido integral de teclado, lector de pantalla, contraste manual, estados de carga/error y rutas dinámicas no cubiertas.
+- En producción se recorrieron con teclado algunos flujos de Home en móvil: enlace de salto, notificaciones, cambio de tema, carrito y menú «Más»; Escape cerró los diálogos/restauró el foco, y la navegación desde «Más» enfocó `main#main-content`. Es una muestra de flujos, no un recorrido completo.
 - El menú Admin móvil se abrió por su botón con nombre accesible; Escape lo cerró y devolvió el foco al botón. Sigue pendiente revisar teclado en todas las rutas y controles.
 - Lighthouse móvil de `/`, `/servicios`, `/sermones`, `/tienda/camiseta-esperanza-de-vida` y `/admin/dashboard` (390 × 844, movimiento reducido): Accesibilidad, Buenas prácticas y navegación por agentes en 100. SEO obtuvo 66 en Home y 63 en las otras rutas porque se mantiene la directiva `noindex,nofollow`; este release la conserva y no prepara el sitio para indexación.
 - GitHub Pages publica la exportación estática. Supabase, autenticación real, persistencia y RLS siguen pendientes y no están conectados.
 
-**Actualizado:** 2026-11-21.
+**Actualizado:** 2026-11-22.
 
 **Publicación anterior:** Home publicada en GitHub Pages desde `fbbbd1e` (workflow [`44968250079`](https://github.com/esperanzadevida/home/actions/runs/44968250079), exitoso). Esa versión y `/admin/roles/` respondían 200; el hero medía 380vh a 390 px y 520vh a 1440 px, sin desbordamiento a 320 px. Esta evidencia corresponde al release anterior. Persisten la prueba en red real, procedencia/permisos del clip, QA integral público/Admin, teclado/lector de pantalla, rutas dinámicas y validación de modelo/permisos. Supabase, autenticación real, persistencia y RLS no están conectados ni verificados.
 
@@ -54,7 +54,7 @@ La web pública actual es una exportación estática de GitHub Pages. No conecta
 
 - El workspace tiene un esqueleto Next.js 15 / React 19 / TypeScript / Tailwind 4 y algunas dependencias UI.
 - La Home usa `churchProfile`, `sermonDetails`, `eventDetails` y `publicPageBlueprints` para bienvenida, horarios, mensaje reciente, agenda, ministerios y visita. El hero usa el MP4 y poster con cuatro escenas descritas en `docs/ESTRUCTURA-HOME-Y-VIDEO.md`. Autenticación y flujos de contenido no están implementados.
-- Al comenzar la revisión no había `components.json`, lockfile, `node_modules` ni repositorio Git. Ahora hay `package-lock.json`, dependencias instaladas y un repositorio local `main` con commits; `git remote -v` está vacío, así que todavía no existe remoto GitHub conectado.
+- Al comenzar la revisión no había `components.json`, lockfile, `node_modules` ni repositorio Git. Ahora hay `package-lock.json`, dependencias instaladas y un repositorio Git conectado a `https://github.com/esperanzadevida/home.git`; la exportación estática se publica desde `main` en GitHub Pages.
 - Hay un conjunto de imágenes y vectores en `docs/assets/` y `public/images/`. La guía visual los llama oficiales/descargados, pero no registra enlaces ni licencias. El SVG del logo es un dibujo vectorial local y el JPG premium es ilustrativo; su origen institucional no está verificado. Mantenerlos como referencia, no como identidad aprobada.
 - El informe denominacional mezcla fuentes oficiales y secundarias. Verificar cada dato histórico/doctrinal con una fuente primaria antes de usarlo en copy público.
 - La nota de Obsidian marca de forma contradictoria los 15 prompts como completados y pendientes. El archivo sí existe; el estado de ejecución de cada fase requiere actualizarse con evidencia.
@@ -65,12 +65,12 @@ La web pública actual es una exportación estática de GitHub Pages. No conecta
 | Etapa | Entregable | Estado / condición de salida |
 |---|---|---|
 | 0. Reconocimiento | Comparar Obsidian, prompts, código y dependencias. Separar decisiones de propuestas. | Completada en esta revisión. |
-| 1. Base del sitio | Stack, tokens, metadatos, configuración de Next, navegación responsive y perfil editorial. | Parcial: perfil y metadatos por página, Open Graph/Twitter y canonical condicional están implementados. El sitio usa `NEXT_PUBLIC_SITE_URL` o el dominio estable de producción de Vercel; falta configurar el dominio definitivo. |
+| 1. Base del sitio | Stack, tokens, metadatos, configuración de Next, navegación responsive y perfil editorial. | Parcial: perfil y metadatos por página, Open Graph/Twitter y canonical condicional están implementados. GitHub Pages es el destino publicado; queda definir si se usará un dominio propio. |
 | 2. Componentes UI base | Controles pertinentes, tema, búsqueda, estados vacíos y navegación. | Parcial: Button y tema existen; se agregan controles nativos de búsqueda/filtro para las listas que los necesitan. No hay catálogo de componentes shadcn configurado. |
 | 3. Layout y navegación | Layout público, auth/admin y protección de rutas. | Parcial: layouts y navegación existen; no hay autenticación ni middleware de protección implementados. |
 | 4. Modelo y seguridad | Reducir esquema, definir permisos, migraciones, RLS y clientes Supabase. | La corrección estática de privilegios, perfiles, configuración pública e inserciones se incorporó a la migración local. Pendientes: validar SQL/RLS con Supabase, confirmar que `private` no esté expuesto por el Data API, reducir roles duplicados y reconciliar productos/ministerios. No conectar ni aplicar SQL hasta cerrar estos puntos. |
 | 5. Home y video | Recorrido, copy, poster/video y mapa de secciones. | Publicada en Pages: Home integra el MP4 comprimido y poster con cuatro escenas narrativas. La transferencia agregada se midió en build local. Pendientes: validación en red representativa, permiso/procedencia del video y QA integral del fallback. |
-| 6. Páginas públicas interiores | Requisitos de contenido e interacciones por ruta, más detalles editoriales. | Parcial: 12 secciones y 15 fichas de detalle están implementadas. Búsqueda, filtros, calendario, divulgaciones y carrito local se comprobaron en navegador en el alcance descrito abajo. Formularios, mapa, medios, registro, pago y transmisión no tienen destino real conectado. |
+| 6. Páginas públicas interiores | Requisitos de contenido e interacciones por ruta, más detalles editoriales. | Parcial: 12 secciones interiores y 15 fichas de detalle están implementadas; el sitemap público contiene 28 rutas contando Home. Búsqueda, filtros, calendario, divulgaciones y carrito local se comprobaron en el alcance descrito abajo. Formularios, mapa, medios, registro, pago y transmisión no tienen destino real conectado. |
 | 7. Autenticación | Supabase Auth, recuperación, sesión y middleware de protección. | Pendiente de modelo y credenciales. El login existente es UI de prototipo, no una sesión real. |
 | 8. Admin de contenido | Dashboard, CMS para blog/sermones/eventos/galería. | Parcial: dashboard, blog/editor Markdown, eventos, sermones y galería están disponibles como prototipos locales. Faltan persistencia, permisos y credenciales; no es un CMS conectado. |
 | 9. Admin de tienda | Productos, categorías, inventario, pedidos y pagos. | Parcial: catálogo/editor, categorías, inventario, pedidos/detalle y pagos tienen vistas locales coordinadas. Persistencia, autenticación, operación comercial y pasarela siguen pendientes. |
@@ -78,8 +78,8 @@ La web pública actual es una exportación estática de GitHub Pages. No conecta
 | 11. Temas | Revisar color, contraste y modo claro/oscuro. | Base claro/oscuro y toggle presentes; el salto al contenido ahora conserva un indicador visible. Falta el recorrido completo de contraste, teclado y lector de pantalla en páginas y Home. |
 | 12. Herramientas avanzadas | Mapas, editores, calendario, time picker e imágenes. | Parcial: calendario público local listo; mapas, editores y uploads esperan ubicación, activos y backend. |
 | 13. API y servidor | API de auth, contenido, registros, tienda, donaciones, miembros y uploads. | Pendiente de modelo, permisos y credenciales; no hay endpoints de servicio implementados. |
-| 14. Calidad | SEO, accesibilidad, responsive, rendimiento y pruebas. | Parcial: metadatos, SEO local, Open Graph, JSON-LD, estados de ruta y `next/image` están implementados. Lighthouse móvil ha cubierto 26 rutas / 46 combinaciones de tema, con 100 en Accesibilidad, Buenas prácticas y navegación por agentes. Las 17 rutas estáticas Admin y tres rutas dinámicas no desbordan a 390 px; 49 URL locales tampoco desbordan a 320 px. Sigue pendiente QA integral de teclado, lector de pantalla, contraste manual, estados de carga/error, aprobación de assets y otras rutas dinámicas. |
-| 15. Publicación | Repositorio, CI/CD, Supabase, Vercel y verificación de producción. | Sin conexión externa ni despliegue verificado. Esperar a que Nicola entregue credenciales después del cierre de páginas locales y QA; revisar modelo y permisos antes de migraciones. |
+| 14. Calidad | SEO, accesibilidad, responsive, rendimiento y pruebas. | Parcial: metadatos, SEO local, Open Graph, JSON-LD, estados de ruta y `next/image` están implementados. Lighthouse móvil ha cubierto 26 rutas / 46 combinaciones de tema con 100 en Accesibilidad, Buenas prácticas y navegación por agentes. El QA reciente cubrió las 28 rutas públicas en producción a 320 × 740 y 1440 × 1000, además de enlaces y flujos puntuales de teclado. Sigue pendiente QA integral de teclado, lector de pantalla, contraste manual, estados de carga/error, aprobación de assets y otras rutas dinámicas. |
+| 15. Publicación | Repositorio, CI/CD, Supabase, Vercel y verificación de producción. | Repositorio y GitHub Actions conectados; la exportación estática está publicada en GitHub Pages y verificada. Vercel, Supabase y los flujos con datos reales siguen pendientes; revisar modelo y permisos antes de migraciones. |
 
 ## Orden ajustado de los 15 prompts
 
@@ -115,9 +115,9 @@ La paleta institucional de `COLOR-SYSTEM.md` y la guía de componentes son propu
 - El seed SQL se revisó junto con `src/config/church-profile.ts` y se retiraron cuentas bancarias, RUC y peticiones personales inventadas. La migración reforzó localmente RLS, acceso a perfiles y settings, y funciones privilegiadas; las peticiones de oración quedan solo para administradores. No aplicar todavía: validar con Supabase, decidir una sola fuente de roles y reconciliar el catálogo de productos/ministerios. La revisión continúa estática, sin conexión ni query a una base.
 - El índice doctrinal usa títulos y paráfrasis propias basadas en la declaración en español de Assemblies of God (EE. UU.). La página enlaza y atribuye la fuente; no se presenta como confirmación de una redacción oficial de la organización ecuatoriana.
 
-## Estructura pública prevista
+## Estructura pública publicada y límites actuales
 
-- `/` — portada con video local comprimido, poster/fallback, bienvenida, horarios, comunidad, sermón, eventos, ministerios y visita. La transferencia local está medida; el fallback estático responde a movimiento reducido y, cuando existe Network Information API, a ahorro de datos/conexiones <= 2 Mb/s. Validar redes reales y permisos del material antes de desplegar. Recorrido y criterios en `docs/ESTRUCTURA-HOME-Y-VIDEO.md`.
+- `/` — portada publicada con video local comprimido, poster/fallback, bienvenida, horarios, comunidad, sermón, eventos, ministerios y visita. La transferencia local está medida; el fallback estático responde a movimiento reducido y, cuando existe Network Information API, a ahorro de datos/conexiones <= 2 Mb/s. Validar redes reales y permisos del material. Recorrido y criterios en `docs/ESTRUCTURA-HOME-Y-VIDEO.md`.
 - `/nosotros` — historia, misión, visión y vida de comunidad.
 - `/servicios` — horarios, ubicación y primera visita.
 - `/sermones` y `/sermones/[slug]` — archivo y detalle editorial de seis mensajes; no hay reproductor.
@@ -126,8 +126,8 @@ La paleta institucional de `COLOR-SYSTEM.md` y la guía de componentes son propu
 - `/blog` y `/blog/[slug]` — índice y tres artículos editoriales.
 - `/tienda` y `/tienda/[slug]` — catálogo y fichas informativas; compra y pago requieren una operación comercial conectada.
 - `/galeria` — secciones gráficas editoriales con fotografías originales generadas y documentadas para esta ambientación.
-- `/contacto` — información editorial de contacto; el formulario espera un destino de envío.
-- `/donaciones` — información editorial; no hay cuentas, botones de aporte ni pago configurados.
+- `/contacto` — información editorial con enlaces directos de correo y teléfono; no incluye formulario ni recopila envíos.
+- `/donaciones` — información editorial; no hay formulario, cuentas, botones de aporte ni pago configurados, y la ruta no recoge solicitudes.
 - `/oracion` — información de acompañamiento; no recoge solicitudes ni datos sensibles.
 - `/en-vivo` — sección editorial sin reproductor, emisión o chat conectados.
 
@@ -147,9 +147,9 @@ La paleta institucional de `COLOR-SYSTEM.md` y la guía de componentes son propu
 | `/tienda` | Búsqueda, categoría/precio y orden por precio/novedad/popularidad. | Existencias y métricas comerciales confirmadas. |
 | `/tienda/[slug]` | Tres fichas, cantidad/variantes, carrito local, relacionados y compartir/copiar enlace; pedido/pago inactivos. | Galería aprobada, reviews y operación comercial. |
 | `/galeria` | Cinco escenas locales originales, con descripciones y formatos optimizados. | Álbumes definitivos, dirección artística aprobada y lightbox si sigue aportando valor. |
-| `/contacto` | Dirección/texto de contacto y FAQ. | Destinos confirmados, formulario de envío y mapa. |
+| `/contacto` | Información editorial, FAQ y enlaces `mailto:`/`tel:`. La ruta no tiene formulario de envío. | Confirmar los destinos para operación real y definir si hace falta mapa. |
 | `/donaciones` | Información editorial. | Montos/destino confirmados, pago e historial con cuenta real. |
-| `/oracion` | Información de acompañamiento. | Envío/muro: requiere backend, controles de privacidad y consentimiento. |
+| `/oracion` | Información de acompañamiento; no recoge solicitudes ni datos sensibles. | Si se incorpora un envío, requiere backend, controles de privacidad y consentimiento. |
 | `/en-vivo` | Página editorial que no afirma tener emisión activa. | Fuente real, reproductor, agenda/countdown y chat moderado. |
 
 ## Revisión inicial de rutas (base antes de ampliar los sermones) — 2026-11-19
@@ -479,3 +479,12 @@ Cada etapa debe terminar con un entregable local revisable y una lista corta de 
 - No se modificó la migración: en este entorno no hay PostgreSQL/Supabase local para validar políticas con la matriz de usuarios. La fuente de roles, grants, políticas por módulo y pruebas de rutas con Auth real siguen pendientes. No se conectó ni cambió un proyecto Supabase externo.
 - Catálogos consultados para la pantalla: shadcn respondió sin registros configurados; Magic UI solo encontró Glyph Matrix, que no aporta a una matriz administrativa; HeroUI v3 documenta una tabla desplazable y controles, pero sumaría otra base de componentes. Base UI Checkbox y Radix Checkbox se revisaron como alternativas accesibles; se conservaron los controles nativos y tabla HTML existentes porque ya permiten edición con teclado y etiquetas semánticas sin dependencia nueva. Versiones/licencias vigentes verificadas en [HeroUI v3, MIT](https://github.com/heroui-inc/heroui), [Radix Checkbox 1.3.12](https://www.radix-ui.com/primitives/docs/components/checkbox) y [Radix Primitives, MIT](https://github.com/radix-ui/primitives).
 - El refuerzo accesible de la matriz de permisos (etiquetas explícitas y áreas táctiles de 44 px) pasó `npm run build` para exportación de GitHub Pages el 2026-11-21: compilación, lint, tipos y 64 rutas estáticas. No ejecuté suites de pruebas. El cambio de esquema permanece sin implementar y sin aplicar.
+
+## QA de rutas públicas en producción — 2026-11-22
+
+- Revisé las 28 rutas públicas del sitemap en producción a 320 × 740 y 1440 × 1000. Todas cargaron con título y un solo H1; `documentElement` y `body` mantuvieron el ancho del viewport, sin errores de red ni imágenes rotas.
+- En el barrido a 320 px no encontré imágenes sin `alt`, botones o enlaces sin nombre accesible, campos sin etiqueta/nombre accesible ni enlaces vacíos `href="#"`.
+- El análisis estructural de 30 HTML públicos exportados encontró 1.158 enlaces internos: cero destinos faltantes y cero URLs internas sin el prefijo `/home` requerido por Pages.
+- En Home móvil recorrí con teclado el enlace de salto, notificaciones, selector de tema, carrito y menú «Más». Los diálogos y la hoja cerraron con Escape y devolvieron el foco; al elegir «Nosotros», la ruta cambió a `/home/nosotros/` y el foco pasó a `main#main-content`.
+- `/contacto`, `/oracion` y `/donaciones` tienen cero formularios y cero botones de envío. Contacto ofrece enlaces directos `mailto:hola@esperanzadevida.ec` y `tel:+593984472651`; no hay captura de solicitudes en las otras dos rutas.
+- Alcance: barrido estructural y muestra de interacciones en la web publicada. No equivale a cumplimiento WCAG, auditoría completa de contraste, prueba con lector de pantalla ni recorrido exhaustivo de teclado.
