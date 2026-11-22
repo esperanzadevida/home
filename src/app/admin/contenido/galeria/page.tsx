@@ -189,7 +189,7 @@ export default function AdminGalleryPage() {
         </div>
       </header>
 
-      <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" aria-label="Seleccionar imágenes para previsualización local" tabIndex={-1} onChange={(event) => addImages(event.target.files)} />
+      <input id="gallery-image-files" name="gallery-image-files" ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" aria-label="Seleccionar imágenes para previsualización local" tabIndex={-1} onChange={(event) => addImages(event.target.files)} />
       <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
 
       <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm" aria-label="Biblioteca de imágenes">

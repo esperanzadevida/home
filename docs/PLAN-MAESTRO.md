@@ -488,3 +488,10 @@ Cada etapa debe terminar con un entregable local revisable y una lista corta de 
 - En Home móvil recorrí con teclado el enlace de salto, notificaciones, selector de tema, carrito y menú «Más». Los diálogos y la hoja cerraron con Escape y devolvieron el foco; al elegir «Nosotros», la ruta cambió a `/home/nosotros/` y el foco pasó a `main#main-content`.
 - `/contacto`, `/oracion` y `/donaciones` tienen cero formularios y cero botones de envío. Contacto ofrece enlaces directos `mailto:hola@esperanzadevida.ec` y `tel:+593984472651`; no hay captura de solicitudes en las otras dos rutas.
 - Alcance: barrido estructural y muestra de interacciones en la web publicada. No equivale a cumplimiento WCAG, auditoría completa de contraste, prueba con lector de pantalla ni recorrido exhaustivo de teclado.
+
+## QA focalizado de formularios Admin — 2026-11-21
+
+- `/admin/miembros` calcula la fecha inicial con el calendario local. En `America/Guayaquil`, el campo mostró `2026-11-21`, mientras UTC ya era `2026-11-22`; se evitó así el desfase de un día en el nuevo perfil de muestra.
+- Añadí `id` y `name` a 10 controles de muestra en el editor de blog (6), Galería (1), Donaciones (2) y Usuarios (1). Los inputs de archivo siguen fuera del orden de tabulación y se accionan desde sus botones visibles; no agregué dependencias.
+- En el build estático recién generado, recorrí esas cuatro rutas y Miembros a 320 × 740, con movimiento reducido: todas tuvieron un H1, ancho de documento/cuerpo de 320 px, ningún campo sin `id` y `name`, y cero mensajes de consola. El diálogo de Miembros mostró la fecha local correcta.
+- `npm run lint`, `npm run type-check` y `npm run build` para GitHub Pages pasaron; Next generó 64 rutas estáticas. No ejecuté suites de pruebas. El resto de la revisión de Admin, teclado, contraste, lector de pantalla y flujos reales sigue pendiente; los datos y acciones de estas pantallas son de muestra.

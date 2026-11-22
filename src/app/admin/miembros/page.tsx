@@ -35,10 +35,18 @@ const EMPTY_DRAFT: MemberDraft = {
   ministry: "",
   status: "Visitante",
   isBaptized: false,
-  joinDate: new Date().toISOString().slice(0, 10),
+  joinDate: "",
 };
 
 const statusOptions: MemberStatus[] = ["Activo", "En discipulado", "Visitante"];
+
+function getTodayLocalDateInputValue() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 function MemberForm({
   open,
@@ -79,41 +87,41 @@ function MemberForm({
             </Dialog.Close>
           </div>
 
-          <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+          <form autoComplete="off" className="mt-6 space-y-4" onSubmit={onSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-1.5 text-sm font-medium sm:col-span-2">
                 <span>Nombre completo</span>
-                <input required maxLength={100} autoComplete="name" value={draft.name} onChange={(event) => update("name", event.target.value)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                <input id="member-name" name="memberName" required maxLength={100} autoComplete="off" value={draft.name} onChange={(event) => update("name", event.target.value)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
               </label>
               <label className="space-y-1.5 text-sm font-medium">
                 <span>Correo de ejemplo</span>
-                <input required type="email" pattern="^[^@\\s]+@[^@\\s]+\\.invalid$" maxLength={120} autoComplete="off" value={draft.email} onChange={(event) => update("email", event.target.value)} placeholder="nombre@example.invalid" className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                <input id="member-email" name="memberEmail" required type="email" pattern="^[^@\\s]+@[^@\\s]+\\.invalid$" maxLength={120} autoComplete="off" value={draft.email} onChange={(event) => update("email", event.target.value)} placeholder="nombre@example.invalid" className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
                 <span className="block text-xs font-normal text-muted-foreground">Usa el dominio reservado .invalid para esta demostración.</span>
               </label>
               <label className="space-y-1.5 text-sm font-medium">
                 <span>Teléfono</span>
-                <input maxLength={40} value={draft.phone} onChange={(event) => update("phone", event.target.value)} placeholder="No asignado" className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                <input id="member-phone" name="memberPhone" maxLength={40} autoComplete="off" value={draft.phone} onChange={(event) => update("phone", event.target.value)} placeholder="No asignado" className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
               </label>
               <label className="space-y-1.5 text-sm font-medium">
                 <span>Ministerio</span>
-                <select value={draft.ministry} onChange={(event) => update("ministry", event.target.value)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <select id="member-ministry" name="memberMinistry" value={draft.ministry} onChange={(event) => update("ministry", event.target.value)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <option value="">Sin asignar</option>
                   {ministries.map((ministry) => <option key={ministry} value={ministry}>{ministry}</option>)}
                 </select>
               </label>
               <label className="space-y-1.5 text-sm font-medium">
                 <span>Estado de acompañamiento</span>
-                <select value={draft.status} onChange={(event) => update("status", event.target.value as MemberStatus)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <select id="member-status" name="memberStatus" value={draft.status} onChange={(event) => update("status", event.target.value as MemberStatus)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   {statusOptions.map((status) => <option key={status} value={status}>{status}</option>)}
                 </select>
               </label>
               <label className="space-y-1.5 text-sm font-medium">
                 <span>Fecha de ingreso (muestra)</span>
-                <input required type="date" value={draft.joinDate} onChange={(event) => update("joinDate", event.target.value)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                <input id="member-join-date" name="memberJoinDate" required type="date" value={draft.joinDate} onChange={(event) => update("joinDate", event.target.value)} className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
               </label>
             </div>
             <label className="flex min-h-11 items-center gap-3 rounded-xl border border-border bg-background px-3 text-sm font-medium">
-              <input type="checkbox" checked={draft.isBaptized} onChange={(event) => update("isBaptized", event.target.checked)} className="h-4 w-4 rounded border-input accent-primary focus-visible:ring-2 focus-visible:ring-ring" />
+              <input id="member-baptized" name="memberBaptized" type="checkbox" checked={draft.isBaptized} onChange={(event) => update("isBaptized", event.target.checked)} className="h-4 w-4 rounded border-input accent-primary focus-visible:ring-2 focus-visible:ring-ring" />
               Bautismo en agua registrado en esta muestra
             </label>
             <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end">
@@ -146,7 +154,7 @@ export default function AdminMiembrosPage() {
 
   const openNew = () => {
     setEditingId(null);
-    setDraft({ ...EMPTY_DRAFT, joinDate: new Date().toISOString().slice(0, 10) });
+    setDraft({ ...EMPTY_DRAFT, joinDate: getTodayLocalDateInputValue() });
     setDialogOpen(true);
   };
 
@@ -193,10 +201,10 @@ export default function AdminMiembrosPage() {
       <section aria-label="Filtros del directorio" className="grid gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(14rem,1fr)_13rem_15rem_auto] lg:items-end lg:p-4">
         <label className="space-y-1.5 text-xs font-semibold text-foreground">
           <span>Buscar</span>
-          <span className="relative block"><Search aria-hidden="true" className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nombre, correo o ministerio" className="h-10 w-full rounded-xl border border-input bg-background pl-9 pr-3 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" /></span>
+          <span className="relative block"><Search aria-hidden="true" className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><input id="member-search" name="memberSearch" type="search" autoComplete="off" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nombre, correo o ministerio" className="h-10 w-full rounded-xl border border-input bg-background pl-9 pr-3 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" /></span>
         </label>
-        <label className="space-y-1.5 text-xs font-semibold text-foreground"><span>Estado</span><select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><option>Todos los estados</option>{statusOptions.map((status) => <option key={status}>{status}</option>)}</select></label>
-        <label className="space-y-1.5 text-xs font-semibold text-foreground"><span>Ministerio</span><select value={ministryFilter} onChange={(event) => setMinistryFilter(event.target.value)} className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><option>Todos los ministerios</option>{ministries.map((ministry) => <option key={ministry}>{ministry}</option>)}</select></label>
+        <label className="space-y-1.5 text-xs font-semibold text-foreground"><span>Estado</span><select id="member-filter-status" name="memberFilterStatus" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><option>Todos los estados</option>{statusOptions.map((status) => <option key={status}>{status}</option>)}</select></label>
+        <label className="space-y-1.5 text-xs font-semibold text-foreground"><span>Ministerio</span><select id="member-filter-ministry" name="memberFilterMinistry" value={ministryFilter} onChange={(event) => setMinistryFilter(event.target.value)} className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><option>Todos los ministerios</option>{ministries.map((ministry) => <option key={ministry}>{ministry}</option>)}</select></label>
         <p aria-live="polite" className="text-xs text-muted-foreground lg:pb-3">{filtered.length} de {members.length} perfiles de muestra</p>
       </section>
 
