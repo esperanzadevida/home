@@ -146,14 +146,18 @@ export function StorefrontExperience() {
     const model = product.models[0];
     const size = product.sizes.find((s) => s.stock > 0) ?? product.sizes[0];
     const unitPrice = product.price + (model?.priceDelta ?? 0);
-    const variantLabel = `${model.name} · ${color.name} · ${size.label}`;
+    const design = product.designs?.[0];
+    const personalization = design
+      ? `Estampado: ${design.quote} (${design.reference})`
+      : null;
+    const variantLabel = [model.name, color.name, size.label, personalization].filter(Boolean).join(" · ");
 
     addItem(
       {
         id: product.id,
         name: product.name,
         price: unitPrice,
-        coverImage: product.image,
+        coverImage: design?.colorImages?.[color.id] ?? design?.image ?? product.image,
         category: mapToCartCategory(product.category),
       },
       1,
@@ -184,7 +188,7 @@ export function StorefrontExperience() {
     const variantLabel = [model.name, color.name, size.label, personalization]
       .filter(Boolean)
       .join(" · ");
-    const selectedImage = design?.image ?? modalProduct.image;
+    const selectedImage = design?.colorImages?.[color.id] ?? design?.image ?? modalProduct.image;
 
     addItem(
       {
@@ -215,6 +219,9 @@ export function StorefrontExperience() {
     ? (modalProduct.sizes[modalSizeIdx] ?? modalProduct.sizes[0])
     : null;
   const selectedModalDesign = modalProduct?.designs?.[modalDesignIdx] ?? null;
+  const selectedModalDesignColorImage = selectedModalDesign && selectedModalColor
+    ? selectedModalDesign.colorImages?.[selectedModalColor.id]
+    : undefined;
   const selectedEngravingFinish = modalProduct?.engravingFinishes?.[modalEngravingFinishIdx] ?? null;
   const modalUnitPrice = modalProduct
     ? modalProduct.price + (selectedModalModel?.priceDelta ?? 0)
@@ -405,6 +412,7 @@ export function StorefrontExperience() {
               const colorIdx = cardColors[product.id] ?? 0;
               const activeColor = product.colors[colorIdx] ?? product.colors[0];
               const cardDesign = product.designs?.[0];
+              const cardDesignColorImage = cardDesign?.colorImages?.[activeColor.id];
               const hasCustomization = Boolean(product.designs || product.engravingFinishes);
               const discount = getDiscountPercent(product.price, product.compareAtPrice);
               const isAdded = recentlyAddedId === product.id;
@@ -424,9 +432,13 @@ export function StorefrontExperience() {
                     >
                       <StoreProductPreview
                         productId={product.id}
-                        image={cardDesign?.image ?? product.image}
-                        alt={product.imageAlt}
-                        baseColorHex={product.colors[0].hex}
+                        image={cardDesignColorImage ?? cardDesign?.image ?? product.image}
+                        alt={
+                          cardDesign
+                            ? `Mockup de ${product.name} en color ${activeColor.name} con el estampado “${cardDesign.quote}”.`
+                            : product.imageAlt
+                        }
+                        baseColorHex={cardDesignColorImage ? activeColor.hex : product.colors[0].hex}
                         colorHex={activeColor.hex}
                         engravingText="Esperanza de Vida"
                       />
@@ -670,13 +682,17 @@ export function StorefrontExperience() {
                   <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-background">
                     <StoreProductPreview
                       productId={modalProduct.id}
-                      image={selectedModalDesign?.image ?? modalProduct.image}
+                      image={selectedModalDesignColorImage ?? selectedModalDesign?.image ?? modalProduct.image}
                       alt={
                         selectedModalDesign
                           ? `Mockup del buzo ${selectedModalColor.name} con estampado “${selectedModalDesign.quote}”, ${selectedModalDesign.reference}.`
                           : modalProduct.imageAlt
                       }
-                      baseColorHex={modalProduct.colors[0].hex}
+                      baseColorHex={
+                        selectedModalDesignColorImage
+                          ? selectedModalColor.hex
+                          : modalProduct.colors[0].hex
+                      }
                       colorHex={selectedModalColor.hex}
                       engravingText={engravingText}
                       engravingColor={selectedEngravingFinish?.hex}
