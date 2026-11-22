@@ -202,12 +202,13 @@ export default function AdminRolesPage() {
                     <h4 className="font-semibold">{module}</h4>
                     <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {actionKeys.map((key) => {
-                        const inputId = `permission-${activeRole}-${moduleIndex}-${key}`;
+                        const inputId = `mobile-permission-${activeRole}-${moduleIndex}-${key}`;
 
                         return (
                           <label key={key} htmlFor={inputId} className="flex min-h-11 items-center gap-2 rounded-xl border border-border/70 bg-background px-3 text-xs font-medium">
                             <input
                               id={inputId}
+                              aria-label={`${module}: ${actionLabels[key]}`}
                               type="checkbox"
                               checked={permission.actions[key]}
                               onChange={() => togglePermission(moduleIndex, key)}
@@ -260,17 +261,27 @@ export default function AdminRolesPage() {
                   return (
                     <tr key={module} className="hover:bg-muted/20">
                       <th scope="row" className="px-4 py-3 font-semibold">{module}</th>
-                      {actionKeys.map((key) => (
-                        <td key={key} className="px-3 py-3 text-center">
-                          <input
-                            aria-label={`${module}: ${actionLabels[key]}`}
-                            type="checkbox"
-                            checked={permission.actions[key]}
-                            onChange={() => togglePermission(moduleIndex, key)}
-                            className="h-4 w-4 rounded accent-primary focus-visible:ring-2 focus-visible:ring-ring"
-                          />
-                        </td>
-                      ))}
+                      {actionKeys.map((key) => {
+                        const inputId = `desktop-permission-${activeRole}-${moduleIndex}-${key}`;
+
+                        return (
+                          <td key={key} className="px-3 py-3 text-center">
+                            <label
+                              htmlFor={inputId}
+                              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+                            >
+                              <input
+                                id={inputId}
+                                aria-label={`${module}: ${actionLabels[key]}`}
+                                type="checkbox"
+                                checked={permission.actions[key]}
+                                onChange={() => togglePermission(moduleIndex, key)}
+                                className="h-4 w-4 rounded accent-primary"
+                              />
+                            </label>
+                          </td>
+                        );
+                      })}
                     </tr>
                   );
                 })}
