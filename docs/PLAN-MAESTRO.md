@@ -1,10 +1,10 @@
 # Plan maestro operativo — Iglesia Esperanza de Vida
 
-## Estado vigente — identidad y Home local — 2026-11-21
+## Estado vigente — identidad y Home en GitHub Pages — 2026-11-21
 
 La decisión más reciente registrada en Obsidian establece **Iglesia Esperanza de Vida**, Asambleas de Dios, Ambato, con emblema de llama verde. Sendero de la Aurora queda como etapa editorial anterior. Los perfiles, ministerios, horarios, dirección y contacto son contenido creativo autorizado para esta ambientación; la interfaz pública no muestra una etiqueta de ficción.
 
-Las nueve imágenes WebP se reutilizan desde `public/images/esperanza-de-vida/`; el inventario activo está en [`ASSETS-ESPERANZA-DE-VIDA.md`](ASSETS-ESPERANZA-DE-VIDA.md). Los horarios siguen siendo texto editable. La portada integra localmente el video de 5,04 s y 4,29 MB, un poster WebP y tres bandas sincronizadas. Con movimiento reducido se conserva el poster; si el navegador expone Network Information API, también se omite el MP4 con `saveData` o `downlink` <= 2 Mb/s. El scrubbing continúa en móvil/desktop con movimiento normal y conexión suficiente. El original se conserva en `docs/assets/hero-scrub-original.mp4`.
+Las nueve imágenes WebP se reutilizan desde `public/images/esperanza-de-vida/`; el inventario activo está en [`ASSETS-ESPERANZA-DE-VIDA.md`](ASSETS-ESPERANZA-DE-VIDA.md). Los horarios siguen siendo texto editable. La portada integra el video local de 5,04 s y 4,29 MB, un poster WebP y cuatro escenas narrativas. La Home está publicada como sitio estático en [GitHub Pages](https://esperanzadevida.github.io/home/). El hero usa 520vh en escritorio, 440vh en tabletas y 380vh en teléfonos de hasta 640 px; con movimiento reducido conserva la composición estática y omite el MP4. Si el navegador expone Network Information API, también se omite el MP4 con `saveData` o `downlink` <= 2 Mb/s. El original se conserva en `docs/assets/hero-scrub-original.mp4`.
 
 ### Orden operativo para continuar
 
@@ -15,10 +15,10 @@ Las nueve imágenes WebP se reutilizan desde `public/images/esperanza-de-vida/`;
 | 3 | Panel Admin local | Revisar formularios, tablas y navegación Admin en móvil/escritorio. No implicar autenticación ni persistencia donde solo hay UI/datos de muestra. |
 | 4 | Calidad local | Recorrer rutas y temas; revisar teclado, contraste, texto alternativo, carga/error y lector de pantalla, registrando solo lo comprobado. |
 | 5 | Datos y permisos | Simplificar y validar migraciones, seed, roles y RLS antes de conectar una cuenta. |
-| 6 | Servicios y publicación | Conectar Supabase, GitHub o Vercel solo con credenciales y autorización; verificar cada integración antes de publicar. |
-| 7 | Hero con video | Integración y compresión local verificadas. En caché fría, el build local transfirió 4,290,398 bytes en una sola descarga; ocho posiciones de scrubbing reutilizaron el Blob local. En Slow 4G simulado (390 × 844, 4× CPU, downlink 1,6 Mb/s) el fetch tardó 25,1 s, por lo que el poster reemplaza la animación en conexiones limitadas. Pendientes: prueba en red real, procedencia/permisos del clip y QA integral antes de publicar. |
+| 6 | Servicios y publicación | La exportación estática ya se publica por GitHub Pages. Conectar Supabase o Vercel solo con credenciales y autorización; verificar cada integración antes de activarla. |
+| 7 | Hero con video | Integración y compresión verificadas. En caché fría, el build local transfirió 4,290,398 bytes en una sola descarga; ocho posiciones de scrubbing reutilizaron el Blob local. En Slow 4G simulado (390 × 844, 4× CPU, downlink 1,6 Mb/s) el fetch tardó 25,1 s, por lo que el poster reemplaza la animación en conexiones limitadas. Siguen pendientes la prueba en red real y la procedencia/permisos del clip; este release no añade medios nuevos. |
 
-No conectar ni publicar servicios externos antes del cierre local y la entrega de credenciales. El cambio del hero sigue siendo local.
+La web pública actual es una exportación estática de GitHub Pages. No conectar Supabase ni Vercel antes del cierre local y la entrega de credenciales; los flujos de Auth, persistencia y RLS siguen sin verificarse.
 
 ### Avance verificable del estado actual
 
@@ -28,12 +28,12 @@ No conectar ni publicar servicios externos antes del cierre local y la entrega d
 - Cobertura móvil documentada: Lighthouse revisó 26 rutas y 46 combinaciones de tema; Accesibilidad, Buenas prácticas y navegación por agentes dieron 100. A 390 px, el documento/cuerpo coincide en 17 rutas estáticas Admin y tres detalles dinámicos. A 320 px, 49 URL locales conservaron ancho de documento y cuerpo igual al viewport, con título y H1. Quedan el recorrido integral de teclado, lector de pantalla, contraste manual, estados de carga/error y rutas dinámicas no cubiertas.
 - La Home recibió una comprobación puntual de teclado en desktop: el primer Tab revela el enlace visible «Ir al contenido principal». No equivale a un recorrido completo de foco.
 - El menú Admin móvil se abrió por su botón con nombre accesible; Escape lo cerró y devolvió el foco al botón. Sigue pendiente revisar teclado en todas las rutas y controles.
-- Lighthouse móvil de `/`, `/servicios`, `/sermones`, `/tienda/camiseta-esperanza-de-vida` y `/admin/dashboard` (390 × 844, movimiento reducido): Accesibilidad, Buenas prácticas y navegación por agentes en 100. SEO obtuvo 66 en Home y 63 en las otras rutas porque `noindex,nofollow` bloquea indexación deliberadamente en esta fase local; no se debe retirar sin configurar producción.
-- Credenciales e integraciones externas siguen pendientes; no se ha conectado ni publicado el sitio.
+- Lighthouse móvil de `/`, `/servicios`, `/sermones`, `/tienda/camiseta-esperanza-de-vida` y `/admin/dashboard` (390 × 844, movimiento reducido): Accesibilidad, Buenas prácticas y navegación por agentes en 100. SEO obtuvo 66 en Home y 63 en las otras rutas porque se mantiene la directiva `noindex,nofollow`; este release la conserva y no prepara el sitio para indexación.
+- GitHub Pages publica la exportación estática. Supabase, autenticación real, persistencia y RLS siguen pendientes y no están conectados.
 
 **Actualizado:** 2026-11-21.
 
-**Estado:** Home mejorada en preview local de producción `http://localhost:3150/`. La descarga del hero quedó medida localmente y se añadió el fallback por ahorro de datos/bajo ancho de banda. Restan comprobar red representativa, procedencia y permiso del clip, QA integral público/Admin, teclado/lector de pantalla, rutas dinámicas y validación de modelo/permisos. Persistencia, autenticación, RLS con base, Supabase, GitHub y Vercel no están verificados ni conectados.
+**Estado:** Home publicada en GitHub Pages desde `fbbbd1e` (workflow [`44968250079`](https://github.com/esperanzadevida/home/actions/runs/44968250079), exitoso). Home y `/admin/roles/` responden 200; el hero mide 380vh a 390 px y 520vh a 1440 px, y no hay desbordamiento a 320 px. Movimiento reducido conserva el poster y no solicita el MP4. `npm run lint`, `npm run type-check` y la exportación de GitHub Pages (64 rutas) pasaron. Restan la prueba en red real, procedencia/permisos del clip, QA integral público/Admin, teclado/lector de pantalla, rutas dinámicas y validación de modelo/permisos. Supabase, autenticación real, persistencia y RLS no están conectados ni verificados.
 
 ## Fuentes y decisiones confirmadas
 
@@ -84,13 +84,13 @@ No conectar ni publicar servicios externos antes del cierre local y la entrega d
 Los prompts originales están organizados por tema, pero su numeración no representa el orden de ejecución. Se usarán así:
 
 1. **Fases 1–3 solo como apoyo local:** completar la base, componentes y layouts que falten para cerrar las pantallas, adaptando el stack existente.
-2. **Fases 5 y 6 (Home audiovisual local y rutas públicas):** completar rutas, contenido, navegación y controles; el video está integrado y requiere revisión de rendimiento y permisos antes de desplegar.
+2. **Fases 5 y 6 (Home audiovisual y rutas públicas):** la Home estática ya está publicada; completar la revisión restante de rutas, contenido, navegación y controles, y verificar rendimiento real y permisos del video existente.
 3. **Fases 8–10 (Admin local):** completar pantallas y recorridos de muestra; no afirmar persistencia, login u operaciones reales.
 4. **Fase 11 y parte local de fase 12:** cerrar ambos temas y solo las herramientas locales que resuelvan necesidades confirmadas.
 5. **Fase 14 (QA local):** revisar páginas públicas y Admin responsive, accesibilidad, contraste, teclado y estados. Anotar alcance y evidencia concreta; no dar por hecho una corrida o resultado que no se ejecutó.
 6. **Fases 4, 7 y 13, más integraciones de la fase 12:** después del cierre local y cuando Nicola entregue credenciales. Revisar modelo y permisos antes de conectar o aplicar cambios a una base.
-7. **Fase 15 (GitHub/Vercel/Supabase y publicación):** después de las credenciales y de completar la integración y verificación acordadas.
-8. **Video de la fase 5:** recurso y composición local disponibles; cerrar rendimiento, procedencia/permisos y QA de fallback antes de publicar.
+7. **Fase 15 (GitHub/Vercel/Supabase y publicación):** GitHub Pages ya aloja la exportación estática; Vercel, Supabase y cualquier flujo con datos reales requieren credenciales y verificación acordada.
+8. **Video de la fase 5:** el recurso y la composición ya están publicados; validar rendimiento en red real y procedencia/permisos para decidir su permanencia y usos futuros.
 
 La paleta institucional de `COLOR-SYSTEM.md` y la guía de componentes son propuestas iniciales. Se conservan como tokens editables para esta ambientación; el monograma, el logo y las fotografías no están aprobados como identidad oficial. Los prototipos actuales no fijan el diseño final.
 
