@@ -87,6 +87,7 @@ export default function HomePage() {
           posterSrc={withBasePath("/videos/hero-poster.webp")}
           estimatedBytes={4_290_098}
           scrollHeightVh={520}
+          mobileScrollHeightVh={380}
           accentTheme="emerald"
           cueLabel="Desliza para descubrir"
         >

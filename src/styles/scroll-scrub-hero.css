@@ -1171,6 +1171,12 @@
   }
 }
 
+@media (max-width: 640px) {
+  .scrub-hero {
+    height: var(--scrub-height-mobile, 440vh);
+  }
+}
+
 /* ============================================================================
    Accessibility Gate: Reduced Motion (static composed layout, no video download)
    ============================================================================ */

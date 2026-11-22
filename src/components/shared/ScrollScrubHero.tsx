@@ -23,6 +23,8 @@ export interface ScrollScrubHeroProps {
   estimatedBytes?: number;
   /** Scroll track height in vh for desktop scrub mode (default 520vh for 4 paced beats) */
   scrollHeightVh?: number;
+  /** Scroll track height in vh for narrow mobile screens (default 440vh) */
+  mobileScrollHeightVh?: number;
   /** Visual world theme matching the video palette */
   accentTheme?: "emerald" | "violet" | "amber" | "aurora";
   /** Text inside the bottom scroll cue pill */
@@ -48,6 +50,7 @@ export function ScrollScrubHero({
   posterSrc = "/videos/hero-poster.webp",
   estimatedBytes = 4_290_098,
   scrollHeightVh = 520,
+  mobileScrollHeightVh = 440,
   accentTheme = "emerald",
   cueLabel = "Desliza para descubrir",
   children,
@@ -468,7 +471,12 @@ export function ScrollScrubHero({
       aria-label="Presentación visual interactiva"
       className="scrub-hero"
       data-scrub-theme={accentTheme}
-      style={{ "--scrub-height": `${scrollHeightVh}vh` } as CSSProperties}
+      style={
+        {
+          "--scrub-height": `${scrollHeightVh}vh`,
+          "--scrub-height-mobile": `${mobileScrollHeightVh}vh`,
+        } as CSSProperties
+      }
     >
       <div
         ref={stageRef}
