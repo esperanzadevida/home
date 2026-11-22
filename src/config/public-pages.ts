@@ -71,6 +71,8 @@ export type PublicPageCard = {
   featured?: boolean;
   imageSrc?: string;
   imageAlt?: string;
+  imagePosition?: string;
+  revealOnScroll?: boolean;
   calendarDate?: string;
   calendarCategory?: string;
   meeting?: string;
@@ -171,6 +173,8 @@ export const publicPageBlueprints = {
             meta: "Enseñanza · Comunidad",
             imageSrc: "/images/esperanza-de-vida/samuel-andrade.webp",
             imageAlt: "Retrato del pastor Samuel Andrade en un espacio comunitario.",
+            imagePosition: "50% 0%",
+            revealOnScroll: true,
           },
           {
             eyebrow: "Pastora de familias",
@@ -180,6 +184,8 @@ export const publicPageBlueprints = {
             meta: "Familias · Exploradores",
             imageSrc: "/images/esperanza-de-vida/maria-fernanda-lopez.webp",
             imageAlt: "Retrato de la pastora María Fernanda López en un espacio comunitario.",
+            imagePosition: "50% 16%",
+            revealOnScroll: true,
           },
           {
             eyebrow: "Pastor de jóvenes y música",
@@ -189,6 +195,8 @@ export const publicPageBlueprints = {
             meta: "Embajadores · Adoración",
             imageSrc: "/images/esperanza-de-vida/david-mena.webp",
             imageAlt: "Retrato del pastor de jóvenes David Mena.",
+            imagePosition: "50% 11%",
+            revealOnScroll: true,
           },
         ],
       },

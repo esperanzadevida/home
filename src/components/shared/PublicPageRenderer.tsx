@@ -16,6 +16,7 @@ import { EventsExplorer } from "@/components/shared/EventsExplorer";
 import { FilterableCardGrid } from "@/components/shared/FilterableCardGrid";
 import { MinistryExplorer } from "@/components/shared/MinistryExplorer";
 import { GalleryExplorer } from "@/components/shared/GalleryExplorer";
+import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import {
   publicPageBlueprints,
   type PublicPageBlueprint,
@@ -347,13 +348,18 @@ function SectionCards({ section }: { section: PublicPageSection }) {
           className="group relative flex min-h-56 flex-col overflow-hidden rounded-3xl border border-border bg-card p-6 transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 sm:p-7"
         >
           {card.imageSrc ? (
-            <div className="relative -mx-6 -mt-6 mb-5 aspect-[16/10] overflow-hidden bg-muted sm:-mx-7 sm:-mt-7">
+            <RevealOnScroll
+              enabled={card.revealOnScroll ?? false}
+              delayMs={cardIndex * 90}
+              className="relative -mx-6 -mt-6 mb-5 aspect-[16/10] overflow-hidden bg-muted sm:-mx-7 sm:-mt-7"
+            >
               <Image
                 src={card.imageSrc}
                 alt={card.imageAlt ?? ""}
                 fill
                 sizes="(max-width: 640px) calc(100vw - 2.5rem), (max-width: 1024px) calc((100vw - 4rem) / 2), 33vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                style={card.imagePosition ? { objectPosition: card.imagePosition } : undefined}
               />
               <span
                 aria-hidden="true"
@@ -365,7 +371,7 @@ function SectionCards({ section }: { section: PublicPageSection }) {
               >
                 {String(cardIndex + 1).padStart(2, "0")}
               </span>
-            </div>
+            </RevealOnScroll>
           ) : card.visual ? (
             <div
               aria-hidden="true"
