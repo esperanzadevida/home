@@ -144,10 +144,7 @@ CREATE TABLE profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- There is one account owner; ownership changes require a protected workflow.
-CREATE UNIQUE INDEX idx_profiles_single_owner
-  ON profiles (role)
-  WHERE role = 'owner';
+-- Multiple trusted owners are allowed; granting this role remains a protected workflow.
 
 CREATE TRIGGER trg_profiles_updated_at
   BEFORE UPDATE ON profiles
