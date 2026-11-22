@@ -122,8 +122,17 @@ export default function AdminProductEditorPage({ id }: { id: string }) {
     const target = index + direction;
     if (target < 0 || target >= draft.images.length) return;
     const images = [...draft.images];
+    const moved = images[index];
+    if (!moved) return;
     [images[index], images[target]] = [images[target], images[index]];
     update("images", images);
+    setNotice(`La imagen «${moved.name}» pasó a la posición ${target + 1} de ${images.length}.`);
+    const nextDirection = target === 0 ? 1 : target === images.length - 1 ? -1 : direction;
+    requestAnimationFrame(() => {
+      const moveButton = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-image-order-id]"))
+        .find((button) => button.dataset.imageOrderId === moved.id && button.dataset.imageOrderDirection === String(nextDirection));
+      moveButton?.focus();
+    });
   }
 
   function dropImage(index: number) {
@@ -131,9 +140,12 @@ export default function AdminProductEditorPage({ id }: { id: string }) {
     dragIndex.current = null;
     if (source === null || source === index) return;
     const images = [...draft.images];
+    if (source < 0 || source >= images.length || index < 0 || index >= images.length) return;
     const [moved] = images.splice(source, 1);
+    if (!moved) return;
     images.splice(index, 0, moved);
     update("images", images);
+    setNotice(`La imagen «${moved.name}» pasó a la posición ${index + 1} de ${images.length}.`);
   }
 
   function addTag() {
@@ -198,8 +210,8 @@ export default function AdminProductEditorPage({ id }: { id: string }) {
               <div className="rounded-xl border border-border bg-muted/20 p-3"><p className="text-[11px] font-semibold text-foreground">Orden de galería</p><p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">Arrastra miniaturas o usa las flechas para ordenarlas.</p><p className="mt-3 inline-flex items-center gap-1.5 text-[11px] text-muted-foreground"><ImagePlus aria-hidden="true" className="h-3.5 w-3.5" />{draft.images.length} imágenes</p></div>
             </div>
             {draft.images.length ? <ol aria-label="Orden de imágenes del producto" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{draft.images.map((image, index) => <li key={image.id} draggable onDragStart={() => { dragIndex.current = index; }} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); dropImage(index); }} onDragEnd={() => { dragIndex.current = null; }} className="group min-w-0 overflow-hidden rounded-xl border border-border bg-background">
-              <div className="relative aspect-[4/3] bg-muted"><Image src={image.src} alt={image.name} fill unoptimized sizes="(max-width: 640px) 45vw, 180px" className="object-cover" /><span className="absolute left-2 top-2 rounded-lg bg-black/65 px-2 py-1 text-[10px] font-bold text-white">{index === 0 ? "Portada" : `Imagen ${index + 1}`}</span><button type="button" aria-label={`Quitar ${image.name}`} onClick={() => update("images", draft.images.filter((item) => item.id !== image.id))} className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/65 text-white transition hover:bg-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"><X aria-hidden="true" className="h-4 w-4" /></button></div>
-              <div className="flex items-center justify-between gap-1 border-t border-border px-2 py-1.5"><span className="min-w-0 truncate text-[10px] text-muted-foreground" title={image.name}>{image.name}</span><div className="flex shrink-0"><button type="button" disabled={index === 0} aria-label={`Mover ${image.name} hacia arriba`} onClick={() => moveImage(index, -1)} className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><ArrowUp aria-hidden="true" className="h-3.5 w-3.5" /></button><button type="button" disabled={index === draft.images.length - 1} aria-label={`Mover ${image.name} hacia abajo`} onClick={() => moveImage(index, 1)} className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><ArrowDown aria-hidden="true" className="h-3.5 w-3.5" /></button></div></div>
+              <div className="relative aspect-[4/3] bg-muted"><Image src={image.src} alt={image.name} fill unoptimized sizes="(max-width: 640px) 45vw, 180px" className="object-cover" /><span className="absolute left-2 top-2 rounded-lg bg-black/65 px-2 py-1 text-[10px] font-bold text-white">{index === 0 ? "Portada" : `Imagen ${index + 1}`}</span><button type="button" aria-label={`Quitar ${image.name}`} onClick={() => update("images", draft.images.filter((item) => item.id !== image.id))} className="absolute right-2 top-2 inline-flex h-11 w-11 items-center justify-center rounded-full bg-black/65 text-white transition hover:bg-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white lg:h-9 lg:w-9"><X aria-hidden="true" className="h-4 w-4" /></button></div>
+              <div className="flex flex-col gap-1 border-t border-border px-2 py-2 lg:flex-row lg:items-center lg:justify-between lg:py-1.5"><span className="min-w-0 truncate text-[10px] text-muted-foreground" title={image.name}>{image.name}</span><div className="flex shrink-0 justify-end gap-1"><button type="button" data-image-order-id={image.id} data-image-order-direction="-1" disabled={index === 0} aria-label={`Mover ${image.name} hacia arriba`} title="Subir imagen" onClick={() => moveImage(index, -1)} className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:h-9 lg:w-9"><ArrowUp aria-hidden="true" className="h-3.5 w-3.5" /></button><button type="button" data-image-order-id={image.id} data-image-order-direction="1" disabled={index === draft.images.length - 1} aria-label={`Mover ${image.name} hacia abajo`} title="Bajar imagen" onClick={() => moveImage(index, 1)} className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:h-9 lg:w-9"><ArrowDown aria-hidden="true" className="h-3.5 w-3.5" /></button></div></div>
             </li>)}</ol> : <div className="rounded-xl border border-border bg-muted/15 px-4 py-8 text-center text-xs text-muted-foreground">Todavía no hay imágenes en la galería.</div>}
           </Section>
 
