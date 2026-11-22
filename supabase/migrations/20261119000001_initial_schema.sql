@@ -708,8 +708,6 @@ REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM PUBLIC, anon, authenti
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO service_role;
 
-GRANT SELECT ON TABLE public.profiles TO authenticated;
-GRANT UPDATE (full_name, avatar_url, phone) ON TABLE public.profiles TO authenticated;
 GRANT SELECT ON TABLE public.ministry_role_assignments TO authenticated;
 
 GRANT SELECT ON TABLE public.blog_categories, public.blog_posts, public.sermon_series,
@@ -744,6 +742,9 @@ GRANT SELECT ON TABLE public.public_products TO service_role;
 -- and account activation must be performed by a trusted server-side workflow.
 REVOKE ALL PRIVILEGES ON TABLE public.profiles FROM PUBLIC, anon, authenticated;
 REVOKE UPDATE (role, is_active) ON TABLE public.profiles FROM PUBLIC, anon, authenticated;
+-- Restore only the self-service profile operations that the RLS policies below govern.
+GRANT SELECT ON TABLE public.profiles TO authenticated;
+GRANT UPDATE (full_name, avatar_url, phone) ON TABLE public.profiles TO authenticated;
 CREATE POLICY "Usuarios leen su propio perfil"
   ON profiles FOR SELECT
   TO authenticated
