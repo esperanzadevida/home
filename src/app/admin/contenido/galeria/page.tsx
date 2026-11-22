@@ -3,6 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "@/components/shared/SiteImage";
 import { churchGalleryItems } from "@/config/gallery";
+import { restoreDialogTriggerFocus } from "@/lib/admin-dialog-focus";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -71,10 +72,6 @@ export default function AdminGalleryPage() {
 
   const closePreview = useCallback(() => {
     setSelectedId(null);
-    window.setTimeout(() => {
-      if (lastTrigger.current?.isConnected) lastTrigger.current.focus();
-      else addButtonRef.current?.focus();
-    }, 0);
   }, []);
   const moveSelection = useCallback((step: number) => {
     if (selectedIndex < 0 || filteredItems.length < 2) return;
@@ -297,6 +294,7 @@ export default function AdminGalleryPage() {
           <Dialog.Overlay className="fixed inset-0 z-[var(--z-modal)] bg-black/75 backdrop-blur-sm" />
           <Dialog.Content
             aria-describedby="gallery-preview-description"
+            onCloseAutoFocus={(event) => restoreDialogTriggerFocus(event, lastTrigger.current, addButtonRef.current)}
             className="fixed left-1/2 top-1/2 z-[calc(var(--z-modal)+1)] flex max-h-[min(92dvh,900px)] w-[min(96vw,1100px)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-white/15 bg-card text-foreground shadow-2xl focus:outline-none"
           >
             {selectedItem && (

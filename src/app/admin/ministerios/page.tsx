@@ -1,11 +1,12 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent } from "react";
 import { Clock3, Edit2, Plus, Search, Users, X } from "lucide-react";
 import { MOCK_MINISTRIES } from "@/constants/data";
 import { Button } from "@/components/ui/button";
 import { ADMIN_SAMPLE_MEMBERS } from "@/lib/admin-sample-data";
+import { restoreDialogTriggerFocus } from "@/lib/admin-dialog-focus";
 import type { Ministry } from "@/types";
 
 type MinistryDraft = Pick<Ministry, "name" | "leader" | "schedule" | "description">;
@@ -15,14 +16,16 @@ export default function AdminMinistriesPage() {
   const [ministries, setMinistries] = useState<Ministry[]>(MOCK_MINISTRIES);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const dialogTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<MinistryDraft>(EMPTY_DRAFT);
   const [announcement, setAnnouncement] = useState("");
 
   const filtered = useMemo(() => ministries.filter((ministry) => `${ministry.name} ${ministry.leader} ${ministry.schedule}`.toLowerCase().includes(search.toLowerCase())), [ministries, search]);
 
-  const openNew = () => { setEditingId(null); setDraft(EMPTY_DRAFT); setDialogOpen(true); };
-  const openEdit = (ministry: Ministry) => {
+  const openNew = (trigger: HTMLButtonElement) => { dialogTriggerRef.current = trigger; setEditingId(null); setDraft(EMPTY_DRAFT); setDialogOpen(true); };
+  const openEdit = (ministry: Ministry, trigger: HTMLButtonElement) => {
+    dialogTriggerRef.current = trigger;
     setEditingId(ministry.id);
     setDraft({ name: ministry.name, leader: ministry.leader, schedule: ministry.schedule, description: ministry.description });
     setDialogOpen(true);
@@ -49,7 +52,7 @@ export default function AdminMinistriesPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Ministerios</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Consulta responsables, horarios de reunión y perfiles asociados. Las modificaciones se mantienen en esta vista.</p>
         </div>
-        <Button type="button" onClick={openNew} className="min-h-11 self-start sm:self-auto"><Plus aria-hidden="true" className="h-4 w-4" /> Crear ministerio</Button>
+        <Button type="button" onClick={(event) => openNew(event.currentTarget)} className="min-h-11 self-start sm:self-auto"><Plus aria-hidden="true" className="h-4 w-4" /> Crear ministerio</Button>
       </div>
 
       <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm sm:flex-row sm:items-end sm:p-4">
@@ -62,7 +65,7 @@ export default function AdminMinistriesPage() {
         {filtered.map((ministry) => {
           const memberCount = ADMIN_SAMPLE_MEMBERS.filter((member) => member.ministry === ministry.name).length;
           return <article key={ministry.id} className="flex min-w-0 flex-col rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="break-words text-lg font-bold leading-snug">{ministry.name}</h2><p className="mt-1 text-xs text-muted-foreground">Responsable de muestra</p></div><Button type="button" variant="ghost" size="icon" aria-label={`Editar ${ministry.name}`} onClick={() => openEdit(ministry)}><Edit2 aria-hidden="true" className="h-4 w-4" /></Button></div>
+            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="break-words text-lg font-bold leading-snug">{ministry.name}</h2><p className="mt-1 text-xs text-muted-foreground">Responsable de muestra</p></div><Button type="button" variant="ghost" size="icon" aria-label={`Editar ${ministry.name}`} onClick={(event) => openEdit(ministry, event.currentTarget)}><Edit2 aria-hidden="true" className="h-4 w-4" /></Button></div>
             <p className="mt-3 text-sm font-medium">{ministry.leader}</p>
             <p className="mt-3 flex items-start gap-2 text-sm text-muted-foreground"><Clock3 aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span>{ministry.schedule}</span></p>
             <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">{ministry.description}</p>
@@ -75,13 +78,13 @@ export default function AdminMinistriesPage() {
       <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-[var(--z-modal)] bg-black/50" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-[calc(var(--z-modal)+1)] max-h-[90dvh] w-[min(38rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border bg-card p-5 text-foreground shadow-2xl focus:outline-none sm:p-7">
+          <Dialog.Content onCloseAutoFocus={(event) => restoreDialogTriggerFocus(event, dialogTriggerRef.current, document.getElementById("ministry-search"))} className="fixed left-1/2 top-1/2 z-[calc(var(--z-modal)+1)] max-h-[90dvh] w-[min(38rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border bg-card p-5 text-foreground shadow-2xl focus:outline-none sm:p-7">
             <div className="flex items-start justify-between gap-4"><div><Dialog.Title className="text-lg font-bold">{editingId ? "Editar ministerio" : "Crear ministerio de muestra"}</Dialog.Title><Dialog.Description className="mt-1 text-sm text-muted-foreground">Los cambios son temporales y no modifican la información del sitio público.</Dialog.Description></div><Dialog.Close asChild><button type="button" aria-label="Cerrar formulario" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><X aria-hidden="true" className="h-4 w-4" /></button></Dialog.Close></div>
-            <form onSubmit={saveMinistry} className="mt-6 space-y-4">
-              <label className="block space-y-1.5 text-sm font-medium"><span>Nombre</span><input required maxLength={80} value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} className="h-11 w-full rounded-xl border border-input bg-background px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" /></label>
-              <label className="block space-y-1.5 text-sm font-medium"><span>Líder asignado (muestra)</span><input required maxLength={80} value={draft.leader} onChange={(event) => setDraft({ ...draft, leader: event.target.value })} className="h-11 w-full rounded-xl border border-input bg-background px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" /></label>
-              <label className="block space-y-1.5 text-sm font-medium"><span>Horario de reunión</span><input required maxLength={100} value={draft.schedule} onChange={(event) => setDraft({ ...draft, schedule: event.target.value })} placeholder="Día y hora" className="h-11 w-full rounded-xl border border-input bg-background px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" /></label>
-              <label className="block space-y-1.5 text-sm font-medium"><span>Descripción</span><textarea required rows={4} maxLength={400} value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} className="w-full resize-y rounded-xl border border-input bg-background px-3 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" /></label>
+            <form autoComplete="off" onSubmit={saveMinistry} className="mt-6 space-y-4">
+              <label className="block space-y-1.5 text-sm font-medium"><span>Nombre</span><input id="sample-ministry-name" name="sampleMinistryName" autoComplete="off" required maxLength={80} value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} className="h-11 w-full rounded-xl border border-input bg-background px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" /></label>
+              <label className="block space-y-1.5 text-sm font-medium"><span>Líder asignado (muestra)</span><input id="sample-ministry-leader" name="sampleMinistryLeader" autoComplete="off" required maxLength={80} value={draft.leader} onChange={(event) => setDraft({ ...draft, leader: event.target.value })} className="h-11 w-full rounded-xl border border-input bg-background px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" /></label>
+              <label className="block space-y-1.5 text-sm font-medium"><span>Horario de reunión</span><input id="sample-ministry-schedule" name="sampleMinistrySchedule" autoComplete="off" required maxLength={100} value={draft.schedule} onChange={(event) => setDraft({ ...draft, schedule: event.target.value })} placeholder="Día y hora" className="h-11 w-full rounded-xl border border-input bg-background px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" /></label>
+              <label className="block space-y-1.5 text-sm font-medium"><span>Descripción</span><textarea id="sample-ministry-description" name="sampleMinistryDescription" autoComplete="off" required rows={4} maxLength={400} value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} className="w-full resize-y rounded-xl border border-input bg-background px-3 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" /></label>
               <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end"><Dialog.Close asChild><Button type="button" variant="outline">Cancelar</Button></Dialog.Close><Button type="submit">Aplicar en esta vista</Button></div>
             </form>
           </Dialog.Content>
