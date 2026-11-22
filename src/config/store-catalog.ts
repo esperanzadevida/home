@@ -17,6 +17,7 @@ export interface StoreDesignOption {
   quote: string;
   reference: string;
   image: string;
+  colorImages?: Record<string, string>;
 }
 
 export interface StoreEngravingFinish {
@@ -90,12 +91,48 @@ export const STORE_CATALOG: StoreProduct[] = [
     compareAtPrice: 52.0,
     badge: "Más vendido",
     image: "/images/store/generated/hoodie-salmo-23.png",
-    imageAlt: "Mockup de buzo verde bosque con la frase El Señor es mi pastor sobre pedestal de piedra.",
+    imageAlt: "Mockup de buzo verde bosque con un estampado de montañas y la frase Mi socorro viene del Señor.",
     skuPrefix: "EV-HD",
     materials: "100% algodón peinado 380 GSM · Pre-encogido · Costura doble.",
     featured: true,
     hasApparelSizeGuide: true,
     designs: [
+      {
+        id: "salmo-121-2-ilustrado",
+        name: "Mi socorro viene del Señor · Ilustrado",
+        description: "Montañas grabadas, una cruz luminosa y tipografía frontal en marfil y oro suave.",
+        quote: "Mi socorro viene del Señor",
+        reference: "Salmo 121:2",
+        image: "/images/store/generated/hoodie-mi-socorro-viene-del-senor.webp",
+        colorImages: {
+          obsidiana: "/images/store/generated/hoodie-mi-socorro-viene-del-senor-obsidiana.webp",
+          salvia: "/images/store/generated/hoodie-mi-socorro-viene-del-senor-salvia.webp",
+        },
+      },
+      {
+        id: "josue-1-9-leon-ilustrado",
+        name: "Sé fuerte y valiente · León",
+        description: "Un león ilustrado y ramas de olivo acompañan esta frase en un estampado frontal amplio.",
+        quote: "Sé fuerte y valiente",
+        reference: "Josué 1:9",
+        image: "/images/store/generated/hoodie-se-fuerte-y-valiente.webp",
+        colorImages: {
+          obsidiana: "/images/store/generated/hoodie-se-fuerte-y-valiente-obsidiana.webp",
+          salvia: "/images/store/generated/hoodie-se-fuerte-y-valiente-salvia.webp",
+        },
+      },
+      {
+        id: "apocalipsis-21-5-brote-ilustrado",
+        name: "Todo lo hago nuevo · Brote",
+        description: "Un brote que nace de la roca bajo el sol representa la promesa de una nueva vida.",
+        quote: "Todo lo hago nuevo",
+        reference: "Apocalipsis 21:5",
+        image: "/images/store/generated/hoodie-todo-lo-hago-nuevo.webp",
+        colorImages: {
+          obsidiana: "/images/store/generated/hoodie-todo-lo-hago-nuevo-obsidiana.webp",
+          salvia: "/images/store/generated/hoodie-todo-lo-hago-nuevo-salvia.webp",
+        },
+      },
       {
         id: "salmo-23",
         name: "El Señor es mi pastor",
@@ -114,8 +151,8 @@ export const STORE_CATALOG: StoreProduct[] = [
       },
       {
         id: "josue-1-9",
-        name: "Sé fuerte y valiente",
-        description: "Una promesa de ánimo para llevar cada día.",
+        name: "Sé fuerte y valiente · Tipográfico",
+        description: "La misma promesa en un estilo tipográfico pequeño y minimalista.",
         quote: "Sé fuerte y valiente",
         reference: "Josué 1:9",
         image: "/images/store/generated/hoodie-josue-1-9.png",
@@ -138,8 +175,8 @@ export const STORE_CATALOG: StoreProduct[] = [
       },
       {
         id: "salmo-121-2",
-        name: "Mi socorro viene del Señor",
-        description: "Una línea de montañas acompaña esta frase de confianza.",
+        name: "Mi socorro viene del Señor · Tipográfico",
+        description: "Una frase tipográfica de confianza con un detalle minimalista de montañas.",
         quote: "Mi socorro viene del Señor",
         reference: "Salmo 121:2",
         image: "/images/store/generated/hoodie-salmo-121-2.png",
