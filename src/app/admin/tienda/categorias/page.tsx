@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import {
   ArrowDown,
@@ -179,6 +179,17 @@ export default function AdminCategoriasTiendaPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<Category | null>(null);
   const [feedback, setFeedback] = useState("");
+  const editorTriggerRef = useRef<HTMLElement | null>(null);
+  const newCategoryButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (draft !== null || !editorTriggerRef.current) return;
+
+    const trigger = editorTriggerRef.current;
+    editorTriggerRef.current = null;
+    const focusTarget = trigger.isConnected ? trigger : newCategoryButtonRef.current;
+    focusTarget?.focus({ preventScroll: true });
+  }, [draft]);
 
   const visibleIds = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("es");
@@ -208,12 +219,16 @@ export default function AdminCategoriasTiendaPage() {
   const flatVisible = categories.filter((category) => visibleIds.has(category.id));
 
   const openCreate = () => {
+    const activeElement = document.activeElement;
+    editorTriggerRef.current = activeElement instanceof HTMLElement ? activeElement : newCategoryButtonRef.current;
     setEditingId(null);
     setDraft({ ...EMPTY_DRAFT });
     setFeedback("");
   };
 
   const openEdit = (category: Category) => {
+    const activeElement = document.activeElement;
+    editorTriggerRef.current = activeElement instanceof HTMLElement ? activeElement : newCategoryButtonRef.current;
     setEditingId(category.id);
     setDraft({ ...category });
     setFeedback("");
@@ -305,7 +320,7 @@ export default function AdminCategoriasTiendaPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Categorías</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Organiza la tienda por niveles, revisa cuántos productos de muestra hay en cada sección y ajusta el orden con controles accesibles.</p>
         </div>
-        <Button onClick={openCreate} className="self-start gap-2 sm:self-auto">
+        <Button ref={newCategoryButtonRef} onClick={openCreate} className="self-start gap-2 sm:self-auto">
           <Plus aria-hidden="true" className="h-4 w-4" /> Nueva categoría
         </Button>
       </div>

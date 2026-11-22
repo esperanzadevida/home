@@ -12,4 +12,4 @@ Comandos reproducibles desde la raíz del proyecto si ffmpeg está disponible:
     ffmpeg -i docs/assets/hero-scrub-original.mp4 -c:v libx264 -crf 18 -preset slow -g 8 -keyint_min 8 -pix_fmt yuv420p -movflags +faststart -an public/videos/hero-scrub.mp4
     ffmpeg -i public/videos/hero-scrub.mp4 -frames:v 1 -vf scale=1280:720:flags=lanczos -c:v libwebp -quality 86 public/videos/hero-poster.webp
 
-La pieza está incluida en el sitio estático de GitHub Pages. El archivo disponible se obtuvo desde la cuenta de Magnific, pero el repositorio no conserva el identificador de creación ni el plan vigente al generarlo; el permiso/licencia aplicable a este recurso sigue pendiente de verificación.
+La pieza está incluida en el sitio estático de GitHub Pages. Confirmación directa del usuario, 2026-11-21: el MP4 del hero se generó con una suscripción paga activa de Magnific y usando una imagen propia o licenciada. El repositorio no conserva el identificador de generación.

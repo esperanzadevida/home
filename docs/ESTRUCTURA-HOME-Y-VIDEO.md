@@ -32,7 +32,8 @@ No duplicar horarios, eventos o perfiles. Las cifras, testimonios, mapas, aporte
 - Lighthouse móvil de Home (390 × 844, movimiento reducido): Accesibilidad 100, Buenas prácticas 100 y navegación por agentes 100. SEO 66 por el `noindex,nofollow` intencional del entorno local.
 - En la Home de escritorio, el primer Tab revela «Ir al contenido principal» con foco visible. Es una comprobación puntual; falta recorrer toda la secuencia de teclado.
 - El poster se pintó antes del video. Preview local de producción: `http://localhost:3146/`; queda abierto para revisión.
-- Quedan pendientes la matriz integral de accesibilidad/teclado/lector de pantalla, las demás rutas y Admin, la auditoría integral de rendimiento del sitio y la verificación de procedencia/licencia del material de Magnific. El sitio ya se publica en GitHub Pages; el permiso de esta pieza específica no está confirmado.
+- Confirmación directa del usuario (2026-11-21): el MP4 del hero se generó con una suscripción paga activa de Magnific y a partir de una imagen propia o licenciada. La confirmación corresponde a `public/videos/hero-scrub.mp4`; el repositorio no conserva el identificador de generación.
+- Quedan pendientes la matriz integral de accesibilidad/teclado/lector de pantalla, la revisión de rutas y Admin, y la auditoría integral de rendimiento del sitio. El sitio ya se publica en GitHub Pages.
 
 ## Orden local siguiente
 
