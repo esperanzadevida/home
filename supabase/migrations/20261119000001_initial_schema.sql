@@ -14,12 +14,25 @@ GRANT USAGE ON SCHEMA private TO authenticated;
 
 -- 2. Tipos ENUM personalizados
 CREATE TYPE user_role_enum AS ENUM (
+  'owner',
   'super_admin',
   'admin',
+  'pastor',
+  'finance_manager',
   'editor',
   'moderator',
   'member',
   'visitor'
+);
+
+-- A person may serve in multiple ministries and hold a different scoped role
+-- in each one; these assignments never replace the account-wide profile role.
+CREATE TYPE ministry_role_enum AS ENUM (
+  'leader',
+  'coordinator',
+  'musician',
+  'volunteer',
+  'member'
 );
 
 CREATE TYPE gender_enum AS ENUM (
@@ -131,6 +144,11 @@ CREATE TABLE profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- There is one account owner; ownership changes require a protected workflow.
+CREATE UNIQUE INDEX idx_profiles_single_owner
+  ON profiles (role)
+  WHERE role = 'owner';
+
 CREATE TRIGGER trg_profiles_updated_at
   BEFORE UPDATE ON profiles
   FOR EACH ROW
@@ -162,28 +180,6 @@ REVOKE ALL ON FUNCTION private.handle_new_user() FROM PUBLIC, anon, authenticate
 CREATE OR REPLACE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION private.handle_new_user();
-
--- 5. Roles y Permisos granulares
-CREATE TABLE roles (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name TEXT UNIQUE NOT NULL,
-  description TEXT,
-  permissions JSONB NOT NULL DEFAULT '{}'::jsonb,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE TRIGGER trg_roles_updated_at
-  BEFORE UPDATE ON roles
-  FOR EACH ROW
-  EXECUTE FUNCTION private.set_updated_at();
-
-CREATE TABLE user_roles (
-  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
-  assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  PRIMARY KEY (user_id, role_id)
-);
 
 -- 6. Miembros de la Iglesia
 CREATE TABLE members (
@@ -348,6 +344,20 @@ CREATE TRIGGER trg_ministries_updated_at
   BEFORE UPDATE ON ministries
   FOR EACH ROW
   EXECUTE FUNCTION private.set_updated_at();
+
+CREATE TABLE ministry_role_assignments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  ministry_id UUID NOT NULL REFERENCES ministries(id) ON DELETE CASCADE,
+  role ministry_role_enum NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  assigned_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (profile_id, ministry_id, role)
+);
+
+CREATE INDEX idx_ministry_roles_profile ON ministry_role_assignments(profile_id, is_active);
+CREATE INDEX idx_ministry_roles_ministry ON ministry_role_assignments(ministry_id, role, is_active);
 
 -- 11. Tienda: Categorías, Productos, Pedidos e Items
 CREATE TABLE product_categories (
@@ -540,8 +550,6 @@ CREATE INDEX idx_prayer_requests_is_public ON prayer_requests(is_public, created
 -- Configuración de Seguridad: Row Level Security (RLS)
 -- ==============================================================================
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blog_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
@@ -559,10 +567,11 @@ ALTER TABLE prayer_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ministry_role_assignments ENABLE ROW LEVEL SECURITY;
 
--- Internal role check. Keep SECURITY DEFINER helpers outside exposed schemas,
+-- Internal role checks. Keep SECURITY DEFINER helpers outside exposed schemas,
 -- pin their search path, and qualify every application object they reference.
-CREATE OR REPLACE FUNCTION private.is_admin_or_editor()
+CREATE OR REPLACE FUNCTION private.is_admin()
 RETURNS BOOLEAN
 LANGUAGE sql
 STABLE
@@ -573,22 +582,168 @@ AS $$
     SELECT 1
     FROM public.profiles AS profile
     WHERE profile.id = (SELECT auth.uid())
-      AND profile.role IN ('super_admin', 'admin', 'editor')
+      AND profile.role IN ('owner', 'super_admin', 'admin')
       AND profile.is_active IS TRUE
   );
 $$;
 
-REVOKE ALL ON FUNCTION private.is_admin_or_editor() FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION private.is_admin_or_editor() TO authenticated;
+CREATE OR REPLACE FUNCTION private.is_owner()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles AS profile
+    WHERE profile.id = (SELECT auth.uid())
+      AND profile.role = 'owner'
+      AND profile.is_active IS TRUE
+  );
+$$;
 
--- A profile is readable only by its owner or an active admin/editor.
+CREATE OR REPLACE FUNCTION private.is_pastor()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles AS profile
+    WHERE profile.id = (SELECT auth.uid())
+      AND profile.role = 'pastor'
+      AND profile.is_active IS TRUE
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION private.is_finance_manager()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles AS profile
+    WHERE profile.id = (SELECT auth.uid())
+      AND profile.role = 'finance_manager'
+      AND profile.is_active IS TRUE
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION private.has_ministry_role(
+  _ministry_id UUID,
+  _allowed_roles public.ministry_role_enum[]
+)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.ministry_role_assignments AS assignment
+    WHERE assignment.profile_id = (SELECT auth.uid())
+      AND assignment.ministry_id = _ministry_id
+      AND assignment.role = ANY(_allowed_roles)
+      AND assignment.is_active IS TRUE
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION private.is_content_manager()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles AS profile
+    WHERE profile.id = (SELECT auth.uid())
+      AND profile.role IN ('owner', 'super_admin', 'admin', 'editor')
+      AND profile.is_active IS TRUE
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION private.is_moderator()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles AS profile
+    WHERE profile.id = (SELECT auth.uid())
+      AND profile.role IN ('owner', 'super_admin', 'admin', 'moderator')
+      AND profile.is_active IS TRUE
+  );
+$$;
+
+REVOKE ALL ON FUNCTION private.is_admin() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.is_owner() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.is_pastor() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.is_finance_manager() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.has_ministry_role(UUID, public.ministry_role_enum[]) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.is_content_manager() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION private.is_moderator() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION private.is_admin() TO authenticated;
+GRANT EXECUTE ON FUNCTION private.is_owner() TO authenticated;
+GRANT EXECUTE ON FUNCTION private.is_pastor() TO authenticated;
+GRANT EXECUTE ON FUNCTION private.is_finance_manager() TO authenticated;
+GRANT EXECUTE ON FUNCTION private.has_ministry_role(UUID, public.ministry_role_enum[]) TO authenticated;
+GRANT EXECUTE ON FUNCTION private.is_content_manager() TO authenticated;
+GRANT EXECUTE ON FUNCTION private.is_moderator() TO authenticated;
+
+-- Revoke implicit Data API access, then grant only operations covered by an
+-- explicit RLS policy. Public catalog products are exposed through a safe view.
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM PUBLIC, anon, authenticated;
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO service_role;
+
+GRANT SELECT ON TABLE public.profiles TO authenticated;
+GRANT UPDATE (full_name, avatar_url, phone) ON TABLE public.profiles TO authenticated;
+GRANT SELECT ON TABLE public.ministry_role_assignments TO authenticated;
+
+GRANT SELECT ON TABLE public.blog_categories, public.blog_posts, public.sermon_series,
+  public.sermons, public.events, public.ministries, public.product_categories,
+  public.products, public.orders, public.order_items, public.event_registrations,
+  public.donations, public.prayer_requests, public.contact_messages,
+  public.site_settings, public.media TO authenticated;
+GRANT SELECT ON TABLE public.blog_categories, public.blog_posts, public.sermon_series,
+  public.sermons, public.events, public.ministries, public.product_categories,
+  public.site_settings TO anon;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.members TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON TABLE public.blog_categories, public.blog_posts,
+  public.sermon_series, public.sermons, public.events, public.ministries,
+  public.product_categories, public.products, public.site_settings, public.media
+  TO authenticated;
+GRANT UPDATE ON TABLE public.orders, public.donations, public.prayer_requests,
+  public.contact_messages TO authenticated;
+
+-- Never expose internal product cost, stock details, barcodes, or digital file
+-- URLs through the public catalog endpoint.
+CREATE VIEW public.public_products WITH (security_invoker = false) AS
+SELECT id, name, slug, description, content, price, compare_at_price, category_id,
+  images, is_digital, weight, dimensions, tags, featured
+FROM public.products
+WHERE status = 'active';
+GRANT SELECT ON TABLE public.public_products TO anon, authenticated;
+GRANT SELECT ON TABLE public.public_products TO service_role;
+
+-- A profile is readable only by its owner or an active administrator.
 -- Client-side profile edits are limited to non-privileged columns; role changes
 -- and account activation must be performed by a trusted server-side workflow.
 REVOKE ALL PRIVILEGES ON TABLE public.profiles FROM PUBLIC, anon, authenticated;
 REVOKE UPDATE (role, is_active) ON TABLE public.profiles FROM PUBLIC, anon, authenticated;
-GRANT SELECT ON TABLE public.profiles TO authenticated;
-GRANT UPDATE (full_name, avatar_url, phone) ON TABLE public.profiles TO authenticated;
-
 CREATE POLICY "Usuarios leen su propio perfil"
   ON profiles FOR SELECT
   TO authenticated
@@ -597,7 +752,7 @@ CREATE POLICY "Usuarios leen su propio perfil"
 CREATE POLICY "Administradores leen perfiles"
   ON profiles FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_admin()));
 
 CREATE POLICY "Usuarios actualizan campos básicos de su perfil"
   ON profiles FOR UPDATE
@@ -605,39 +760,115 @@ CREATE POLICY "Usuarios actualizan campos básicos de su perfil"
   USING ((SELECT auth.uid()) = id)
   WITH CHECK ((SELECT auth.uid()) = id);
 
--- Public reads are status-only. Admin access is a separate authenticated path,
--- so anonymous requests never need EXECUTE on the private role helper.
+CREATE POLICY "Administradores leen miembros"
+  ON members FOR SELECT
+  TO authenticated
+  USING ((SELECT private.is_admin()));
+
+CREATE POLICY "Administradores crean miembros"
+  ON members FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT private.is_admin()));
+
+CREATE POLICY "Administradores editan miembros"
+  ON members FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_admin()))
+  WITH CHECK ((SELECT private.is_admin()));
+
+CREATE POLICY "Propietario elimina miembros"
+  ON members FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));
+
+CREATE POLICY "Pastores consultan el directorio pastoral"
+  ON members FOR SELECT
+  TO authenticated
+  USING ((SELECT private.is_pastor()));
+
+CREATE POLICY "Usuarios consultan sus asignaciones ministeriales"
+  ON ministry_role_assignments FOR SELECT
+  TO authenticated
+  USING ((SELECT auth.uid()) = profile_id);
+
+CREATE POLICY "Administradores consultan asignaciones ministeriales"
+  ON ministry_role_assignments FOR SELECT
+  TO authenticated
+  USING ((SELECT private.is_admin()));
+
+-- Public reads are status-only. Private role checks are only used by authenticated policies.
 CREATE POLICY "Lectura pública de blog publicados"
   ON blog_posts FOR SELECT
   TO anon, authenticated
   USING (status = 'published');
 
-CREATE POLICY "Administradores leen todo el blog"
+CREATE POLICY "Personal editorial lee todo el blog"
   ON blog_posts FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_content_manager()));
 
-CREATE POLICY "Admin gestión total de blog"
-  ON blog_posts FOR ALL
+CREATE POLICY "Personal editorial crea entradas"
+  ON blog_posts FOR INSERT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Personal editorial edita entradas"
+  ON blog_posts FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_content_manager()))
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Propietario elimina entradas"
+  ON blog_posts FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));
+
+CREATE POLICY "Personal editorial crea categorías"
+  ON blog_categories FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Personal editorial edita categorías"
+  ON blog_categories FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_content_manager()))
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Propietario elimina categorías"
+  ON blog_categories FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));
 
 CREATE POLICY "Lectura pública de sermones publicados"
   ON sermons FOR SELECT
   TO anon, authenticated
   USING (status = 'published');
 
-CREATE POLICY "Administradores leen todos los sermones"
+CREATE POLICY "Personal editorial lee todos los sermones"
   ON sermons FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_content_manager()));
 
-CREATE POLICY "Admin gestión total de sermones"
-  ON sermons FOR ALL
+CREATE POLICY "Pastores consultan sermones"
+  ON sermons FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_pastor()));
+
+CREATE POLICY "Personal editorial crea sermones"
+  ON sermons FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Personal editorial edita sermones"
+  ON sermons FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_content_manager()))
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Propietario elimina sermones"
+  ON sermons FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));
 
 CREATE POLICY "Lectura pública de categorías"
   ON blog_categories FOR SELECT
@@ -649,28 +880,54 @@ CREATE POLICY "Lectura pública de series de sermones"
   TO anon, authenticated
   USING (true);
 
+CREATE POLICY "Personal editorial crea series"
+  ON sermon_series FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Personal editorial edita series"
+  ON sermon_series FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_content_manager()))
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Propietario elimina series"
+  ON sermon_series FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));
+
 -- Events and registrations
 CREATE POLICY "Lectura pública de eventos publicados"
   ON events FOR SELECT
   TO anon, authenticated
   USING (status = 'published');
 
-CREATE POLICY "Administradores leen todos los eventos"
+CREATE POLICY "Personal editorial lee todos los eventos"
   ON events FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_content_manager()));
 
-CREATE POLICY "Admin gestión total de eventos"
-  ON events FOR ALL
+CREATE POLICY "Personal editorial crea eventos"
+  ON events FOR INSERT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Personal editorial edita eventos"
+  ON events FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_content_manager()))
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Propietario elimina eventos"
+  ON events FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));
 
 -- Event registration INSERT stays unavailable until a validated server API exists.
 CREATE POLICY "Administradores leen registros"
   ON event_registrations FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_admin()));
 
 -- Ministries
 CREATE POLICY "Lectura pública de ministerios activos"
@@ -681,36 +938,82 @@ CREATE POLICY "Lectura pública de ministerios activos"
 CREATE POLICY "Administradores leen todos los ministerios"
   ON ministries FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_admin()));
 
-CREATE POLICY "Admin gestión total de ministerios"
-  ON ministries FOR ALL
+CREATE POLICY "Pastores consultan ministerios"
+  ON ministries FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_pastor()));
 
--- Products retain their existing fields and data model; public reads and the
--- admin path are separated so anon only evaluates the public status predicate.
+CREATE POLICY "Integrantes consultan sus ministerios asignados"
+  ON ministries FOR SELECT
+  TO authenticated
+  USING (
+    (SELECT private.has_ministry_role(
+      id,
+      ARRAY['leader', 'coordinator', 'musician', 'volunteer', 'member']::public.ministry_role_enum[]
+    ))
+  );
+
+CREATE POLICY "Administradores crean ministerios"
+  ON ministries FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT private.is_admin()));
+
+CREATE POLICY "Administradores editan ministerios"
+  ON ministries FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_admin()))
+  WITH CHECK ((SELECT private.is_admin()));
+
+CREATE POLICY "Propietario elimina ministerios"
+  ON ministries FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));
+
+-- Product categories are public. Product details use a safe view so the public
+-- API never exposes internal cost, exact stock, barcode, or download fields.
 CREATE POLICY "Lectura pública de categorías de productos"
   ON product_categories FOR SELECT
   TO anon, authenticated
   USING (true);
 
-CREATE POLICY "Lectura pública de productos activos"
-  ON products FOR SELECT
-  TO anon, authenticated
-  USING (status = 'active');
+CREATE POLICY "Administradores crean categorías de productos"
+  ON product_categories FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT private.is_admin()));
+
+CREATE POLICY "Administradores editan categorías de productos"
+  ON product_categories FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_admin()))
+  WITH CHECK ((SELECT private.is_admin()));
+
+CREATE POLICY "Propietario elimina categorías de productos"
+  ON product_categories FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));
 
 CREATE POLICY "Administradores leen todos los productos"
   ON products FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_admin()));
 
-CREATE POLICY "Admin gestión total de productos"
-  ON products FOR ALL
+CREATE POLICY "Administradores crean productos"
+  ON products FOR INSERT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  WITH CHECK ((SELECT private.is_admin()));
+
+CREATE POLICY "Administradores editan productos"
+  ON products FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_admin()))
+  WITH CHECK ((SELECT private.is_admin()));
+
+CREATE POLICY "Propietario elimina productos"
+  ON products FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));
 
 -- Client order/item INSERT stays unavailable until a validated server API exists.
 CREATE POLICY "Clientes leen sus pedidos"
@@ -721,13 +1024,13 @@ CREATE POLICY "Clientes leen sus pedidos"
 CREATE POLICY "Administradores leen todos los pedidos"
   ON orders FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_admin()));
 
 CREATE POLICY "Admin actualiza pedidos"
   ON orders FOR UPDATE
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_admin()))
+  WITH CHECK ((SELECT private.is_admin()));
 
 CREATE POLICY "Clientes leen items de sus pedidos"
   ON order_items FOR SELECT
@@ -744,20 +1047,31 @@ CREATE POLICY "Clientes leen items de sus pedidos"
 CREATE POLICY "Administradores leen items de pedidos"
   ON order_items FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_admin()));
 
--- Prayer requests can contain sensitive information. Keep them private until
--- a reviewed public testimony workflow exists; only admins can read them.
-CREATE POLICY "Administradores leen todas las peticiones"
+-- Prayer and contact records contain personal information; moderators and
+-- administrators may process them, while editors cannot access these modules.
+CREATE POLICY "Moderadores leen peticiones de oración"
   ON prayer_requests FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_moderator()));
+
+CREATE POLICY "Pastores leen peticiones de oración"
+  ON prayer_requests FOR SELECT
+  TO authenticated
+  USING ((SELECT private.is_pastor()));
 
 CREATE POLICY "Admin actualiza peticiones de oración"
   ON prayer_requests FOR UPDATE
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_moderator()))
+  WITH CHECK ((SELECT private.is_moderator()));
+
+CREATE POLICY "Pastores actualizan peticiones de oración"
+  ON prayer_requests FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_pastor()))
+  WITH CHECK ((SELECT private.is_pastor()));
 
 -- Donation writes remain unavailable until a validated payment/server workflow exists.
 CREATE POLICY "Donantes leen sus donaciones"
@@ -768,25 +1082,30 @@ CREATE POLICY "Donantes leen sus donaciones"
 CREATE POLICY "Administradores leen donaciones"
   ON donations FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_admin()));
+
+CREATE POLICY "Tesorería lee donaciones"
+  ON donations FOR SELECT
+  TO authenticated
+  USING ((SELECT private.is_finance_manager()));
 
 CREATE POLICY "Admin actualiza donaciones"
   ON donations FOR UPDATE
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_admin()))
+  WITH CHECK ((SELECT private.is_admin()));
 
 -- Contact form writes remain unavailable until a validated server API exists.
-CREATE POLICY "Solo administradores leen mensajes de contacto"
+CREATE POLICY "Moderadores leen mensajes de contacto"
   ON contact_messages FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_moderator()));
 
-CREATE POLICY "Solo administradores actualizan mensajes de contacto"
+CREATE POLICY "Moderadores actualizan mensajes de contacto"
   ON contact_messages FOR UPDATE
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_moderator()))
+  WITH CHECK ((SELECT private.is_moderator()));
 
 -- Public site settings are allow-listed; admins have a separate full path.
 CREATE POLICY "Lectura pública de configuraciones permitidas"
@@ -797,21 +1116,41 @@ CREATE POLICY "Lectura pública de configuraciones permitidas"
 CREATE POLICY "Administradores leen toda la configuración"
   ON site_settings FOR SELECT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_admin()));
 
-CREATE POLICY "Solo administradores editan configuración"
-  ON site_settings FOR ALL
+CREATE POLICY "Administradores crean configuración"
+  ON site_settings FOR INSERT
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  WITH CHECK ((SELECT private.is_admin()));
 
-CREATE POLICY "Lectura pública de media"
+CREATE POLICY "Administradores editan configuración"
+  ON site_settings FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_admin()))
+  WITH CHECK ((SELECT private.is_admin()));
+
+CREATE POLICY "Propietario elimina configuración"
+  ON site_settings FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));
+
+CREATE POLICY "Personal editorial lee media"
   ON media FOR SELECT
-  TO anon, authenticated
-  USING (true);
-
-CREATE POLICY "Solo administradores gestionan media"
-  ON media FOR ALL
   TO authenticated
-  USING ((SELECT private.is_admin_or_editor()))
-  WITH CHECK ((SELECT private.is_admin_or_editor()));
+  USING ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Personal editorial sube media"
+  ON media FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Personal editorial edita media"
+  ON media FOR UPDATE
+  TO authenticated
+  USING ((SELECT private.is_content_manager()))
+  WITH CHECK ((SELECT private.is_content_manager()));
+
+CREATE POLICY "Propietario elimina media"
+  ON media FOR DELETE
+  TO authenticated
+  USING ((SELECT private.is_owner()));

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowLeft, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { BrandMark } from "@/components/shared/BrandMark";
 import { churchProfile } from "@/config/church-profile";
+import { AdminLoginForm } from "@/app/(auth)/login/AdminLoginForm";
 
 export const metadata: Metadata = {
   title: "Acceso administrativo",
@@ -59,7 +60,7 @@ export default function LoginPage() {
           <div className="w-full max-w-md">
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/35 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-foreground">
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Acceso en preparación
+              {process.env.NEXT_PUBLIC_ADMIN_DEMO_MODE === "true" ? "Vista de demostración" : "Acceso administrativo"}
             </div>
 
             <p className="mt-7 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
@@ -69,28 +70,14 @@ export default function LoginPage() {
               Un espacio preparado para servir mejor.
             </h1>
             <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-              El acceso estará disponible cuando la autenticación y los permisos estén configurados.
-              Estamos cuidando esa base antes de habilitar el ingreso.
+              Acceso para personas con una cuenta administrativa activa.
             </p>
 
-            <div
-              role="status"
-              className="mt-7 flex gap-3 rounded-2xl border border-border bg-background p-4 sm:p-5"
-            >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <LockKeyhole aria-hidden="true" className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Todavía no ingreses tus credenciales</p>
-                <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                  Esta página aún no autentica cuentas ni guarda contraseñas.
-                </p>
-              </div>
-            </div>
+            <AdminLoginForm />
 
             <div className="mt-7 flex items-center gap-3 text-xs text-muted-foreground">
               <ShieldCheck aria-hidden="true" className="h-4 w-4 shrink-0 text-accent" />
-              <span>El acceso seguro se habilitará junto con la gestión de permisos.</span>
+              <span>El acceso a cada módulo se limita según el rol de la cuenta.</span>
             </div>
 
             <Link
