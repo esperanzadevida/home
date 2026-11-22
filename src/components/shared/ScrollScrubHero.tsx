@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
+import { withBasePath } from "@/lib/site-url";
 
 /**
  * Static-hero gate matching src/styles/scroll-scrub-hero.css.
@@ -15,9 +16,9 @@ const LERP_STRENGTH = 0.16; // Smoothing per 60fps reference frame
 const WATCHDOG_TIMEOUT_MS = 20_000;
 
 export interface ScrollScrubHeroProps {
-  /** Local path under /public for the scrub-encoded MP4 (e.g. "/videos/hero-scrub.mp4") */
+  /** Local MP4 path under /public; the component applies the configured deployment base path. */
   videoSrc?: string;
-  /** Fallback poster image shown immediately while video loads or on reduced-motion */
+  /** Local poster path under /public; the component applies the deployment base path. */
   posterSrc?: string;
   /** Known byte size of the encoded video (fallback when Content-Length header is absent) */
   estimatedBytes?: number;
@@ -62,6 +63,8 @@ export function ScrollScrubHero({
   const ringCircleRef = useRef<SVGCircleElement>(null);
 
   const [loadState, setLoadState] = useState<"idle" | "loading" | "ready" | "fallback">("idle");
+  const resolvedVideoSrc = withBasePath(videoSrc);
+  const resolvedPosterSrc = posterSrc ? withBasePath(posterSrc) : "";
 
   useEffect(() => {
     const heroEl = heroRef.current;
@@ -247,7 +250,7 @@ export function ScrollScrubHero({
           priority: "low",
           signal: ctrl.signal,
         };
-        const res = await fetch(videoSrc, fetchOpts);
+        const res = await fetch(resolvedVideoSrc, fetchOpts);
         if (!res.ok) {
           throw new Error(`Video unavailable (${res.status})`);
         }
@@ -321,12 +324,12 @@ export function ScrollScrubHero({
         void loadHeroBlob();
       };
 
-      if (posterSrc) {
-        posterEl.style.backgroundImage = `url('${posterSrc}')`;
+      if (resolvedPosterSrc) {
+        posterEl.style.backgroundImage = `url('${resolvedPosterSrc}')`;
         const posterProbe = new window.Image();
         posterProbe.onload = startBlobFetch;
         posterProbe.onerror = startBlobFetch;
-        posterProbe.src = posterSrc;
+        posterProbe.src = resolvedPosterSrc;
         posterTimeoutId = window.setTimeout(startBlobFetch, 3500);
       } else {
         startBlobFetch();
@@ -387,8 +390,8 @@ export function ScrollScrubHero({
       seekBusy = false;
       pendingTime = null;
       stageEl?.classList.remove("video-ready", "video-failed");
-      if (posterEl && posterSrc) {
-        posterEl.style.backgroundImage = `url('${posterSrc}')`;
+      if (posterEl && resolvedPosterSrc) {
+        posterEl.style.backgroundImage = `url('${resolvedPosterSrc}')`;
       }
       if (heroEl) {
         heroEl.style.setProperty("--scrub-progress", "0");
@@ -399,9 +402,14 @@ export function ScrollScrubHero({
     const reducedMotionMql = window.matchMedia(REDUCED_MOTION_QUERY);
     const applyHeroMode = () => {
       const connection = (navigator as NavigatorWithNetworkInformation).connection;
+      const hasLimitedDownlink =
+        typeof connection?.downlink === "number" &&
+        Number.isFinite(connection.downlink) &&
+        connection.downlink <= 2;
       const conserveData =
         connection?.saveData === true ||
-        LOW_BANDWIDTH_CONNECTION_TYPES.has(connection?.effectiveType ?? "");
+        LOW_BANDWIDTH_CONNECTION_TYPES.has(connection?.effectiveType ?? "") ||
+        hasLimitedDownlink;
 
       if (reducedMotionMql.matches || conserveData) {
         pinStaticPoster();
@@ -463,7 +471,7 @@ export function ScrollScrubHero({
         objectUrl = null;
       }
     };
-  }, [videoSrc, posterSrc, estimatedBytes]);
+  }, [resolvedVideoSrc, resolvedPosterSrc, estimatedBytes]);
 
   return (
     <section

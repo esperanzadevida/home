@@ -1153,6 +1153,10 @@
     display: none;
   }
 
+  .scrub-hero[data-scrub-theme="amber"] .scrub-mobile-dock-label {
+    display: inline-flex;
+  }
+
   .scrub-mobile-dock-dots {
     gap: 0.2rem;
   }

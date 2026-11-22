@@ -8,7 +8,6 @@ import { churchProfile } from "@/config/church-profile";
 import { eventDetails, sermonDetails } from "@/config/content-details";
 import { publicPageBlueprints } from "@/config/public-pages";
 import { createPageMetadata } from "@/lib/page-metadata";
-import { withBasePath } from "@/lib/site-url";
 
 const [latestSermonSlug, latestSermon] = Object.entries(sermonDetails)[0];
 const currentTime = Date.now();
@@ -83,8 +82,8 @@ export default function HomePage() {
     <>
       <div className="home-page pb-20">
         <ScrollScrubHero
-          videoSrc={withBasePath("/videos/hero-scrub.mp4")}
-          posterSrc={withBasePath("/videos/hero-poster.webp")}
+          videoSrc="/videos/hero-scrub.mp4"
+          posterSrc="/videos/hero-poster.webp"
           estimatedBytes={4_290_098}
           scrollHeightVh={520}
           mobileScrollHeightVh={380}

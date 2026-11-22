@@ -23,4 +23,4 @@ Los retratos y escenas generados ambientan el producto y no constituyen document
 
 ## Home y video
 
-La Home integra localmente un MP4 sincronizado al scroll, un poster WebP y tres escenas HTML. El movimiento reducido siempre conserva el poster; cuando el navegador expone Network Information API, `saveData` o `downlink` <= 2 Mb/s también evita descargar el video. En móvil con conexión suficiente y movimiento normal el scrubbing se mantiene. La descarga local agregada, procedencia y permiso del clip están documentados en `docs/PLAN-MAESTRO.md`; valida redes reales antes de publicar.
+La Home publicada integra un MP4 sincronizado al scroll, un poster WebP y narrativa HTML. El movimiento reducido conserva el poster; con Network Information API, `saveData`, `slow-2g`/`2g` o `downlink` <= 2 Mb/s también evita descargar el video. En móvil con conexión suficiente y movimiento normal el scrubbing se mantiene. El rendimiento medido, la procedencia y el permiso del clip están documentados en `docs/PLAN-MAESTRO.md`; falta confirmar la licencia de esta pieza específica y validar redes reales.
