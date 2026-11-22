@@ -650,7 +650,7 @@ export const publicPageBlueprints = {
     title: "Ideas para la semana que comienza",
     eyebrow: "Lecturas · Reflexiones",
     intro:
-      "Textos breves sobre la fe, la vida cotidiana y el valor de caminar junto a otras personas.",
+      "Lecturas sobre la fe, la vida cotidiana y el valor de caminar junto a otras personas, con ideas sencillas para llevar a la semana.",
     action: { label: "Ven a conocernos", href: "/servicios" },
     sections: [
       {
@@ -661,22 +661,52 @@ export const publicPageBlueprints = {
           "Un espacio editorial para compartir preguntas, aprendizajes y pequeñas prácticas que nos ayudan a vivir con esperanza.",
         cards: [
           {
+            eyebrow: "Cuidado · 20 nov 2026",
+            title: "Pedir ayuda también es parte del camino",
+            description:
+              "Compartir una dificultad con alguien de confianza puede abrir un primer espacio para recibir compañía y pensar con más claridad.",
+            meta: "2 min de lectura",
+            href: "/blog/pedir-ayuda-tambien-es-parte-del-camino",
+            filterValues: { categoría: "Cuidado" },
+            sortDate: "2026-11-20",
+            featured: true,
+          },
+          {
             eyebrow: "Vida cotidiana · 12 nov 2026",
             title: "Hacer espacio para la esperanza",
             description:
               "A veces un nuevo comienzo no llega con ruido. Puede aparecer en una conversación, una pausa o una decisión pequeña.",
-            meta: "5 min de lectura",
+            meta: "2 min de lectura",
             href: "/blog/hacer-espacio-para-la-esperanza",
             filterValues: { categoría: "Vida cotidiana" },
             sortDate: "2026-11-12",
-            featured: true,
+          },
+          {
+            eyebrow: "Servicio · 17 nov 2026",
+            title: "Servir sin hacerlo todo",
+            description:
+              "Una comunidad puede cuidar mejor cuando comparte las tareas, respeta sus límites y deja espacio para que otras personas participen.",
+            meta: "2 min de lectura",
+            href: "/blog/servir-sin-hacerlo-todo",
+            filterValues: { categoría: "Servicio" },
+            sortDate: "2026-11-17",
+          },
+          {
+            eyebrow: "Fe cotidiana · 14 nov 2026",
+            title: "La gratitud en los días corrientes",
+            description:
+              "Una práctica para reconocer el cuidado y la compañía que también están presentes en semanas imperfectas.",
+            meta: "2 min de lectura",
+            href: "/blog/gratitud-en-los-dias-corrientes",
+            filterValues: { categoría: "Fe cotidiana" },
+            sortDate: "2026-11-14",
           },
           {
             eyebrow: "Adoración · 5 nov 2026",
             title: "Adorar también es aprender a escuchar",
             description:
               "La gratitud y la atención transforman la manera en que miramos a las personas que están cerca.",
-            meta: "4 min de lectura",
+            meta: "2 min de lectura",
             href: "/blog/adorar-tambien-es-escuchar",
             filterValues: { categoría: "Adoración" },
             sortDate: "2026-11-05",
@@ -686,7 +716,7 @@ export const publicPageBlueprints = {
             title: "Una mesa para cada generación",
             description:
               "Crear momentos para escucharnos puede acercar a niños, jóvenes y adultos en medio de la rutina.",
-            meta: "6 min de lectura",
+            meta: "2 min de lectura",
             href: "/blog/una-mesa-para-cada-generacion",
             filterValues: { categoría: "Familia" },
             sortDate: "2026-10-29",

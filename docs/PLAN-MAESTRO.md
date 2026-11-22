@@ -123,7 +123,7 @@ La paleta institucional de `COLOR-SYSTEM.md` y la guía de componentes son propu
 - `/sermones` y `/sermones/[slug]` — archivo y detalle editorial de seis mensajes; no hay reproductor.
 - `/eventos` y `/eventos/[slug]` — agenda y detalle de tres actividades; no hay inscripción.
 - `/ministerios` — ministerios y formas de participar.
-- `/blog` y `/blog/[slug]` — índice y tres artículos editoriales.
+- `/blog` y `/blog/[slug]` — índice y seis artículos editoriales, con lecturas ampliadas, prácticas y preguntas para conversar.
 - `/tienda` y `/tienda/[slug]` — catálogo y fichas informativas; compra y pago requieren una operación comercial conectada.
 - `/galeria` — secciones gráficas editoriales con fotografías originales generadas y documentadas para esta ambientación.
 - `/contacto` — información editorial con enlaces directos de correo y teléfono; no incluye formulario ni recopila envíos.
@@ -141,8 +141,8 @@ La paleta institucional de `COLOR-SYSTEM.md` y la guía de componentes son propu
 | `/sermones/[slug]` | Seis fichas editoriales, índice, etiquetas, relacionados y compartir/copiar enlace. | Reproductor y transcripción completa/material real. |
 | `/eventos` | Alternancia lista/calendario mensual, navegación de mes y filtro por categoría. | Más agenda y datos de ubicación confirmados. |
 | `/eventos/[slug]` | Tres fichas editoriales e interacción de compartir/copiar enlace. | Imagen con permiso, mapa y registro funcional. |
-| `/blog` | Búsqueda, filtro por categoría, orden y marca de destacado. | Más publicaciones aprobadas y contenido BlockNote/Tiptap si se requiere CMS. |
-| `/blog/[slug]` | Tres artículos editoriales, autor, índice, etiquetas, relacionados y compartir/copiar enlace. | Avatar/foto aprobada y CMS de contenido rico. |
+| `/blog` | Seis artículos editoriales, búsqueda, filtro por categoría, orden y marca de destacado. | Más publicaciones aprobadas y contenido BlockNote/Tiptap si se requiere CMS. |
+| `/blog/[slug]` | Seis artículos editoriales ampliados, autor, índice, etiquetas, relacionados y compartir/copiar enlace. | Avatar/foto aprobada y CMS de contenido rico. |
 | `/ministerios` | Seis ministerios, con divulgación de horario/liderazgo y enlace a contacto. | Formulario real para unirse. |
 | `/tienda` | Búsqueda, categoría/precio y orden por precio/novedad/popularidad. | Existencias y métricas comerciales confirmadas. |
 | `/tienda/[slug]` | Tres fichas, cantidad/variantes, carrito local, relacionados y compartir/copiar enlace; pedido/pago inactivos. | Galería aprobada, reviews y operación comercial. |
