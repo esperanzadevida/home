@@ -8,8 +8,21 @@ export interface StoreColorOption {
   id: string;
   name: string;
   hex: string;
-  /** Optional subtle visual filter so switching swatch visibly updates the studio preview */
-  imageFilter?: string;
+}
+
+export interface StoreDesignOption {
+  id: string;
+  name: string;
+  description: string;
+  quote: string;
+  reference: string;
+  image: string;
+}
+
+export interface StoreEngravingFinish {
+  id: string;
+  name: string;
+  hex: string;
 }
 
 export interface StoreModelOption {
@@ -41,6 +54,8 @@ export interface StoreProduct {
   colors: StoreColorOption[];
   models: StoreModelOption[];
   sizes: StoreSizeOption[];
+  designs?: StoreDesignOption[];
+  engravingFinishes?: StoreEngravingFinish[];
   hasApparelSizeGuide?: boolean;
   featured?: boolean;
 }
@@ -74,16 +89,66 @@ export const STORE_CATALOG: StoreProduct[] = [
     price: 42.0,
     compareAtPrice: 52.0,
     badge: "Más vendido",
-    image: "/images/store/hoodie-esperanza.jpg",
-    imageAlt: "Hoodie minimalista verde bosque sobre pedestal de piedra oscura.",
+    image: "/images/store/generated/hoodie-salmo-23.png",
+    imageAlt: "Mockup de buzo verde bosque con la frase El Señor es mi pastor sobre pedestal de piedra.",
     skuPrefix: "EV-HD",
     materials: "100% algodón peinado 380 GSM · Pre-encogido · Costura doble.",
     featured: true,
     hasApparelSizeGuide: true,
+    designs: [
+      {
+        id: "salmo-23",
+        name: "El Señor es mi pastor",
+        description: "Diseño tipográfico en tono marfil, sobrio y cálido.",
+        quote: "El Señor es mi pastor",
+        reference: "Salmo 23:1",
+        image: "/images/store/generated/hoodie-salmo-23.png",
+      },
+      {
+        id: "1-corintios-13",
+        name: "Con fe, esperanza y amor",
+        description: "Una frase breve sobre las virtudes que permanecen.",
+        quote: "Con fe, esperanza y amor",
+        reference: "1 Corintios 13:13",
+        image: "/images/store/generated/hoodie-1-corintios-13.png",
+      },
+      {
+        id: "josue-1-9",
+        name: "Sé fuerte y valiente",
+        description: "Una promesa de ánimo para llevar cada día.",
+        quote: "Sé fuerte y valiente",
+        reference: "Josué 1:9",
+        image: "/images/store/generated/hoodie-josue-1-9.png",
+      },
+      {
+        id: "salmo-119-105",
+        name: "Tu palabra es lámpara",
+        description: "Una frase en dos líneas inspirada en la guía de la Palabra.",
+        quote: "Tu palabra es lámpara a mis pies",
+        reference: "Salmo 119:105",
+        image: "/images/store/generated/hoodie-salmo-119-105.png",
+      },
+      {
+        id: "juan-1-16",
+        name: "Gracia sobre gracia",
+        description: "Un diseño tipográfico sencillo y luminoso.",
+        quote: "Gracia sobre gracia",
+        reference: "Juan 1:16",
+        image: "/images/store/generated/hoodie-juan-1-16.png",
+      },
+      {
+        id: "salmo-121-2",
+        name: "Mi socorro viene del Señor",
+        description: "Una línea de montañas acompaña esta frase de confianza.",
+        quote: "Mi socorro viene del Señor",
+        reference: "Salmo 121:2",
+        image: "/images/store/generated/hoodie-salmo-121-2.png",
+      },
+    ],
     colors: [
-      { id: "bosque", name: "Bosque Esmeralda", hex: "#1b4332", imageFilter: "none" },
-      { id: "obsidiana", name: "Negro Obsidiana", hex: "#181a1f", imageFilter: "saturate(0.12) brightness(0.84) contrast(1.1)" },
-      { id: "salvia", name: "Salvia Clara", hex: "#52796f", imageFilter: "brightness(1.14) saturate(0.75)" },
+      { id: "bosque", name: "Bosque Esmeralda", hex: "#1b4332" },
+      { id: "obsidiana", name: "Negro Obsidiana", hex: "#181a1f" },
+      { id: "salvia", name: "Salvia Clara", hex: "#52796f" },
     ],
     models: [
       { id: "oversize", name: "Oversize 380 GSM", note: "Hombro caído y silueta relajada" },
@@ -115,9 +180,9 @@ export const STORE_CATALOG: StoreProduct[] = [
     featured: true,
     hasApparelSizeGuide: true,
     colors: [
-      { id: "crema", name: "Crema Marfil", hex: "#efe9dc", imageFilter: "none" },
-      { id: "arena", name: "Arena Cálida", hex: "#d6cab8", imageFilter: "sepia(0.18) brightness(0.95)" },
-      { id: "piedra", name: "Gris Piedra", hex: "#9ca3af", imageFilter: "saturate(0.15) brightness(0.88)" },
+      { id: "crema", name: "Crema Marfil", hex: "#efe9dc" },
+      { id: "arena", name: "Arena Cálida", hex: "#d6cab8" },
+      { id: "piedra", name: "Gris Piedra", hex: "#9ca3af" },
     ],
     models: [
       { id: "boxy", name: "Oversize Boxy", note: "Manga amplia y caída moderna" },
@@ -142,15 +207,20 @@ export const STORE_CATALOG: StoreProduct[] = [
     price: 34.0,
     compareAtPrice: 42.0,
     badge: "Edición especial",
-    image: "/images/store/biblia-estudio.jpg",
-    imageAlt: "Biblia de estudio encuadernada en piel vegana espresso con cantos dorados.",
+    image: "/images/store/generated/biblia-tapa-bosque-base.png",
+    imageAlt: "Biblia de estudio de cubierta verde bosque y cantos dorados sobre mesa de madera.",
     skuPrefix: "EV-BB",
     materials: "Cubierta símil piel granulada · Papel bíblico 36 g · 2 cintas satén.",
     featured: true,
+    engravingFinishes: [
+      { id: "oro", name: "Oro cálido", hex: "#c79a45" },
+      { id: "plata", name: "Plata suave", hex: "#c4c9ca" },
+      { id: "cobre", name: "Cobre rosado", hex: "#b87959" },
+    ],
     colors: [
-      { id: "espresso", name: "Espresso Oscuro", hex: "#3f2318", imageFilter: "none" },
-      { id: "bosque", name: "Bosque Profundo", hex: "#143d2c", imageFilter: "hue-rotate(108deg) saturate(0.85)" },
-      { id: "grafito", name: "Grafito Mate", hex: "#27272a", imageFilter: "saturate(0.1) contrast(1.06)" },
+      { id: "bosque", name: "Bosque Profundo", hex: "#143d2c" },
+      { id: "espresso", name: "Espresso Oscuro", hex: "#3f2318" },
+      { id: "grafito", name: "Grafito Mate", hex: "#27272a" },
     ],
     models: [
       { id: "flex", name: "Piel Vegana Flex", note: "Apertura plana de 180°" },
@@ -178,9 +248,9 @@ export const STORE_CATALOG: StoreProduct[] = [
     materials: "Lino encuadernado · Papel marfil 100 g sin traspaso de tinta.",
     featured: true,
     colors: [
-      { id: "salvia", name: "Verde Salvia", hex: "#3d6352", imageFilter: "none" },
-      { id: "obsidiana", name: "Obsidiana Mate", hex: "#1f2328", imageFilter: "saturate(0.1) brightness(0.85)" },
-      { id: "oliva", name: "Oliva Cálido", hex: "#5f6f52", imageFilter: "hue-rotate(-40deg) saturate(0.95)" },
+      { id: "salvia", name: "Verde Salvia", hex: "#3d6352" },
+      { id: "obsidiana", name: "Obsidiana Mate", hex: "#1f2328" },
+      { id: "oliva", name: "Oliva Cálido", hex: "#5f6f52" },
     ],
     models: [
       { id: "punteado", name: "Hojas Punteadas", note: "Ideal para mapas y apuntes creativos" },
@@ -208,9 +278,9 @@ export const STORE_CATALOG: StoreProduct[] = [
     materials: "Acero inoxidable 304 libre de BPA · Base de corcho natural.",
     featured: false,
     colors: [
-      { id: "obsidiana", name: "Negro Obsidiana", hex: "#14161a", imageFilter: "none" },
-      { id: "pino", name: "Verde Pino", hex: "#143d2c", imageFilter: "sepia(0.3) hue-rotate(95deg) saturate(1.2)" },
-      { id: "grafito", name: "Titanio Mate", hex: "#4b5563", imageFilter: "brightness(1.25) contrast(0.95)" },
+      { id: "obsidiana", name: "Negro Obsidiana", hex: "#14161a" },
+      { id: "pino", name: "Verde Pino", hex: "#143d2c" },
+      { id: "grafito", name: "Titanio Mate", hex: "#4b5563" },
     ],
     models: [
       { id: "500ml", name: "500 ml Termo Viaje", note: "Tapa hermética antiderrame" },
@@ -234,9 +304,9 @@ export const STORE_CATALOG: StoreProduct[] = [
     materials: "100% algodón twill lavado · Banda interna transpirable.",
     featured: false,
     colors: [
-      { id: "carbon-esmeralda", name: "Carbón Esmeralda", hex: "#284038", imageFilter: "none" },
-      { id: "negro-lavado", name: "Negro Lavado", hex: "#1e2024", imageFilter: "saturate(0.08) brightness(0.86)" },
-      { id: "musgo", name: "Verde Musgo", hex: "#3b5249", imageFilter: "hue-rotate(-25deg) brightness(1.06)" },
+      { id: "carbon-esmeralda", name: "Carbón Esmeralda", hex: "#284038" },
+      { id: "negro-lavado", name: "Negro Lavado", hex: "#1e2024" },
+      { id: "musgo", name: "Verde Musgo", hex: "#3b5249" },
     ],
     models: [
       { id: "curva", name: "Visera Curva Clásica", note: "Ajuste natural de 6 paneles" },

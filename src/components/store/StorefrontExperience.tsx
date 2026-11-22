@@ -27,6 +27,7 @@ import {
   type StoreCategory,
   type StoreProduct,
 } from "@/config/store-catalog";
+import { StoreProductPreview } from "@/components/store/StoreProductPreview";
 import { useCart, type CartProduct } from "@/providers/CartProvider";
 
 type SortOption = "featured" | "price-asc" | "price-desc";
@@ -66,6 +67,9 @@ export function StorefrontExperience() {
   const [modalModelIdx, setModalModelIdx] = useState(0);
   const [modalSizeIdx, setModalSizeIdx] = useState(0);
   const [modalQty, setModalQty] = useState(1);
+  const [modalDesignIdx, setModalDesignIdx] = useState(0);
+  const [modalEngravingFinishIdx, setModalEngravingFinishIdx] = useState(0);
+  const [engravingText, setEngravingText] = useState("Esperanza de Vida");
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const quickViewTriggerRef = useRef<HTMLButtonElement | null>(null);
 
@@ -131,6 +135,9 @@ export function StorefrontExperience() {
     setModalModelIdx(0);
     setModalSizeIdx(firstInStockSize);
     setModalQty(1);
+    setModalDesignIdx(0);
+    setModalEngravingFinishIdx(0);
+    setEngravingText("Esperanza de Vida");
     setShowSizeGuide(false);
   }
 
@@ -167,14 +174,24 @@ export function StorefrontExperience() {
     if (!size || size.stock <= 0) return;
 
     const unitPrice = modalProduct.price + (model?.priceDelta ?? 0);
-    const variantLabel = `${model.name} · ${color.name} · ${size.label}`;
+    const design = modalProduct.designs?.[modalDesignIdx];
+    const engravingFinish = modalProduct.engravingFinishes?.[modalEngravingFinishIdx];
+    const personalization = design
+      ? `Estampado: ${design.quote} (${design.reference})`
+      : engravingFinish
+        ? `Grabado láser: ${(engravingText.trim() || "Esperanza de Vida").slice(0, 28)} · ${engravingFinish.name}`
+        : null;
+    const variantLabel = [model.name, color.name, size.label, personalization]
+      .filter(Boolean)
+      .join(" · ");
+    const selectedImage = design?.image ?? modalProduct.image;
 
     addItem(
       {
         id: modalProduct.id,
         name: modalProduct.name,
         price: unitPrice,
-        coverImage: modalProduct.image,
+        coverImage: selectedImage,
         category: mapToCartCategory(modalProduct.category),
       },
       modalQty,
@@ -197,6 +214,8 @@ export function StorefrontExperience() {
   const selectedModalSize = modalProduct
     ? (modalProduct.sizes[modalSizeIdx] ?? modalProduct.sizes[0])
     : null;
+  const selectedModalDesign = modalProduct?.designs?.[modalDesignIdx] ?? null;
+  const selectedEngravingFinish = modalProduct?.engravingFinishes?.[modalEngravingFinishIdx] ?? null;
   const modalUnitPrice = modalProduct
     ? modalProduct.price + (selectedModalModel?.priceDelta ?? 0)
     : 0;
@@ -226,7 +245,7 @@ export function StorefrontExperience() {
               Explora por estilo, color y talla
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Selecciona colores directamente en cada tarjeta o abre la vista rápida para elegir modelo, talla y medidas antes de agregar al carrito.
+              Elige un color en cada tarjeta y abre la ficha para ver detalles, tallas y opciones de personalización antes de agregar al carrito.
             </p>
           </div>
 
@@ -385,6 +404,8 @@ export function StorefrontExperience() {
             {filteredProducts.map((product) => {
               const colorIdx = cardColors[product.id] ?? 0;
               const activeColor = product.colors[colorIdx] ?? product.colors[0];
+              const cardDesign = product.designs?.[0];
+              const hasCustomization = Boolean(product.designs || product.engravingFinishes);
               const discount = getDiscountPercent(product.price, product.compareAtPrice);
               const isAdded = recentlyAddedId === product.id;
 
@@ -394,22 +415,25 @@ export function StorefrontExperience() {
                   className="store-card group flex flex-col rounded-2xl border border-border/80 bg-card shadow-sm"
                 >
                   {/* Studio Product Image */}
-                  <div className="relative aspect-square overflow-hidden bg-muted">
-                    <Image
-                      src={product.image}
-                      alt={product.imageAlt}
-                      fill
-                      sizes="(max-width: 640px) 94vw, (max-width: 1024px) 46vw, 31vw"
-                      style={{
-                        filter: activeColor.imageFilter && activeColor.imageFilter !== "none"
-                          ? activeColor.imageFilter
-                          : undefined,
-                      }}
-                      className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                    />
+                  <div className="relative isolate aspect-square overflow-hidden bg-muted">
+                    <button
+                      type="button"
+                      onClick={(event) => openQuickView(product, event.currentTarget)}
+                      className="absolute inset-0 z-0 block h-full w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+                      aria-label={`Ver ficha y personalizar ${product.name}`}
+                    >
+                      <StoreProductPreview
+                        productId={product.id}
+                        image={cardDesign?.image ?? product.image}
+                        alt={product.imageAlt}
+                        baseColorHex={product.colors[0].hex}
+                        colorHex={activeColor.hex}
+                        engravingText="Esperanza de Vida"
+                      />
+                    </button>
 
                     {/* Badges */}
-                    <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+                    <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-wrap gap-1.5">
                       {product.badge && (
                         <span className="rounded-full border border-white/20 bg-black/70 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-white backdrop-blur-md">
                           {product.badge}
@@ -426,11 +450,11 @@ export function StorefrontExperience() {
                     <button
                       type="button"
                       onClick={(event) => openQuickView(product, event.currentTarget)}
-                      className="absolute bottom-3 right-3 inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full border border-white/25 bg-black/70 px-3.5 py-1.5 text-xs font-semibold text-white opacity-95 backdrop-blur-md transition-all hover:bg-black/90 sm:opacity-0 sm:translate-y-1 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
+                      className="absolute bottom-3 right-3 z-10 inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-full border border-white/25 bg-black/70 px-3.5 py-1.5 text-xs font-semibold text-white opacity-95 backdrop-blur-md transition-all hover:bg-black/90 sm:opacity-0 sm:translate-y-1 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
                       aria-label={`Vista rápida de ${product.name}`}
                     >
                       <Eye aria-hidden="true" className="h-3.5 w-3.5" />
-                      Vista rápida
+                      Ver ficha
                     </button>
                   </div>
 
@@ -522,25 +546,36 @@ export function StorefrontExperience() {
                           onClick={(event) => openQuickView(product, event.currentTarget)}
                           className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/50 hover:bg-muted"
                         >
-                          Tallas y modelos
+                          Ver ficha
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => handleQuickAddCard(product)}
-                          className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-92"
-                        >
-                          {isAdded ? (
-                            <>
-                              <Check aria-hidden="true" className="h-3.5 w-3.5" />
-                              Agregado
-                            </>
-                          ) : (
-                            <>
-                              <ShoppingBag aria-hidden="true" className="h-3.5 w-3.5" />
-                              Agregar
-                            </>
-                          )}
-                        </button>
+                        {hasCustomization ? (
+                          <button
+                            type="button"
+                            onClick={(event) => openQuickView(product, event.currentTarget)}
+                            className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-92"
+                          >
+                            <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
+                            Personalizar
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleQuickAddCard(product)}
+                            className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-92"
+                          >
+                            {isAdded ? (
+                              <>
+                                <Check aria-hidden="true" className="h-3.5 w-3.5" />
+                                Agregado
+                              </>
+                            ) : (
+                              <>
+                                <ShoppingBag aria-hidden="true" className="h-3.5 w-3.5" />
+                                Agregar
+                              </>
+                            )}
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -632,19 +667,19 @@ export function StorefrontExperience() {
 
                 {/* Left: Studio Preview */}
                 <div className="relative flex flex-col justify-between bg-muted/60 p-5 sm:p-6">
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border/60 bg-background md:aspect-square">
-                    <Image
-                      src={modalProduct.image}
-                      alt={modalProduct.imageAlt}
-                      fill
-                      sizes="(max-width: 768px) 92vw, 420px"
-                      style={{
-                        filter:
-                          selectedModalColor.imageFilter && selectedModalColor.imageFilter !== "none"
-                            ? selectedModalColor.imageFilter
-                            : undefined,
-                      }}
-                      className="object-cover transition-all duration-300"
+                  <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-background">
+                    <StoreProductPreview
+                      productId={modalProduct.id}
+                      image={selectedModalDesign?.image ?? modalProduct.image}
+                      alt={
+                        selectedModalDesign
+                          ? `Mockup del buzo ${selectedModalColor.name} con estampado “${selectedModalDesign.quote}”, ${selectedModalDesign.reference}.`
+                          : modalProduct.imageAlt
+                      }
+                      baseColorHex={modalProduct.colors[0].hex}
+                      colorHex={selectedModalColor.hex}
+                      engravingText={engravingText}
+                      engravingColor={selectedEngravingFinish?.hex}
                     />
                     <span className="absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/70 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">
                       <span
@@ -736,7 +771,7 @@ export function StorefrontExperience() {
                   <div className="mt-5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        2. Color
+                        2. Color del producto
                       </span>
                       <span className="text-xs font-semibold text-foreground">
                         {selectedModalColor.name}
@@ -764,11 +799,110 @@ export function StorefrontExperience() {
                     </div>
                   </div>
 
+                  {modalProduct.designs && (
+                    <fieldset className="mt-5">
+                      <legend className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Diseño del buzo
+                      </legend>
+                      <div className="mt-2.5 grid grid-cols-3 gap-2">
+                        {modalProduct.designs.map((design, idx) => {
+                          const selected = idx === modalDesignIdx;
+                          return (
+                            <button
+                              key={design.id}
+                              type="button"
+                              onClick={() => setModalDesignIdx(idx)}
+                              aria-pressed={selected}
+                              className={`cursor-pointer overflow-hidden rounded-xl border text-left transition-colors ${
+                                selected
+                                  ? "border-primary ring-2 ring-primary/60"
+                                  : "border-border hover:border-foreground/30"
+                              }`}
+                            >
+                              <span className="relative block aspect-square overflow-hidden bg-muted">
+                                <Image src={design.image} alt="" fill sizes="120px" className="object-cover" />
+                              </span>
+                              <span className="block px-2 py-2">
+                                <span className="block text-[11px] font-semibold leading-snug text-foreground">
+                                  {design.name}
+                                </span>
+                                <span className="mt-1 block text-[10px] text-muted-foreground">
+                                  {design.reference}
+                                </span>
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {selectedModalDesign && (
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                          {selectedModalDesign.description}
+                        </p>
+                      )}
+                    </fieldset>
+                  )}
+
+                  {modalProduct.engravingFinishes && (
+                    <fieldset className="mt-5 rounded-2xl border border-border/80 bg-background/60 p-3.5">
+                      <legend className="px-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        Grabado láser de muestra
+                      </legend>
+                      <label
+                        htmlFor="bible-engraving-name"
+                        className="mt-1 block text-xs font-semibold text-foreground"
+                      >
+                        Texto de la cubierta
+                      </label>
+                      <input
+                        id="bible-engraving-name"
+                        type="text"
+                        value={engravingText}
+                        maxLength={28}
+                        onChange={(event) => setEngravingText(event.target.value)}
+                        className="mt-1.5 min-h-11 w-full rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/40"
+                        placeholder="Esperanza de Vida"
+                      />
+                      <span className="mt-2.5 block text-[11px] font-semibold text-muted-foreground">
+                        Acabado
+                      </span>
+                      <div className="mt-1.5 flex flex-wrap gap-2">
+                        {modalProduct.engravingFinishes.map((finish, idx) => {
+                          const selected = idx === modalEngravingFinishIdx;
+                          return (
+                            <button
+                              key={finish.id}
+                              type="button"
+                              onClick={() => setModalEngravingFinishIdx(idx)}
+                              aria-pressed={selected}
+                              aria-label={`Acabado de grabado ${finish.name}`}
+                              className={`inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full border px-3 text-xs font-semibold transition-colors ${
+                                selected
+                                  ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary"
+                                  : "border-border bg-card text-muted-foreground hover:border-foreground/30"
+                              }`}
+                            >
+                              <span
+                                className="h-3.5 w-3.5 rounded-full border border-black/15"
+                                style={{ backgroundColor: finish.hex }}
+                              />
+                              {finish.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="mt-2.5 text-[11px] leading-relaxed text-muted-foreground">
+                        La llama del sitio se muestra como propuesta visual; confirmar grabado y acabado antes de producir.
+                      </p>
+                    </fieldset>
+                  )}
+
                   {/* 3. Size selector + Size Guide */}
                   <div className="mt-5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        3. Talla / Formato
+                        {modalProduct.designs || modalProduct.engravingFinishes
+                          ? "4. Talla / Formato"
+                          : "3. Talla / Formato"}
                       </span>
                       {modalProduct.hasApparelSizeGuide && (
                         <button
@@ -835,8 +969,8 @@ export function StorefrontExperience() {
                     )}
                   </div>
 
-                  {/* Quantity + Add to Cart (sticky at bottom so always reachable even with size guide open) */}
-                  <div className="sticky bottom-0 -mx-5 mt-5 flex items-center gap-3 border-t border-border/60 bg-card/95 px-5 pb-1 pt-3 backdrop-blur-md sm:-mx-7 sm:px-7">
+                  {/* Quantity + Add to Cart */}
+                  <div className="-mx-5 mt-5 flex items-center gap-3 border-t border-border/60 bg-card/95 px-5 pb-4 pt-3 sm:-mx-7 sm:px-7">
                     <div className="inline-flex h-12 items-center rounded-xl border border-border bg-background">
                       <button
                         type="button"
