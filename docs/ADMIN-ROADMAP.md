@@ -104,6 +104,14 @@ Este documento convierte las pantallas existentes en un plan operativo verificab
 - El proyecto no tiene credenciales/proyecto Supabase de Doménica en esta sesión. No se puede confirmar entrega de correos, permisos efectivos, retención, pago, respaldo ni restauración.
 - El flujo de GitHub Pages puede producir exportación estática; la documentación de Next indica que una exportación estática carece de runtime para funciones de servidor. La conexión navegador-Supabase solo es aceptable si RLS protege cada acceso.
 
+### Avance local — 23-11-2026
+
+- El guard de Admin ya no permite activar el acceso de demostración con rol `super_admin` en builds de producción.
+- La bandeja de peticiones de oración no consulta registros reales hasta que se aprueben las reglas de retención y tratamiento; la vista conserva solo muestras locales en modo de desarrollo.
+- La migración local mantiene `contact_messages` bajo RLS: usuarios anónimos no pueden leer, insertar ni actualizar; moderadores y administradores activos pueden leer y actualizar.
+- La bandeja de contacto está preparada para consultar y cambiar estados en Supabase, pero no existe un formulario público que escriba mensajes ni un endpoint servidor desplegado. No se añadió inserción anónima desde el navegador.
+- El conector Supabase disponible no muestra un proyecto DOMÉNICA entre sus cuentas/proyectos; por ello no se aplicaron migraciones ni se cambiaron roles en producción. La rotación del secreto OAuth expuesto también sigue pendiente en Google Cloud.
+
 ## Investigación consultada — 22-11-2026
 
 - [Supabase: Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security) — grants, políticas por operación y pruebas pgTAP.
