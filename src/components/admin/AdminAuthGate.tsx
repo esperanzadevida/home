@@ -43,33 +43,41 @@ export function AdminAuthGate({ children }: { children: React.ReactNode }) {
   const configured = isSupabaseBrowserConfigured();
   const [status, setStatus] = useState<AccessStatus>("checking");
   const [role, setRole] = useState<ProfileRoleId | null>(null);
-  const [verifiedPath, setVerifiedPath] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const requestId = useRef(0);
+  const lastCheckedPath = useRef(pathname);
 
   const checkAccess = useCallback(async () => {
     const currentRequest = ++requestId.current;
     const client = getSupabaseBrowserClient();
     if (!client) {
       setRole(null);
-      setVerifiedPath(null);
       setStatus("unconfigured");
       return;
     }
 
-    setStatus("checking");
-    setRole(null);
-    setVerifiedPath(null);
+    // Keep the current admin shell visible while session/profile checks run in
+    // the background, including when a hidden tab resumes and refreshes a token.
+    setStatus((currentStatus) => currentStatus === "authorized" ? currentStatus : "checking");
 
     try {
       const { data: authData, error: authError } = await client.auth.getUser();
       if (requestId.current !== currentRequest) return;
       if (authError) {
-        setStatus("error");
+        const { data: sessionData } = await client.auth.getSession();
+        if (requestId.current !== currentRequest) return;
+        if (!sessionData.session) {
+          setRole(null);
+          setStatus("signed-out");
+          return;
+        }
+
+        setStatus((currentStatus) => currentStatus === "authorized" ? currentStatus : "error");
         return;
       }
 
       if (!authData.user) {
+        setRole(null);
         setStatus("signed-out");
         return;
       }
@@ -82,25 +90,23 @@ export function AdminAuthGate({ children }: { children: React.ReactNode }) {
       if (requestId.current !== currentRequest) return;
 
       if (profileError) {
-        setStatus("error");
+        setStatus((currentStatus) => currentStatus === "authorized" ? currentStatus : "error");
         return;
       }
 
       if (!profile || profile.is_active !== true || !isProfileRole(profile.role)) {
-        setVerifiedPath(pathname);
+        setRole(null);
         setStatus("forbidden");
         return;
       }
 
       setRole(profile.role);
-      setVerifiedPath(pathname);
-      setStatus(canAccessAdminPath(profile.role, pathname) ? "authorized" : "forbidden");
+      setStatus("authorized");
     } catch {
       if (requestId.current !== currentRequest) return;
-      setRole(null);
-      setStatus("error");
+      setStatus((currentStatus) => currentStatus === "authorized" ? currentStatus : "error");
     }
-  }, [pathname]);
+  }, []);
 
   useEffect(() => {
     if (demoMode) {
@@ -126,10 +132,14 @@ export function AdminAuthGate({ children }: { children: React.ReactNode }) {
       if (event === "SIGNED_OUT") {
         requestId.current += 1;
         setRole(null);
-        setVerifiedPath(null);
         setStatus("signed-out");
         router.replace("/login");
-      } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
+      } else if (event === "SIGNED_IN") {
+        requestId.current += 1;
+        setRole(null);
+        setStatus("checking");
+        window.setTimeout(() => void runCheck(), 0);
+      } else if (event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
         window.setTimeout(() => void runCheck(), 0);
       }
     }).data.subscription;
@@ -141,12 +151,24 @@ export function AdminAuthGate({ children }: { children: React.ReactNode }) {
     };
   }, [attempt, checkAccess, configured, demoMode, router]);
 
-  const contextValue = useMemo<AdminAccessContextValue | null>(() => {
-    if (!role || status !== "authorized" || (!demoMode && verifiedPath !== pathname)) return null;
-    return { role, demoMode };
-  }, [demoMode, pathname, role, status, verifiedPath]);
+  useEffect(() => {
+    if (lastCheckedPath.current === pathname) return;
+    lastCheckedPath.current = pathname;
 
-  const visibleStatus = status === "authorized" && !demoMode && verifiedPath !== pathname ? "checking" : status;
+    if (!demoMode && configured) {
+      // Revalidate permissions on module changes without replacing the current
+      // admin shell with a blocking loader.
+      void checkAccess();
+    }
+  }, [checkAccess, configured, demoMode, pathname]);
+
+  const contextValue = useMemo<AdminAccessContextValue | null>(() => {
+    if (!role || status !== "authorized" || (!demoMode && !canAccessAdminPath(role, pathname))) return null;
+    return { role, demoMode };
+  }, [demoMode, pathname, role, status]);
+
+  const pathIsForbidden = Boolean(role && !demoMode && !canAccessAdminPath(role, pathname));
+  const visibleStatus = status === "authorized" && pathIsForbidden ? "forbidden" : status;
 
   if (contextValue) {
     return <AdminAccessContext.Provider value={contextValue}>{children}</AdminAccessContext.Provider>;
