@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { AdminMobileMenu, AdminSidebar } from "@/components/admin/AdminNavigation";
+import { AdminMobileMenu, AdminSidebar, AdminWorkspaceTitle } from "@/components/admin/AdminNavigation";
 import { AdminAuthGate, AdminAccessNotice } from "@/components/admin/AdminAuthGate";
 import { churchProfile } from "@/config/church-profile";
 
@@ -30,7 +30,7 @@ export default function AdminLayout({
           <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-card/95 px-4 backdrop-blur sm:px-6 lg:px-8">
             <div className="flex min-w-0 items-center gap-3">
               <AdminMobileMenu />
-              <h2 className="truncate text-base font-bold sm:text-lg">Gestión de la Iglesia</h2>
+              <h2 className="truncate text-base font-bold sm:text-lg"><AdminWorkspaceTitle /></h2>
             </div>
             <div className="flex shrink-0 items-center gap-3">
               <Link

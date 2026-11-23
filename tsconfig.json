@@ -23,5 +23,5 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".next-sendero-debug/types/**/*.ts", ".next-sendero-preview/types/**/*.ts", ".next-sendero-verify/types/**/*.ts", ".next/types/**/*.ts", "next-env.d.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "supabase/functions"]
 }

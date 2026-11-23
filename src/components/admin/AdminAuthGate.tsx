@@ -212,15 +212,17 @@ export function AdminAuthGate({ children }: { children: React.ReactNode }) {
 }
 
 export function AdminAccessNotice() {
-  const { demoMode } = useAdminAccess();
+  const { demoMode, role } = useAdminAccess();
 
   return (
     <aside className="flex gap-3 rounded-xl border border-warning/30 bg-warning/5 px-4 py-3 text-xs leading-relaxed text-foreground sm:text-sm" aria-label="Estado de datos del panel">
       <span aria-hidden="true" className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-warning text-[10px] font-bold text-warning">i</span>
       {demoMode ? (
         <p><strong>Vista de demostración.</strong> Usa datos sintéticos y cambios temporales. No crea cuentas, no guarda información en servidor ni modifica el sitio público.</p>
+      ) : role === "visitor" || role === "member" ? (
+        <p><strong>Tu cuenta está activa.</strong> Desde Mi perfil puedes actualizar tus datos de contacto y consultar las asignaciones ministeriales habilitadas para tu cuenta.</p>
       ) : (
-        <p><strong>Acceso verificado; panel en integración.</strong> Las bandejas de mensajes y oración están preparadas para leer datos protegidos en Supabase. Los demás módulos siguen con datos de muestra y sus cambios no se guardan.</p>
+        <p><strong>Acceso verificado.</strong> Usuarios y Mi perfil usan datos protegidos en Supabase. Los demás módulos siguen en integración; revisa cada pantalla antes de guardar cambios.</p>
       )}
     </aside>
   );

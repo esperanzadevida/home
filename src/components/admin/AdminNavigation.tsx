@@ -3,6 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   Calendar,
+  CircleUserRound,
   CreditCard,
   Boxes,
   FileText,
@@ -103,6 +104,11 @@ function AdminBrand() {
   );
 }
 
+export function AdminWorkspaceTitle() {
+  const { role } = useAdminAccess();
+  return <>{role === "visitor" || role === "member" ? "Mi cuenta" : "Gestión de la Iglesia"}</>;
+}
+
 function AdminLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { role } = useAdminAccess();
@@ -156,6 +162,7 @@ function AdminLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 function AdminFooter({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { role, demoMode } = useAdminAccess();
 
   async function signOut() {
@@ -189,6 +196,15 @@ function AdminFooter({ mobile = false, onNavigate }: { mobile?: boolean; onNavig
           <ThemeToggle />
         )}
       </div>
+      <Link
+        href="/admin/perfil"
+        onClick={onNavigate}
+        aria-current={pathname === "/admin/perfil" ? "page" : undefined}
+        className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        <CircleUserRound aria-hidden="true" className="h-3.5 w-3.5" />
+        <span>Mi perfil</span>
+      </Link>
       <Link
         href="/"
         onClick={onNavigate}

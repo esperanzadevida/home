@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { Bricolage_Grotesque, Source_Serif_4 } from "next/font/google";
+import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/shared/CartDrawer";
 import { CartProvider } from "@/providers/CartProvider";
 import { NotificationProvider } from "@/providers/NotificationProvider";
@@ -89,6 +91,16 @@ export default function PublicLayout({
               <p className="text-sm font-medium text-muted-foreground">
                 {churchProfile.city.replaceAll(/\s+\u00b7\s+/g, ", ")}
               </p>
+              <Button
+                asChild
+                variant="outline"
+                className="min-h-11 border-primary/20 bg-background/70 text-foreground hover:border-primary/40 hover:bg-primary/5"
+              >
+                <Link href="/login">
+                  <ShieldCheck aria-hidden="true" className="h-4 w-4 text-primary" />
+                  Acceso administrativo
+                </Link>
+              </Button>
             </div>
 
             {/* Explore */}

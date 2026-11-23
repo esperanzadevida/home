@@ -141,24 +141,15 @@ function countGrantedActions(permissions: RolePermission[] = []) {
 
 export default function AdminRolesPage() {
   const [activeRole, setActiveRole] = useState<AdminRoleId>("editor");
-  const [permissionsByRole, setPermissionsByRole] = useState<Record<string, RolePermission[]>>(() =>
-    Object.fromEntries(ADMIN_ROLES.map((role) => [role.id, createRolePermissions(role.id)])),
-  );
+  const permissionsByRole = Object.fromEntries(
+    ADMIN_ROLES.map((role) => [role.id, createRolePermissions(role.id)]),
+  ) as Record<string, RolePermission[]>;
 
   const activeRoleData = ADMIN_ROLES.find((role) => role.id === activeRole);
   const activeRoleLabel = activeRoleData?.label ?? activeRole;
   const permissions = permissionsByRole[activeRole] ?? [];
   const grantedModuleCount = countGrantedModules(permissions);
   const grantedActionCount = countGrantedActions(permissions);
-
-  const togglePermission = (moduleIndex: number, key: ActionKey) => {
-    setPermissionsByRole((current) => ({
-      ...current,
-      [activeRole]: current[activeRole].map((permission, index) => index === moduleIndex
-        ? { ...permission, actions: { ...permission.actions, [key]: !permission.actions[key] } }
-        : permission),
-    }));
-  };
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -170,16 +161,16 @@ export default function AdminRolesPage() {
             </p>
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Roles y permisos</h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Compara el alcance previsto de visitantes, equipo pastoral, ministerios y administración.
+              Consulta los roles de cuenta y las funciones que cada persona puede asumir en sus ministerios.
             </p>
           </div>
           <span className="inline-flex min-h-9 w-fit items-center rounded-full border border-warning/30 bg-warning/5 px-3 text-xs font-semibold text-foreground">
-            Modelo local · sin conexión a cuentas
+            Matriz informativa · de solo lectura
           </span>
         </div>
 
         <p className="max-w-3xl rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
-          Las casillas solo ajustan una vista temporal del modelo. No asignan cuentas, no guardan cambios ni protegen rutas.
+          Asigna cuentas y funciones desde Usuarios. Esta matriz describe el modelo previsto y no modifica los permisos del sistema.
         </p>
       </header>
 
@@ -268,7 +259,7 @@ export default function AdminRolesPage() {
                               aria-label={`${module}: ${actionLabels[key]}`}
                               type="checkbox"
                               checked={permission.actions[key]}
-                              onChange={() => togglePermission(moduleIndex, key)}
+                              disabled
                               className="h-4 w-4 shrink-0 rounded accent-primary focus-visible:ring-2 focus-visible:ring-ring"
                             />
                             {actionLabels[key]}
@@ -288,15 +279,15 @@ export default function AdminRolesPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/40 p-4">
           <div>
             <h3 className="font-bold">Permisos por módulo</h3>
-            <p className="mt-1 text-xs text-muted-foreground">Ajusta temporalmente el alcance propuesto para el rol seleccionado.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Permisos previstos para {activeRoleLabel}; solo consulta.</p>
           </div>
           <span className="rounded-full bg-background px-3 py-1.5 text-xs text-muted-foreground">
-            Editando: <strong className="text-primary">{activeRoleLabel}</strong>
+            Rol: <strong className="text-primary">{activeRoleLabel}</strong>
           </span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[880px] text-left text-xs">
-            <caption className="sr-only">Matriz local de permisos por módulo y rol</caption>
+            <caption className="sr-only">Matriz informativa de permisos previstos por módulo y rol</caption>
             <thead className="border-b border-border/60 bg-muted/20 text-muted-foreground">
               <tr>
                 <th scope="col" className="px-4 py-3">Módulo</th>
@@ -332,7 +323,7 @@ export default function AdminRolesPage() {
                                 aria-label={`${module}: ${actionLabels[key]}`}
                                 type="checkbox"
                                 checked={permission.actions[key]}
-                                onChange={() => togglePermission(moduleIndex, key)}
+                                disabled
                                 className="h-4 w-4 rounded accent-primary"
                               />
                             </label>
@@ -351,7 +342,7 @@ export default function AdminRolesPage() {
       <aside className="flex gap-3 rounded-xl border border-warning/30 bg-warning/5 px-4 py-3 text-sm text-foreground">
         <LockKeyhole aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
         <p>
-          <strong>La matriz es un modelo de trabajo.</strong> El borrador guarda un rol general por cuenta en <code>profiles.role</code> y roles separados por ministerio para que una persona pueda servir en varios equipos. La matriz no concede accesos. Faltan las pantallas ministeriales, el flujo protegido para asignar roles y validar las políticas en un proyecto Supabase.
+          <strong>Los cambios de acceso se hacen en Usuarios.</strong> El rol de cuenta se guarda en <code>profiles.role</code> y los cargos ministeriales se asignan por separado. Esta vista es informativa; las responsabilidades ministeriales aún no tienen un espacio operativo propio.
         </p>
       </aside>
     </div>
