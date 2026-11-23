@@ -28,6 +28,8 @@ export interface ScrollScrubHeroProps {
   accentTheme?: "emerald" | "violet" | "amber" | "aurora";
   /** Text inside the bottom scroll cue pill */
   cueLabel?: string;
+  /** Optional direct path to the first section after a long scroll presentation. */
+  skipLink?: { href: string; label: string };
   /** Overlay narrative slot (titles, phrases, PNG visuals, CTAs) */
   children?: ReactNode;
 }
@@ -47,6 +49,7 @@ export function ScrollScrubHero({
   mobileScrollHeightVh = 280,
   accentTheme = "emerald",
   cueLabel = "Desliza para descubrir",
+  skipLink,
   children,
 }: ScrollScrubHeroProps) {
   const heroRef = useRef<HTMLElement>(null);
@@ -443,6 +446,12 @@ export function ScrollScrubHero({
         <div className="scrub-overlay-slot" data-scrub-overlay="true">
           {children}
         </div>
+
+        {skipLink ? (
+          <a className="scrub-skip-link" href={skipLink.href}>
+            {skipLink.label}
+          </a>
+        ) : null}
 
         {/* Layer 5: Minimal loading ring while streaming -> subtle scroll cue */}
         <div className="scrub-indicator" aria-hidden="true">
