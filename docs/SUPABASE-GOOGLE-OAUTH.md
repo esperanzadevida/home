@@ -18,7 +18,7 @@ In Google Auth Platform:
 2. Set Audience to External for Google accounts outside a single Workspace organization.
 3. Keep the app in Testing while configuring and verifying the login. Add the two previously authorized owner accounts to Test users.
 4. In Data Access, request only the identity scopes required for login: `openid`, `https://www.googleapis.com/auth/userinfo.email`, and `https://www.googleapis.com/auth/userinfo.profile`. Do not add Drive, Gmail, Calendar, or Cloud Platform scopes.
-5. Under Clients, create an OAuth client with application type Web application.
+5. Under Clients, use the existing OAuth client “Iglesia Esperanza de Vida — Web” with application type Web application.
 6. Add this Authorized JavaScript origin:
 
    https://esperanzadevida.github.io
@@ -69,7 +69,11 @@ Never set the Supabase service-role or secret key in a NEXT_PUBLIC variable.
 
 Supabase project `bbeekinrotbobyaeokmg` now has all three migrations applied, the `admin-users` Edge Function deployed with JWT verification, `BOOTSTRAP_OWNER_EMAILS` set to the two authorized owner accounts, and the Authentication Site URL plus production and local development redirect URLs configured as listed above. The public product view now runs with caller privileges and grants anonymous access only to its approved active-product columns. The security advisor no longer reports the security-definer view; it still reports the intentional `admin_audit_logs` table with RLS enabled and no client policies, because audit records are write-only through the trusted Edge Function.
 
-Google Auth Platform remains unconfigured. Its setup wizard reached Google's User Data Policy acceptance step; the project owner must review and accept that policy before the brand, external testing audience, test users, identity scopes, or OAuth client can be saved. The Google provider is therefore not enabled in Supabase, no OAuth client credentials exist, and end-to-end sign-in and either owner's first login remain unverified. Keep the pull request in draft until these steps are completed and login is verified. If Google Cloud requires a manual OAuth client-secret transfer, enter it directly in Supabase Auth; never put it in this repository, GitHub Actions, or chat.
+Google Auth Platform setup has been started in the user-selected project. The project owner reviewed and accepted Google's User Data Policy. The brand name and support contact are saved; the audience is External in Testing; both authorized owners are listed as test users; and only `openid`, `https://www.googleapis.com/auth/userinfo.email`, and `https://www.googleapis.com/auth/userinfo.profile` are selected. No logo, homepage, privacy-policy link, or terms link has been configured, so complete those public-facing details before moving Google OAuth out of Testing or requesting verification.
+
+An OAuth Web application client named “Iglesia Esperanza de Vida — Web” was created with JavaScript origin `https://esperanzadevida.github.io` and redirect URI `https://bbeekinrotbobyaeokmg.supabase.co/auth/v1/callback`. The project owner supplied its credential values directly, and they were saved in Supabase Authentication → Providers → Google; the provider now appears as **ENABLED**. Credential values are intentionally omitted from this repository. Google OAuth remains in Testing, so only the configured test users can authorize. The provider setting is verified, but no end-to-end Google sign-in, post-login redirect, owner bootstrap, or visitor authorization has been exercised yet. Verify these flows after deployment before changing the OAuth publishing status.
+
+The public layout includes an “Acceso administrativo” link to `/login` in PR #5. The Google login page also has a first-owner bootstrap route at `/login?setup=owner`; use it for the initial authorized owner sign-in, then use the normal administrative login link.
 
 References:
 
