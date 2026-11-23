@@ -88,6 +88,7 @@ export default function HomePage() {
           mobileScrollHeightVh={280}
           accentTheme="emerald"
           cueLabel="Desliza para descubrir"
+          skipLink={{ href: "#community-title", label: "Saltar presentación" }}
         >
           <ScrollScrubNarrative
             name={churchProfile.name}
@@ -103,7 +104,9 @@ export default function HomePage() {
         >
           <div className="mx-auto max-w-7xl">
             <div className="home-section-heading">
-              <h2 id="community-title">Encuentra tu lugar para crecer y servir.</h2>
+              <h2 id="community-title" tabIndex={-1}>
+                Encuentra tu lugar para crecer y servir.
+              </h2>
               <p className="home-lead">
                 Hay espacios para aprender, hacer amistades y compartir tus dones. Estos son algunos de los equipos que forman parte de nuestra vida comunitaria.
               </p>
