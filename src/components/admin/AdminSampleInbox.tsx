@@ -92,6 +92,7 @@ function mapRecord(kind: InboxKind, record: Record<string, unknown>): InboxEntry
 
 export function AdminSampleInbox({ kind }: { kind: InboxKind }) {
   const { demoMode } = useAdminAccess();
+  const privacyHold = kind === "prayer" && !demoMode;
   const copy = COPY[kind];
   const [entries, setEntries] = useState<InboxEntry[]>([]);
   const [filter, setFilter] = useState("Todos");
@@ -115,6 +116,14 @@ export function AdminSampleInbox({ kind }: { kind: InboxKind }) {
     setError("");
     setHasMore(false);
     setNextCursor(null);
+
+    // Prayer requests can contain sensitive personal details. Keep them out of
+    // the live admin UI until retention and handling rules are approved.
+    if (privacyHold) {
+      setEntries([]);
+      setLoading(false);
+      return;
+    }
 
     if (demoMode) {
       setEntries(SAMPLES[kind]);
@@ -155,7 +164,7 @@ export function AdminSampleInbox({ kind }: { kind: InboxKind }) {
     } finally {
       if (!signal.aborted) setLoading(false);
     }
-  }, [demoMode, kind]);
+  }, [demoMode, kind, privacyHold]);
 
   async function loadMore() {
     const client = getSupabaseBrowserClient();
@@ -194,6 +203,8 @@ export function AdminSampleInbox({ kind }: { kind: InboxKind }) {
   }, [attempt, loadEntries]);
 
   async function updateStatus(id: string, status: string) {
+    if (privacyHold) return;
+
     if (demoMode) {
       setEntries((current) => current.map((entry) => entry.id === id ? { ...entry, status } : entry));
       setAnnouncement(`Estado de muestra actualizado a ${STATUS_LABELS[kind][status]}. No se modificó un registro real.`);
@@ -223,6 +234,22 @@ export function AdminSampleInbox({ kind }: { kind: InboxKind }) {
     } finally {
       setUpdatingId(null);
     }
+  }
+
+  if (privacyHold) {
+    return (
+      <div className="space-y-5">
+        <header>
+          <p className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Heart aria-hidden="true" className="h-4 w-4" />Moderación</p>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Peticiones de oración</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">El acceso a solicitudes reales está pausado mientras se definen su retención, tratamiento y alcance pastoral.</p>
+        </header>
+        <aside className="flex gap-3 rounded-xl border border-warning/30 bg-warning/5 px-4 py-3 text-sm leading-5 text-foreground" role="note">
+          <ShieldAlert aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+          <p>No se consultaron registros. Al aprobar esas reglas, se podrá habilitar esta bandeja con permisos y retención revisados.</p>
+        </aside>
+      </div>
+    );
   }
 
   return (

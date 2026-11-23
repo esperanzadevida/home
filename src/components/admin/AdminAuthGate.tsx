@@ -39,7 +39,9 @@ function GateFrame({ children }: { children: React.ReactNode }) {
 export function AdminAuthGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const demoMode = process.env.NEXT_PUBLIC_ADMIN_DEMO_MODE === "true";
+  // Demo mode grants a synthetic super-admin role. Never expose that bypass
+  // through a client-side environment variable in a production build.
+  const demoMode = process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_ADMIN_DEMO_MODE === "true";
   const configured = isSupabaseBrowserConfigured();
   const [status, setStatus] = useState<AccessStatus>("checking");
   const [role, setRole] = useState<ProfileRoleId | null>(null);
