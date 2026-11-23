@@ -48,13 +48,13 @@ export const PROFILE_ROLES = [
   {
     id: "member",
     label: "Miembro",
-    description: "Gestiona su perfil y consulta sus propios pedidos.",
+    description: "Gestiona su perfil. El acceso a pedidos propios se habilitará cuando ese módulo esté conectado.",
     scope: "Cuenta",
   },
   {
     id: "visitor",
     label: "Visitante",
-    description: "Consulta las páginas públicas; no tiene acceso al Admin.",
+    description: "Consulta las páginas públicas y su propio perfil; no administra el sitio.",
     scope: "Cuenta",
   },
 ] as const;

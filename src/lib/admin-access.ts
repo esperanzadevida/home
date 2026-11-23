@@ -17,6 +17,8 @@ function matchesPath(pathname: string, allowedPath: string) {
 
 export function canAccessAdminPath(role: ProfileRoleId, pathname: string) {
   if (pathname !== "/admin" && !pathname.startsWith("/admin/")) return false;
+  if (matchesPath(pathname, "/admin/perfil")) return true;
+  if (role === "member" || role === "visitor") return false;
   if (FULL_ADMIN_ROLES.includes(role)) return true;
 
   if (role === "pastor") return PASTOR_PATHS.some((allowedPath) => matchesPath(pathname, allowedPath));
@@ -37,5 +39,5 @@ export function getAdminLandingPath(role: ProfileRoleId) {
   if (FULL_ADMIN_ROLES.includes(role) || role === "pastor" || role === "finance_manager") return "/admin/dashboard";
   if (role === "editor") return "/admin/contenido/blog";
   if (role === "moderator") return "/admin/mensajes";
-  return "/";
+  return "/admin/perfil";
 }
