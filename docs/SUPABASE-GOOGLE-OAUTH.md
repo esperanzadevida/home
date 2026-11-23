@@ -10,7 +10,7 @@ Google sign-in identifies a person. It never sets their account role. New OAuth 
 
 ## Google Cloud Console
 
-Use a Google Cloud project controlled by the church/site owners. The screenshot showed a project called “My First Project”; confirm it belongs to this app before creating credentials or changing its audience.
+Use the Google Cloud project “My First Project” (`project-f35c68cf-32cf-4e99-a8d`), which the project owner selected for this app. Keep the app in Testing while setup and login verification are incomplete.
 
 In Google Auth Platform:
 
@@ -58,16 +58,18 @@ Never set the Supabase service-role or secret key in a NEXT_PUBLIC variable.
 
 ## Apply the database and function changes
 
-1. Apply the project migrations in order, including the existing initial schema and the new migration named auth_google_profiles_and_admin_user_management.
+1. Apply the project migrations in order: `20261123030426_initial_schema`, `20261123030435_auth_google_profiles_and_admin_user_management`, and `20261123031252_public_products_security_invoker`.
 2. Set the Edge Function secret BOOTSTRAP_OWNER_EMAILS to the two authorized owner emails, separated by a comma. Enter the value in Supabase Dashboard → Edge Functions → Secrets; do not commit it.
 3. Deploy the admin-users Edge Function with JWT verification enabled. It also checks the caller’s current profile role on every privileged operation.
 4. In the app, open /home/login/?setup=owner and sign in with one authorized Google account. The function grants the first owner only when the allowlist matches and no owner profile exists.
 5. The first owner can invite or promote the second account to Owner from Admin → Usuarios. A second owner may not need a new invitation if the account already exists.
 6. Confirm both owners can sign in and that a non-owner Google account stays a Visitor. Keep at least one active owner; the function prevents disabling or demoting the last one.
 
-## Configuration still needed in the live services
+## Live configuration status
 
-The application code and migration are prepared locally. This session did not have access to the matching Google Cloud project, the target Supabase project, or an authenticated browser session in Google Cloud Console. Therefore no provider credentials, allowed redirects, migrations, function secrets, invitations, or deployment have been written to those services yet.
+Supabase project `bbeekinrotbobyaeokmg` now has all three migrations applied, the `admin-users` Edge Function deployed with JWT verification, `BOOTSTRAP_OWNER_EMAILS` set to the two authorized owner accounts, and the Authentication Site URL plus production and local development redirect URLs configured as listed above. The public product view now runs with caller privileges and grants anonymous access only to its approved active-product columns. The security advisor no longer reports the security-definer view; it still reports the intentional `admin_audit_logs` table with RLS enabled and no client policies, because audit records are write-only through the trusted Edge Function.
+
+Google Auth Platform remains unconfigured. Its setup wizard reached Google's User Data Policy acceptance step; the project owner must review and accept that policy before the brand, external testing audience, test users, identity scopes, or OAuth client can be saved. The Google provider is therefore not enabled in Supabase, no OAuth client credentials exist, and end-to-end sign-in and either owner's first login remain unverified. Keep the pull request in draft until these steps are completed and login is verified. If Google Cloud requires a manual OAuth client-secret transfer, enter it directly in Supabase Auth; never put it in this repository, GitHub Actions, or chat.
 
 References:
 

@@ -1,6 +1,6 @@
 -- ==============================================================================
 -- Schema Inicial de Base de Datos - Doménica Iglesia Asambleas de Dios
--- Archivo: supabase/migrations/20261119000001_initial_schema.sql
+-- Archivo: supabase/migrations/20261123030426_initial_schema.sql
 -- ==============================================================================
 
 -- 1. Extensiones requeridas
